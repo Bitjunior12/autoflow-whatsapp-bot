@@ -1,4 +1,6 @@
+const connectDB = require("./config/db");
 const express = require("express");
+connectDB();
 const dotenv = require("dotenv");
 
 dotenv.config();
