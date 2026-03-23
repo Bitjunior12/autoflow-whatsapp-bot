@@ -360,3 +360,22 @@ app.listen(PORT, async () => {
   console.log(`🚀 Serveur lancé sur le port ${PORT}`);
   await subscribeToWABA();
 });
+// ==============================
+// KEEP ALIVE - évite le cold start
+// ==============================
+setInterval(async () => {
+  try {
+    await fetch("https://autoflow-whatsapp-bot.onrender.com/");
+    console.log("💓 Keep alive ping");
+  } catch (err) {
+    console.error("Keep alive error:", err.message);
+  }
+}, 14 * 60 * 1000);
+
+// ==============================
+// LANCEMENT SERVEUR
+// ==============================
+app.listen(PORT, async () => {
+  console.log(`🚀 Serveur lancé sur le port ${PORT}`);
+  await subscribeToWABA();
+});
