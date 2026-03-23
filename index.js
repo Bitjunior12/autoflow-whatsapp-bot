@@ -273,7 +273,34 @@ app.post("/send-message", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+// ==============================
+// ENREGISTREMENT DU NUMÉRO
+// ==============================
+app.get("/register-phone", async (req, res) => {
+  try {
+    const response = await fetch(
+      `https://graph.facebook.com/v21.0/${process.env.PHONE_NUMBER_ID}/register`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          pin: "000000",
+        }),
+      }
+    );
+    const data = await response.json();
+    console.log("📱 Enregistrement :", JSON.stringify(data, null, 2));
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
+https://autoflow-whatsapp-bot.onrender.com/register-phone
 // ==============================
 // DÉMARRAGE
 // ==============================
