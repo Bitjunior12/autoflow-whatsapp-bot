@@ -1,5 +1,4 @@
 const Contact = require("./models/Contact");
-const Contact = require("./models/Contact");
 require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/database");
