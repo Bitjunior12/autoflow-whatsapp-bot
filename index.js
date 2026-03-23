@@ -1,4 +1,5 @@
 const Contact = require("./models/Contact");
+const Contact = require("./models/Contact");
 require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/database");
@@ -351,15 +352,6 @@ app.get("/register-phone", async (req, res) => {
   }
 });
 
-https://autoflow-whatsapp-bot.onrender.com/register-phone
-// ==============================
-// DÉMARRAGE
-// ==============================
-
-app.listen(PORT, async () => {
-  console.log(`🚀 Serveur lancé sur le port ${PORT}`);
-  await subscribeToWABA();
-});
 // ==============================
 // KEEP ALIVE - évite le cold start
 // ==============================
