@@ -1,3 +1,4 @@
+const Contact = require("./models/Contact");
 require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/database");
@@ -167,7 +168,29 @@ function getResponse(text) {
 
   return MESSAGE_INCONNU;
 }
-
+function getChoiceLabel(text) {
+  const msg = text.trim().toLowerCase();
+  if (["1", "formation"].includes(msg)) return "Formation en aviculture";
+  if (["2", "poussin", "poussins"].includes(msg)) return "Achat de poussins";
+  if (["3", "materiel", "matériels"].includes(msg)) return "Matériels d'élevage";
+  if (["4", "decem", "diaspora"].includes(msg)) return "Programme DECEM";
+  if (["contact"].includes(msg)) return "Demande de contact";
+  return "Autre";
+}
+// ==============================
+// VOIR LES CONTACTS
+// ==============================
+app.get("/contacts", async (req, res) => {
+  try {
+    const contacts = await Contact.find().sort({ lastSeen: -1 });
+    res.json({
+      total: contacts.length,
+      contacts: contacts,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 // ==============================
 // ABONNEMENT WABA
 // ==============================
@@ -252,10 +275,38 @@ app.post("/webhook", async (req, res) => {
     const text = message.text.body;
     console.log(`📨 Message de ${from} : "${text}"`);
 
+    // ==============================
+    // SAUVEGARDE CONTACT MONGODB
+    // ==============================
+    try {
+      const existing = await Contact.findOne({ phone: from });
+
+      if (existing) {
+        // Contact existant → mise à jour
+        existing.lastMessage = text;
+        existing.lastChoice = getChoiceLabel(text);
+        existing.lastSeen = new Date();
+        existing.messageCount += 1;
+        await existing.save();
+        console.log(`🔄 Contact mis à jour : ${from}`);
+      } else {
+        // Nouveau contact → création
+        await Contact.create({
+          phone: from,
+          lastMessage: text,
+          lastChoice: getChoiceLabel(text),
+        });
+        console.log(`✅ Nouveau contact enregistré : ${from}`);
+      }
+    } catch (dbErr) {
+      console.error("❌ Erreur MongoDB :", dbErr.message);
+    }
+
+    // Réponse WhatsApp
     const reponse = getResponse(text);
     await sendWhatsAppMessage(from, reponse);
-
     console.log(`✅ Réponse envoyée à ${from}`);
+
   } catch (error) {
     console.error("❌ Erreur webhook :", error);
   }
