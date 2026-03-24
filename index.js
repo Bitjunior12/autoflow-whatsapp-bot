@@ -8,7 +8,7 @@ const Order = require("./models/Order");
 const Registration = require("./models/Registration");
 const { setSession, getSession, clearSession } = require("./services/session");
 const { askClaude } = require("./services/claude");
-
+const relanceTimers = {};
 const app = express();
 app.use(express.json());
 
@@ -212,6 +212,17 @@ function isSmartQuestion(message) {
 
   return keywords.some(word => msg.includes(word));
 }
+function isHotLead(message) {
+  const msg = message.toLowerCase();
+
+  const keywords = [
+    "je veux", "je suis intéressé", "je veux commencer",
+    "je veux acheter", "comment acheter", "je commande",
+    "je veux des poussins", "je veux un devis"
+  ];
+
+  return keywords.some(word => msg.includes(word));
+}
 async function handleMessage(from, text) {
   const msg = text.trim().toLowerCase();
   const session = await getSession(from);
@@ -228,9 +239,26 @@ const isInCriticalFlow = [
   "devis_sujets"
 ].includes(session?.step);
 
+if (isHotLead(text)) {
+  console.log("🔥 CLIENT CHAUD DÉTECTÉ");
+
+  return `🔥 Super ! Nous pouvons vous accompagner dans votre projet.
+
+Que souhaitez-vous faire ?
+
+1️⃣ Acheter des poussins
+2️⃣ Suivre la formation
+3️⃣ Demander un devis complet
+
+👉 Tapez directement :
+- "1" pour commander
+- "2" pour la formation
+- "3" pour un devis
+
+👇 Ou précisez votre besoin (ex : "500 poussins")`;
+}
 if (isSmartQuestion(text)) {
   console.log(`🤖 Question détectée → Claude : "${text}"`);
-
   const reponseIA = await askClaude(text);
 
   if (reponseIA) {
@@ -491,9 +519,36 @@ Tapez la quantité :`;
     return MENU_DEVIS;
   }
   if (msg === "contact" || msg === "conseiller") return CONTACT;
+  if (!isSmartQuestion(text) && !isHotLead(text)) {
+
+  // 🔥 annule ancien timer si existe
+  if (relanceTimers[from]) {
+    clearTimeout(relanceTimers[from]);
+  }
+
+  // 🔥 crée un nouveau timer
+  relanceTimers[from] = setTimeout(async () => {
+    console.log("⏰ Relance automatique envoyée");
+
+    await sendWhatsAppMessage(
+      from,
+      `👋 Juste un petit message pour savoir si vous avez pu avancer sur votre projet d’élevage.
+
+Nous pouvons vous aider à démarrer rapidement et éviter les erreurs.
+
+👉 Souhaitez-vous :
+1️⃣ Acheter des poussins
+2️⃣ Suivre la formation
+3️⃣ Avoir un devis
+
+Répondez simplement par le numéro 😊`
+    );
+
+    delete relanceTimers[from]; // nettoyage
+
+  }, 300000); // 5 minutes
 return MESSAGE_INCONNU;
 }
-
 function getChoiceLabel(text) {
   const msg = text.trim().toLowerCase();
   if (["1", "formation"].includes(msg)) return "Formation en aviculture";

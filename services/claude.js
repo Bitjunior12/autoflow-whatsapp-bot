@@ -78,7 +78,7 @@ Puis ajoute :
     console.log("Réponse brute Claude :", JSON.stringify(data, null, 2));
 
     if (data.content && data.content.length > 0) {
-      return data.content[0].text;
+      return data.content?.[0]?.text || "Tapez *contact* pour parler à un conseiller";
     }
 
     return "Tapez *contact* pour parler à un conseiller";
