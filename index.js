@@ -28,7 +28,7 @@ Tapez le numéro de votre choix :
 1️⃣ Formation en aviculture
 2️⃣ Achat de poussins
 3️⃣ Matériels d'élevage
-4️⃣ Programme diaspora DECEM
+4️⃣ Demande de devis
 
 ↩️ Tapez *menu* à tout moment pour revenir ici`;
 
@@ -44,29 +44,6 @@ const FORMATION = `🎓 *FORMATION EN AVICULTURE*
 ✓ Accompagnement pour votre mise en place
 ✓ Accès à notre WhatsApp Assistance 24H/24
 ✓ _(Optionnel)_ Nous pouvons être votre fournisseur en matériels et poussins
-
-💬 *Souhaitez-vous vous inscrire ?*
-👉 Tapez *oui* pour vous inscrire
-👉 Tapez *non* pour revenir au menu`;
-
-const DECEM = `🌍 *PROGRAMME DECEM*
-_Diaspora Élevage Clé En Main_
-
-🔷 *C'est quoi le DECEM ?*
-Un programme d'accompagnement complet qui vous permet de :
-
-✅ Créer une ferme avicole rentable
-✅ Sans faire d'erreurs de débutant
-✅ Avec un système déjà structuré
-
-👉 _On vous accompagne de l'idée jusqu'à une ferme qui génère de l'argent._
-
-💰 *Coût du programme :* 85 000 FCFA
-
-🎯 *Pour qui ?*
-- Diaspora
-- Fonctionnaires
-- Entrepreneurs
 
 💬 *Souhaitez-vous vous inscrire ?*
 👉 Tapez *oui* pour vous inscrire
@@ -96,6 +73,66 @@ const MATERIELS = `🏪 *MATÉRIELS D'ÉLEVAGE DISPONIBLES*
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
 
+const MENU_DEVIS = `📋 *DEMANDE DE DEVIS*
+_Le Partenaire des Éleveurs_
+
+Choisissez le type de devis :
+
+1️⃣ Devis Bâtiment avicole
+2️⃣ Devis Complet _(Bâtiment + Matériels + Poussins)_
+
+↩️ Tapez *menu* pour annuler`;
+
+const DEVIS_BATIMENT_INFO = `🏗️ *DEVIS BÂTIMENT AVICOLE*
+_Le Partenaire des Éleveurs_
+
+Vous souhaitez construire un bâtiment avicole professionnel et adapté à votre projet ?
+
+✅ *Nous prenons en compte :*
+✓ La capacité d'accueil (nombre de sujets)
+✓ Le type de production (chair / ponte / mixte)
+✓ Les normes de ventilation et biosécurité
+✓ Les matériaux adaptés au climat ivoirien
+✓ L'orientation optimale du bâtiment
+
+📋 *Notre devis inclut :*
+✓ Plan d'implantation
+✓ Estimation des coûts de construction
+✓ Recommandations techniques
+
+💬 Remplissez le formulaire ci-dessous et un technicien vous contactera sous *24h* avec votre devis personnalisé.
+
+👤 *Quel est votre nom complet ?*`;
+
+const DEVIS_COMPLET_INFO = `📦 *DEVIS COMPLET DÉMARRAGE ÉLEVAGE*
+_Le Partenaire des Éleveurs_
+
+Vous voulez démarrer votre élevage de A à Z ?
+Nous vous proposons une solution clé en main :
+
+✅ *Le devis complet comprend :*
+
+🏗️ *Bâtiment*
+✓ Construction ou réhabilitation
+✓ Adapté à votre capacité et budget
+
+🍽️ *Matériels d'élevage*
+✓ Abreuvoirs, mangeoires, chauffage
+✓ Matériels de biosécurité
+
+🐥 *Poussins*
+✓ Race adaptée à votre objectif
+✓ Provenance certifiée
+
+📋 *En plus :*
+✓ Programme d'alimentation
+✓ Calendrier de prophylaxie
+✓ Accompagnement au démarrage
+
+💬 Remplissez le formulaire et un technicien vous contactera sous *24h* avec votre devis personnalisé.
+
+👤 *Quel est votre nom complet ?*`;
+
 const CONTACT = `📞 *CONTACTEZ-NOUS*
 
 👤 *Le Partenaire des Éleveurs*
@@ -115,7 +152,7 @@ Tapez un numéro pour choisir :
 1️⃣ Formation en aviculture
 2️⃣ Achat de poussins
 3️⃣ Matériels d'élevage
-4️⃣ Programme diaspora DECEM
+4️⃣ Demande de devis
 
 ↩️ Ou tapez *menu* pour revoir le menu`;
 
@@ -166,9 +203,7 @@ async function handleMessage(from, text) {
   if (session?.step === "formation_inscription") {
     if (msg === "oui") {
       setSession(from, { step: "formation_nom" });
-      return `✅ Super ! Vous allez vous inscrire à la formation.
-
-👤 *Quel est votre nom complet ?*`;
+      return `✅ Super ! Vous allez vous inscrire à la formation.\n\n👤 *Quel est votre nom complet ?*`;
     } else if (msg === "non") {
       clearSession(from);
       return MENU_PRINCIPAL;
@@ -181,15 +216,12 @@ async function handleMessage(from, text) {
     const nom = text.trim();
     if (nom.length < 2) return `❌ Nom invalide. Entrez votre nom complet.`;
     setSession(from, { step: "formation_ville", nom });
-    return `👤 Nom enregistré : *${nom}*
-
-📍 *Quelle est votre ville ?*`;
+    return `👤 Nom enregistré : *${nom}*\n\n📍 *Quelle est votre ville ?*`;
   }
 
   if (session?.step === "formation_ville") {
     const ville = text.trim();
-    if (ville.length < 2) return `❌ Ville invalide. Entrez votre ville.`;
-
+    if (ville.length < 2) return `❌ Ville invalide.`;
     try {
       await Registration.create({
         phone: from,
@@ -201,24 +233,15 @@ async function handleMessage(from, text) {
         { phone: from },
         { name: session.nom, lastSeen: new Date() }
       );
-
-      // Notifier conseiller
       const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
       if (CONSEILLER_PHONE) {
         await sendWhatsAppMessage(CONSEILLER_PHONE,
-          `🔔 *NOUVELLE INSCRIPTION FORMATION !*
-
-👤 Nom : ${session.nom}
-📱 Téléphone : +${from}
-📍 Ville : ${ville}
-
-👉 À contacter sous 24h`
+          `🔔 *NOUVELLE INSCRIPTION FORMATION !*\n\n👤 Nom : ${session.nom}\n📱 Téléphone : +${from}\n📍 Ville : ${ville}\n\n👉 À contacter sous 24h`
         );
       }
     } catch (err) {
       console.error("❌ Erreur inscription formation :", err.message);
     }
-
     clearSession(from);
     return `🎉 *Inscription formation enregistrée !*
 
@@ -228,97 +251,89 @@ async function handleMessage(from, text) {
 📅 Formation : Chaque mois du 1er à la fin du mois
 💰 Coût : 85 000 FCFA
 
-✅ Un conseiller vous contactera sous *24h* pour confirmer votre inscription et vous donner les détails de paiement.
+✅ Un conseiller vous contactera sous *24h* pour confirmer votre inscription.
 
 📞 Pour toute urgence : *+225 01 02 64 20 80*
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
   }
 
-  // ── TUNNEL DECEM ──
-  if (session?.step === "decem_inscription") {
-    if (msg === "oui") {
-      setSession(from, { step: "decem_nom" });
-      return `✅ Super ! Vous allez vous inscrire au programme DECEM.
-
-👤 *Quel est votre nom complet ?*`;
-    } else if (msg === "non") {
-      clearSession(from);
-      return MENU_PRINCIPAL;
+  // ── TUNNEL DEVIS ──
+  if (session?.step === "devis_choix") {
+    if (msg === "1") {
+      setSession(from, { step: "devis_nom", type: "batiment" });
+      return DEVIS_BATIMENT_INFO;
+    } else if (msg === "2") {
+      setSession(from, { step: "devis_nom", type: "complet" });
+      return DEVIS_COMPLET_INFO;
     } else {
-      return `❓ Tapez *oui* pour vous inscrire ou *non* pour revenir au menu.`;
+      return `❓ Tapez *1* pour Devis Bâtiment ou *2* pour Devis Complet.\n\n↩️ Tapez *menu* pour annuler`;
     }
   }
 
-  if (session?.step === "decem_nom") {
+  if (session?.step === "devis_nom") {
     const nom = text.trim();
     if (nom.length < 2) return `❌ Nom invalide. Entrez votre nom complet.`;
-    setSession(from, { step: "decem_ville", nom });
-    return `👤 Nom enregistré : *${nom}*
-
-📍 *Quelle est votre ville / pays ?*`;
+    setSession(from, { step: "devis_ville", nom });
+    return `👤 Nom enregistré : *${nom}*\n\n📍 *Quelle est votre ville / localisation du projet ?*`;
   }
 
-  if (session?.step === "decem_ville") {
+  if (session?.step === "devis_ville") {
     const ville = text.trim();
     if (ville.length < 2) return `❌ Ville invalide.`;
-    setSession(from, { step: "decem_profil", ville });
-    return `📍 Ville enregistrée : *${ville}*
-
-🌍 *Vous êtes :*
-1️⃣ Diaspora (hors Côte d'Ivoire)
-2️⃣ En Côte d'Ivoire
-
-Tapez *1* ou *2*`;
+    setSession(from, { step: "devis_sujets", ville });
+    return `📍 Localisation : *${ville}*\n\n🐔 *Combien de sujets (volailles) prévoyez-vous d'élever ?*\nEx: 500, 1000, 2000...`;
   }
 
-  if (session?.step === "decem_profil") {
-    let profil = "";
-    if (msg === "1") profil = "Diaspora";
-    else if (msg === "2") profil = "Côte d'Ivoire";
-    else return `❓ Tapez *1* pour Diaspora ou *2* pour Côte d'Ivoire.`;
+  if (session?.step === "devis_sujets") {
+    const sujets = parseInt(msg);
+    if (isNaN(sujets) || sujets < 1) {
+      return `❌ Nombre invalide. Entrez un nombre entier.\nEx: *500* ou *1000*`;
+    }
+
+    const typeDevis = session.type === "batiment" ? "Bâtiment avicole" : "Complet (Bâtiment + Matériels + Poussins)";
 
     try {
       await Registration.create({
         phone: from,
         name: session.nom,
-        type: "decem",
+        type: "formation",
         ville: session.ville,
-        profil: profil,
+        profil: `Devis ${typeDevis} - ${sujets} sujets`,
       });
       await Contact.findOneAndUpdate(
         { phone: from },
         { name: session.nom, lastSeen: new Date() }
       );
 
-      // Notifier conseiller
       const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
       if (CONSEILLER_PHONE) {
         await sendWhatsAppMessage(CONSEILLER_PHONE,
-          `🔔 *NOUVELLE INSCRIPTION DECEM !*
+          `🔔 *NOUVELLE DEMANDE DE DEVIS !*
 
 👤 Nom : ${session.nom}
 📱 Téléphone : +${from}
-📍 Ville : ${session.ville}
-🌍 Profil : ${profil}
+📋 Type : ${typeDevis}
+📍 Localisation : ${session.ville}
+🐔 Nombre de sujets : ${sujets}
 
-👉 À contacter sous 24h`
+👉 À contacter sous 24h pour établir le devis`
         );
       }
     } catch (err) {
-      console.error("❌ Erreur inscription DECEM :", err.message);
+      console.error("❌ Erreur devis :", err.message);
     }
 
     clearSession(from);
-    return `🎉 *Inscription DECEM enregistrée !*
+    return `🎉 *Demande de devis enregistrée !*
 
 📋 *Récapitulatif :*
 👤 Nom : ${session.nom}
-📍 Ville : ${session.ville}
-🌍 Profil : ${profil}
-💰 Coût : 85 000 FCFA
+📋 Type : ${typeDevis}
+📍 Localisation : ${session.ville}
+🐔 Nombre de sujets : ${sujets}
 
-✅ Un conseiller vous contactera sous *24h* pour vous donner tous les détails du programme.
+✅ Un technicien vous contactera sous *24h* avec votre devis personnalisé.
 
 📞 Pour toute urgence : *+225 01 02 64 20 80*
 
@@ -371,30 +386,16 @@ Tapez la quantité :`;
         { phone: from },
         { name: nom, lastSeen: new Date() }
       );
-
       const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
       if (CONSEILLER_PHONE) {
         const totalFormate = session.totalPrice.toLocaleString("fr-FR");
-        const notif = `🔔 *NOUVELLE COMMANDE REÇUE !*
-
-👤 Client : ${nom}
-📱 Téléphone : +${from}
-🐥 Race : ${session.race}
-📦 Quantité : ${session.quantity} poussins
-💰 Total : ${totalFormate} FCFA
-
-👉 À contacter sous 24h`;
-        try {
-          await sendWhatsAppMessage(CONSEILLER_PHONE, notif);
-          console.log(`🔔 Conseiller notifié : ${CONSEILLER_PHONE}`);
-        } catch (err) {
-          console.error("❌ Erreur notification conseiller :", err.message);
-        }
+        await sendWhatsAppMessage(CONSEILLER_PHONE,
+          `🔔 *NOUVELLE COMMANDE REÇUE !*\n\n👤 Client : ${nom}\n📱 Téléphone : +${from}\n🐥 Race : ${session.race}\n📦 Quantité : ${session.quantity} poussins\n💰 Total : ${totalFormate} FCFA\n\n👉 À contacter sous 24h`
+        );
       }
     } catch (err) {
       console.error("❌ Erreur sauvegarde commande :", err.message);
     }
-
     const totalFormate = session.totalPrice.toLocaleString("fr-FR");
     clearSession(from);
     return `🎉 *Commande enregistrée avec succès !*
@@ -418,6 +419,15 @@ Tapez la quantité :`;
   }
   if (msg === "1") {
     setSession(from, { step: "formation_inscription" });
+    try {
+      await sendWhatsAppImage(
+        from,
+        process.env.IMAGE_FORMATION,
+        "🎓 Formation en aviculture — Le Partenaire des Éleveurs"
+      );
+    } catch (err) {
+      console.error("❌ Erreur envoi image formation :", err.message);
+    }
     return FORMATION;
   }
   if (msg === "2") {
@@ -435,8 +445,8 @@ Tapez la quantité :`;
   }
   if (msg === "3") return MATERIELS;
   if (msg === "4") {
-    setSession(from, { step: "decem_inscription" });
-    return DECEM;
+    setSession(from, { step: "devis_choix" });
+    return MENU_DEVIS;
   }
   if (msg === "contact" || msg === "conseiller") return CONTACT;
 
@@ -448,7 +458,7 @@ function getChoiceLabel(text) {
   if (["1", "formation"].includes(msg)) return "Formation en aviculture";
   if (["2", "poussin", "poussins"].includes(msg)) return "Achat de poussins";
   if (["3", "materiel", "matériels"].includes(msg)) return "Matériels d'élevage";
-  if (["4", "decem", "diaspora"].includes(msg)) return "Programme DECEM";
+  if (["4", "devis"].includes(msg)) return "Demande de devis";
   if (["contact"].includes(msg)) return "Demande de contact";
   return "Autre";
 }
@@ -528,7 +538,6 @@ app.get("/register-phone", async (req, res) => {
       }
     );
     const data = await response.json();
-    console.log("📱 Enregistrement :", JSON.stringify(data, null, 2));
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -622,7 +631,6 @@ app.post("/orders/:id/status", async (req, res) => {
 📞 Notre équipe vous contactera pour les modalités de paiement et livraison.
 
 Merci de faire confiance au *Partenaire des Éleveurs* 🙏`,
-
       "annulée": `❌ *Votre commande a été annulée.*
 
 ↩️ Tapez *menu* pour revenir au menu principal
@@ -641,6 +649,7 @@ Merci de faire confiance au *Partenaire des Éleveurs* 🙏`,
     res.status(500).json({ error: err.message });
   }
 });
+
 app.post("/registrations/:id/status", async (req, res) => {
   try {
     const { id } = req.params;
@@ -652,18 +661,16 @@ app.post("/registrations/:id/status", async (req, res) => {
     if (!reg) return res.status(404).json({ error: "Inscription introuvable" });
 
     const messages = {
-      "confirmée": `✅ *Votre inscription est confirmée !*
+      "confirmée": `✅ *Votre demande est confirmée !*
 
-📋 Programme : ${reg.type === 'formation' ? 'Formation en aviculture' : 'Programme DECEM'}
+📋 Type : ${reg.profil || reg.type}
 👤 Nom : ${reg.name}
 📍 Ville : ${reg.ville}
-💰 Coût : 85 000 FCFA
 
-📞 Notre équipe vous contactera pour les détails de paiement.
+📞 Notre équipe vous contactera très prochainement.
 
 Merci de faire confiance au *Partenaire des Éleveurs* 🙏`,
-
-      "annulée": `❌ *Votre inscription a été annulée.*
+      "annulée": `❌ *Votre demande a été annulée.*
 
 ↩️ Tapez *menu* pour revenir au menu principal
 📞 Besoin d'aide : *+225 01 02 64 20 80*`
@@ -681,6 +688,7 @@ Merci de faire confiance au *Partenaire des Éleveurs* 🙏`,
     res.status(500).json({ error: err.message });
   }
 });
+
 app.get("/contacts", async (req, res) => {
   try {
     const contacts = await Contact.find().sort({ lastSeen: -1 });
