@@ -100,9 +100,15 @@ Vous souhaitez construire un bâtiment avicole professionnel et adapté à votre
 ✓ Estimation des coûts de construction
 ✓ Recommandations techniques
 
-💬 Remplissez le formulaire ci-dessous et un technicien vous contactera sous *24h* avec votre devis personnalisé.
+💬 Répondez simplement aux questions suivantes et un technicien vous contactera sous *24h* avec votre devis personnalisé.
 
-👤 *Quel est votre nom complet ?*`;
+📝 *Modèle de réponses :*
+- Nom complet
+- Superficie du bâtiment (en m²)
+- Race de poussins souhaitée
+- Nombre de poussins
+
+👤 *Commençons ! Quel est votre nom complet ?*`;
 
 const DEVIS_COMPLET_INFO = `📦 *DEVIS COMPLET DÉMARRAGE ÉLEVAGE*
 _Le Partenaire des Éleveurs_
@@ -129,9 +135,15 @@ Nous vous proposons une solution clé en main :
 ✓ Calendrier de prophylaxie
 ✓ Accompagnement au démarrage
 
-💬 Remplissez le formulaire et un technicien vous contactera sous *24h* avec votre devis personnalisé.
+💬 Répondez simplement aux questions suivantes et un technicien vous contactera sous *24h* avec votre devis personnalisé.
 
-👤 *Quel est votre nom complet ?*`;
+📝 *Modèle de réponses :*
+- Nom complet
+- Superficie du bâtiment (en m²)
+- Race de poussins souhaitée
+- Nombre de poussins
+
+👤 *Commençons ! Quel est votre nom complet ?*`;
 
 const CONTACT = `📞 *CONTACTEZ-NOUS*
 
