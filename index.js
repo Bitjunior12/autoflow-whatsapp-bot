@@ -203,7 +203,7 @@ Tapez le *numéro* de votre choix
 
 async function handleMessage(from, text) {
   const msg = text.trim().toLowerCase();
-  const session = getSession(from);
+  const session = await getSession(from);
 
   // Annulation
   if (msg === "menu" || msg === "annuler") {

@@ -1,19 +1,36 @@
-// Stockage en mémoire des sessions actives
-const sessions = {};
+const Session = require("../models/Session");
 
-// Créer ou mettre à jour une session
-function setSession(phone, data) {
-  sessions[phone] = { ...sessions[phone], ...data };
+async function setSession(phone, data) {
+  try {
+    const existing = await Session.findOne({ phone });
+    if (existing) {
+      existing.data = { ...existing.data, ...data };
+      existing.updatedAt = new Date();
+      await existing.save();
+    } else {
+      await Session.create({ phone, data });
+    }
+  } catch (err) {
+    console.error("❌ Erreur setSession :", err.message);
+  }
 }
 
-// Récupérer une session
-function getSession(phone) {
-  return sessions[phone] || null;
+async function getSession(phone) {
+  try {
+    const session = await Session.findOne({ phone });
+    return session ? session.data : null;
+  } catch (err) {
+    console.error("❌ Erreur getSession :", err.message);
+    return null;
+  }
 }
 
-// Supprimer une session
-function clearSession(phone) {
-  delete sessions[phone];
+async function clearSession(phone) {
+  try {
+    await Session.deleteOne({ phone });
+  } catch (err) {
+    console.error("❌ Erreur clearSession :", err.message);
+  }
 }
 
 module.exports = { setSession, getSession, clearSession };
