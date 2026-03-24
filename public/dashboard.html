@@ -7,102 +7,179 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background: #f0f2f5; color: #333; }
+
+    /* HEADER */
     header {
       background: #25D366;
       color: white;
-      padding: 16px 24px;
+      padding: 12px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-    header h1 { font-size: 20px; }
-    header span { font-size: 13px; opacity: 0.85; }
-    .stats {
-      display: flex;
-      gap: 16px;
-      padding: 24px;
       flex-wrap: wrap;
+      gap: 8px;
+    }
+    header h1 { font-size: 16px; }
+    header span { font-size: 12px; opacity: 0.85; }
+
+    /* STATS */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      padding: 16px;
     }
     .stat-card {
       background: white;
       border-radius: 12px;
-      padding: 20px 28px;
-      flex: 1;
-      min-width: 140px;
+      padding: 16px 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       text-align: center;
     }
-    .stat-card .number { font-size: 36px; font-weight: bold; color: #25D366; }
-    .stat-card .label { font-size: 14px; color: #666; margin-top: 4px; }
-    .section { padding: 0 24px 24px; }
-    .section h2 { font-size: 18px; margin-bottom: 12px; color: #444; }
+    .stat-card .number { font-size: 28px; font-weight: bold; color: #25D366; }
+    .stat-card .label { font-size: 12px; color: #666; margin-top: 4px; }
+
+    /* SECTIONS */
+    .section { padding: 0 16px 20px; }
+    .section h2 { font-size: 16px; margin-bottom: 10px; color: #444; }
+
+    /* TABLES */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
     table {
       width: 100%;
       border-collapse: collapse;
       background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      min-width: 600px;
     }
-    td { padding: 11px 16px; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+    th {
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 12px;
+      font-size: 13px;
+      border-bottom: 1px solid #f0f0f0;
+      white-space: nowrap;
+    }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #f9fffe; }
+
+    /* BADGES */
     .badge {
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: 20px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
+      white-space: nowrap;
     }
     .badge.attente { background: #fff3cd; color: #856404; }
     .badge.confirmee { background: #d1e7dd; color: #0f5132; }
     .badge.annulee { background: #f8d7da; color: #842029; }
     .badge.formation { background: #cfe2ff; color: #084298; }
     .badge.decem { background: #e2d9f3; color: #432874; }
-    .refresh { font-size: 12px; color: #999; text-align: right; padding: 0 24px 8px; }
-    .empty { text-align: center; padding: 32px; color: #999; font-size: 14px; }
+
+    /* BOUTONS */
+    .btn-confirm {
+      background: #25D366;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-right: 4px;
+      white-space: nowrap;
+    }
+    .btn-cancel {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .btn-purple {
+      background: #6f42c1;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-right: 4px;
+      white-space: nowrap;
+    }
+
+    /* COULEURS HEADERS */
+    .th-green { background: #25D366; color: white; }
+    .th-yellow { background: #f0a500; color: white; }
+    .th-blue { background: #0d6efd; color: white; }
+    .th-purple { background: #6f42c1; color: white; }
+
+    .refresh { font-size: 11px; color: #999; text-align: right; padding: 0 16px 8px; }
+    .empty { text-align: center; padding: 24px; color: #999; font-size: 13px; }
+
+    /* LOGIN */
     #login {
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       background: #f0f2f5;
+      padding: 16px;
     }
     .login-box {
       background: white;
-      padding: 40px;
+      padding: 32px 24px;
       border-radius: 16px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       text-align: center;
-      width: 320px;
+      width: 100%;
+      max-width: 360px;
     }
-    .login-box h2 { color: #25D366; margin-bottom: 8px; }
+    .login-box h2 { color: #25D366; margin-bottom: 8px; font-size: 20px; }
     .login-box p { color: #999; font-size: 14px; margin-bottom: 24px; }
     .login-box input {
       width: 100%;
       padding: 12px;
       border: 1px solid #ddd;
       border-radius: 8px;
-      font-size: 15px;
+      font-size: 16px;
       margin-bottom: 12px;
     }
     .login-box button {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       background: #25D366;
       color: white;
       border: none;
       border-radius: 8px;
-      font-size: 15px;
+      font-size: 16px;
       cursor: pointer;
       font-weight: bold;
     }
     .login-box button:hover { background: #1ebe5d; }
     .error { color: red; font-size: 13px; margin-top: 8px; }
     #main { display: none; }
-    .th-green { background: #25D366; color: white; padding: 12px 16px; text-align: left; font-size: 14px; }
-    .th-yellow { background: #f0a500; color: white; padding: 12px 16px; text-align: left; font-size: 14px; }
-    .th-blue { background: #0d6efd; color: white; padding: 12px 16px; text-align: left; font-size: 14px; }
-    .th-purple { background: #6f42c1; color: white; padding: 12px 16px; text-align: left; font-size: 14px; }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      header h1 { font-size: 14px; }
+      .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; }
+      .stat-card { padding: 12px 8px; }
+      .stat-card .number { font-size: 22px; }
+      .stat-card .label { font-size: 10px; }
+      .section { padding: 0 12px 16px; }
+      .section h2 { font-size: 14px; }
+    }
   </style>
 </head>
 <body>
@@ -144,7 +221,7 @@
     </div>
     <div class="stat-card">
       <div class="number" id="totalCA">—</div>
-      <div class="label">💰 CA estimé (FCFA)</div>
+      <div class="label">💰 CA (FCFA)</div>
     </div>
     <div class="stat-card">
       <div class="number" id="totalAttente">—</div>
@@ -157,88 +234,96 @@
   <!-- COMMANDES -->
   <div class="section">
     <h2>🛒 Commandes récentes</h2>
-    <table>
-      <thead>
-        <tr>
-          <th class="th-green">Date</th>
-          <th class="th-green">Nom</th>
-          <th class="th-green">Téléphone</th>
-          <th class="th-green">Race</th>
-          <th class="th-green">Quantité</th>
-          <th class="th-green">Total</th>
-          <th class="th-green">Statut</th>
-          <th class="th-green">Action</th>
-        </tr>
-      </thead>
-      <tbody id="ordersBody">
-        <tr><td colspan="8" class="empty">Chargement...</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="th-green">Date</th>
+            <th class="th-green">Nom</th>
+            <th class="th-green">Téléphone</th>
+            <th class="th-green">Race</th>
+            <th class="th-green">Qté</th>
+            <th class="th-green">Total</th>
+            <th class="th-green">Statut</th>
+            <th class="th-green">Action</th>
+          </tr>
+        </thead>
+        <tbody id="ordersBody">
+          <tr><td colspan="8" class="empty">Chargement...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- INSCRIPTIONS -->
   <div class="section">
     <h2>📝 Inscriptions récentes</h2>
-    <table>
-      <thead>
-        <tr>
-          <th class="th-yellow">Date</th>
-          <th class="th-yellow">Nom</th>
-          <th class="th-yellow">Téléphone</th>
-          <th class="th-yellow">Programme</th>
-          <th class="th-yellow">Ville</th>
-          <th class="th-yellow">Profil</th>
-          <th class="th-yellow">Statut</th>
-          <th class="th-yellow">Action</th>
-        </tr>
-      </thead>
-      <tbody id="registrationsBody">
-        <tr><td colspan="8" class="empty">Chargement...</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="th-yellow">Date</th>
+            <th class="th-yellow">Nom</th>
+            <th class="th-yellow">Téléphone</th>
+            <th class="th-yellow">Programme</th>
+            <th class="th-yellow">Ville</th>
+            <th class="th-yellow">Profil</th>
+            <th class="th-yellow">Statut</th>
+            <th class="th-yellow">Action</th>
+          </tr>
+        </thead>
+        <tbody id="registrationsBody">
+          <tr><td colspan="8" class="empty">Chargement...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- DEVIS -->
   <div class="section">
     <h2>📋 Demandes de devis</h2>
-    <table>
-      <thead>
-        <tr>
-          <th class="th-purple">Date</th>
-          <th class="th-purple">Nom</th>
-          <th class="th-purple">Téléphone</th>
-          <th class="th-purple">Type</th>
-          <th class="th-purple">Ville</th>
-          <th class="th-purple">Superficie</th>
-          <th class="th-purple">Sujets</th>
-          <th class="th-purple">Statut</th>
-          <th class="th-purple">Action</th>
-        </tr>
-      </thead>
-      <tbody id="devisBody">
-        <tr><td colspan="9" class="empty">Chargement...</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="th-purple">Date</th>
+            <th class="th-purple">Nom</th>
+            <th class="th-purple">Téléphone</th>
+            <th class="th-purple">Type</th>
+            <th class="th-purple">Ville</th>
+            <th class="th-purple">Superficie</th>
+            <th class="th-purple">Sujets</th>
+            <th class="th-purple">Statut</th>
+            <th class="th-purple">Action</th>
+          </tr>
+        </thead>
+        <tbody id="devisBody">
+          <tr><td colspan="9" class="empty">Chargement...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- CONTACTS -->
   <div class="section">
     <h2>👥 Contacts récents</h2>
-    <table>
-      <thead>
-        <tr>
-          <th class="th-blue">Téléphone</th>
-          <th class="th-blue">Nom</th>
-          <th class="th-blue">Dernier message</th>
-          <th class="th-blue">Intérêt</th>
-          <th class="th-blue">Nb messages</th>
-          <th class="th-blue">Dernier contact</th>
-        </tr>
-      </thead>
-      <tbody id="contactsBody">
-        <tr><td colspan="6" class="empty">Chargement...</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="th-blue">Téléphone</th>
+            <th class="th-blue">Nom</th>
+            <th class="th-blue">Dernier msg</th>
+            <th class="th-blue">Intérêt</th>
+            <th class="th-blue">Nb msgs</th>
+            <th class="th-blue">Dernier contact</th>
+          </tr>
+        </thead>
+        <tbody id="contactsBody">
+          <tr><td colspan="6" class="empty">Chargement...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -335,8 +420,8 @@
             <td><span class="badge ${o.status === 'en_attente' ? 'attente' : o.status === 'confirmée' ? 'confirmee' : 'annulee'}">${o.status}</span></td>
             <td>
               ${o.status === 'en_attente' ? `
-                <button onclick="updateStatus('${o._id}', 'confirmée', 'order')" style="background:#25D366;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;margin-right:4px;font-size:12px;">✅ Confirmer</button>
-                <button onclick="updateStatus('${o._id}', 'annulée', 'order')" style="background:#dc3545;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;">❌ Annuler</button>
+                <button class="btn-confirm" onclick="updateStatus('${o._id}', 'confirmée', 'order')">✅ Confirmer</button>
+                <button class="btn-cancel" onclick="updateStatus('${o._id}', 'annulée', 'order')">❌ Annuler</button>
               ` : '—'}
             </td>
           </tr>
@@ -353,14 +438,14 @@
             <td>${formatDate(r.createdAt)}</td>
             <td>${r.name}</td>
             <td>+${r.phone}</td>
-            <td><span class="badge ${r.type === 'formation' ? 'formation' : 'decem'}">${r.type === 'formation' ? '🎓 Formation' : '🌍 DECEM'}</span></td>
+            <td><span class="badge formation">🎓 Formation</span></td>
             <td>${r.ville || '—'}</td>
             <td>${r.profil || '—'}</td>
             <td><span class="badge ${r.status === 'en_attente' ? 'attente' : r.status === 'confirmée' ? 'confirmee' : 'annulee'}">${r.status}</span></td>
             <td>
               ${r.status === 'en_attente' ? `
-                <button onclick="updateStatus('${r._id}', 'confirmée', 'registration')" style="background:#25D366;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;margin-right:4px;font-size:12px;">✅ Confirmer</button>
-                <button onclick="updateStatus('${r._id}', 'annulée', 'registration')" style="background:#dc3545;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;">❌ Annuler</button>
+                <button class="btn-confirm" onclick="updateStatus('${r._id}', 'confirmée', 'registration')">✅ Confirmer</button>
+                <button class="btn-cancel" onclick="updateStatus('${r._id}', 'annulée', 'registration')">❌ Annuler</button>
               ` : '—'}
             </td>
           </tr>
@@ -384,8 +469,8 @@
             <td><span class="badge ${d.status === 'en_attente' ? 'attente' : d.status === 'confirmée' ? 'confirmee' : 'annulee'}">${d.status}</span></td>
             <td>
               ${d.status === 'en_attente' ? `
-                <button onclick="updateStatus('${d._id}', 'confirmée', 'registration')" style="background:#6f42c1;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;margin-right:4px;font-size:12px;">✅ Confirmer</button>
-                <button onclick="updateStatus('${d._id}', 'annulée', 'registration')" style="background:#dc3545;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;">❌ Annuler</button>
+                <button class="btn-purple" onclick="updateStatus('${d._id}', 'confirmée', 'registration')">✅ Confirmer</button>
+                <button class="btn-cancel" onclick="updateStatus('${d._id}', 'annulée', 'registration')">❌ Annuler</button>
               ` : '—'}
             </td>
           </tr>
