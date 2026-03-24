@@ -745,7 +745,14 @@ app.get("/registrations", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
+app.get("/devis", async (req, res) => {
+  try {
+    const devis = await Registration.find({ type: "devis" }).sort({ createdAt: -1 });
+    res.json({ total: devis.length, devis });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 // ==============================
 // KEEP ALIVE
 // ==============================
