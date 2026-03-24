@@ -49,22 +49,6 @@ const FORMATION = `🎓 *FORMATION EN AVICULTURE*
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
 
-const POUSSINS = `🐥 *NOS POUSSINS DISPONIBLES*
-
-┌─────────────────────────────────────┐
-│ Race                  │ Unité  │ Carton(50) │
-├─────────────────────────────────────┤
-│ Chairs Blanc          │ 650    │ 32 500 FCFA│
-│ Chairs Roux           │ 600    │ 30 000 FCFA│
-│ Hybrides              │ 450    │ 22 500 FCFA│
-│ Pintadeaux Galor      │ 1 100  │ 55 000 FCFA│
-│ Pontes ISA Brown 🔪   │ 1 150  │ 57 500 FCFA│
-│ Bleu Hollande         │ 400    │ 20 000 FCFA│
-│ Coquelet Blanc        │ 150    │  7 500 FCFA│
-│ Pintadeaux Hybrides   │ 900    │ 45 000 FCFA│
-└─────────────────────────────────────┘
-🔪 _débecqués au laser_`;
-
 const MATERIELS = `🏪 *MATÉRIELS D'ÉLEVAGE DISPONIBLES*
 📍 Nos magasins à *Yopougon*
 
@@ -227,11 +211,12 @@ Tapez la quantité :`;
         { phone: from },
         { name: nom, lastSeen: new Date() }
       );
-    // Notification au conseiller
-const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
-if (CONSEILLER_PHONE) {
-  const totalFormate = session.totalPrice.toLocaleString("fr-FR");
-  const notif = `🔔 *NOUVELLE COMMANDE REÇUE !*
+
+      // Notification conseiller
+      const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+      if (CONSEILLER_PHONE) {
+        const totalFormate = session.totalPrice.toLocaleString("fr-FR");
+        const notif = `🔔 *NOUVELLE COMMANDE REÇUE !*
 
 👤 Client : ${nom}
 📱 Téléphone : +${from}
@@ -240,17 +225,17 @@ if (CONSEILLER_PHONE) {
 💰 Total : ${totalFormate} FCFA
 
 👉 À contacter sous 24h`;
-  
-  try {
-    await sendWhatsAppMessage(CONSEILLER_PHONE, notif);
-    console.log(`🔔 Conseiller notifié : ${CONSEILLER_PHONE}`);
-  } catch (err) {
-    console.error("❌ Erreur notification conseiller :", err.message);
-  }
-}  
+        try {
+          await sendWhatsAppMessage(CONSEILLER_PHONE, notif);
+          console.log(`🔔 Conseiller notifié : ${CONSEILLER_PHONE}`);
+        } catch (err) {
+          console.error("❌ Erreur notification conseiller :", err.message);
+        }
+      }
     } catch (err) {
       console.error("❌ Erreur sauvegarde commande :", err.message);
     }
+
     const totalFormate = session.totalPrice.toLocaleString("fr-FR");
     clearSession(from);
     return `🎉 *Commande enregistrée avec succès !*
@@ -274,19 +259,17 @@ if (CONSEILLER_PHONE) {
   }
   if (msg === "1") return FORMATION;
   if (msg === "2") {
-  setSession(from, { step: "choix_race" });
-  // Envoie d'abord l'image
-  try {
-    await sendWhatsAppImage(
-      from,
-      process.env.IMAGE_POUSSINS,
-      "🐥 Nos poussins disponibles — Le Partenaire des Éleveurs"
-    );
-  } catch (err) {
-    console.error("❌ Erreur envoi image :", err.message);
-  }
-  return MENU_RACES;
-}
+    setSession(from, { step: "choix_race" });
+    try {
+      await sendWhatsAppImage(
+        from,
+        process.env.IMAGE_POUSSINS,
+        "🐥 Nos poussins disponibles — Le Partenaire des Éleveurs"
+      );
+    } catch (err) {
+      console.error("❌ Erreur envoi image :", err.message);
+    }
+    return MENU_RACES;
   }
   if (msg === "3") return MATERIELS;
   if (msg === "4") return DECEM;
@@ -331,16 +314,17 @@ async function subscribeToWABA() {
     console.error("❌ Erreur abonnement WABA :", err.message);
   }
 }
+
 // ==============================
 // ROUTES
 // ==============================
 
 app.get("/", (req, res) => res.send("Bot WhatsApp opérationnel 🚀"));
 
-// ← ICI
 app.get("/dashboard", (req, res) => {
   res.sendFile(path.join(__dirname, "public/dashboard.html"));
 });
+
 app.get("/debug-subscription", async (req, res) => {
   try {
     const wabaId = process.env.WABA_ID;
@@ -453,9 +437,7 @@ app.post("/send-message", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-// ==============================
-// CHANGER STATUT COMMANDE
-// ==============================
+
 app.post("/orders/:id/status", async (req, res) => {
   try {
     const { id } = req.params;
@@ -465,17 +447,12 @@ app.post("/orders/:id/status", async (req, res) => {
       return res.status(400).json({ error: "Statut invalide" });
     }
 
-    const order = await Order.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
+    const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
 
     if (!order) {
       return res.status(404).json({ error: "Commande introuvable" });
     }
 
-    // Notifier le client
     const messages = {
       "confirmée": `✅ *Votre commande est confirmée !*
 
@@ -509,6 +486,7 @@ Si c'est une erreur ou si vous souhaitez recommander :
     res.status(500).json({ error: err.message });
   }
 });
+
 app.get("/contacts", async (req, res) => {
   try {
     const contacts = await Contact.find().sort({ lastSeen: -1 });
