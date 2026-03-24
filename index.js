@@ -227,6 +227,27 @@ Tapez la quantité :`;
         { phone: from },
         { name: nom, lastSeen: new Date() }
       );
+    // Notification au conseiller
+const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+if (CONSEILLER_PHONE) {
+  const totalFormate = session.totalPrice.toLocaleString("fr-FR");
+  const notif = `🔔 *NOUVELLE COMMANDE REÇUE !*
+
+👤 Client : ${nom}
+📱 Téléphone : +${from}
+🐥 Race : ${session.race}
+📦 Quantité : ${session.quantity} poussins
+💰 Total : ${totalFormate} FCFA
+
+👉 À contacter sous 24h`;
+  
+  try {
+    await sendWhatsAppMessage(CONSEILLER_PHONE, notif);
+    console.log(`🔔 Conseiller notifié : ${CONSEILLER_PHONE}`);
+  } catch (err) {
+    console.error("❌ Erreur notification conseiller :", err.message);
+  }
+}  
     } catch (err) {
       console.error("❌ Erreur sauvegarde commande :", err.message);
     }
