@@ -28,7 +28,7 @@
       border-radius: 12px;
       padding: 20px 28px;
       flex: 1;
-      min-width: 150px;
+      min-width: 140px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       text-align: center;
     }
@@ -102,6 +102,7 @@
     .th-green { background: #25D366; color: white; padding: 12px 16px; text-align: left; font-size: 14px; }
     .th-yellow { background: #f0a500; color: white; padding: 12px 16px; text-align: left; font-size: 14px; }
     .th-blue { background: #0d6efd; color: white; padding: 12px 16px; text-align: left; font-size: 14px; }
+    .th-purple { background: #6f42c1; color: white; padding: 12px 16px; text-align: left; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -136,6 +137,10 @@
     <div class="stat-card">
       <div class="number" id="totalRegistrations">—</div>
       <div class="label">📝 Inscriptions</div>
+    </div>
+    <div class="stat-card">
+      <div class="number" id="totalDevis">—</div>
+      <div class="label">📋 Devis</div>
     </div>
     <div class="stat-card">
       <div class="number" id="totalCA">—</div>
@@ -189,6 +194,29 @@
       </thead>
       <tbody id="registrationsBody">
         <tr><td colspan="8" class="empty">Chargement...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- DEVIS -->
+  <div class="section">
+    <h2>📋 Demandes de devis</h2>
+    <table>
+      <thead>
+        <tr>
+          <th class="th-purple">Date</th>
+          <th class="th-purple">Nom</th>
+          <th class="th-purple">Téléphone</th>
+          <th class="th-purple">Type</th>
+          <th class="th-purple">Ville</th>
+          <th class="th-purple">Superficie</th>
+          <th class="th-purple">Sujets</th>
+          <th class="th-purple">Statut</th>
+          <th class="th-purple">Action</th>
+        </tr>
+      </thead>
+      <tbody id="devisBody">
+        <tr><td colspan="9" class="empty">Chargement...</td></tr>
       </tbody>
     </table>
   </div>
@@ -266,26 +294,30 @@
 
   async function loadData() {
     try {
-      const [contactsRes, ordersRes, registrationsRes] = await Promise.all([
+      const [contactsRes, ordersRes, registrationsRes, devisRes] = await Promise.all([
         fetch("/contacts"),
         fetch("/orders"),
-        fetch("/registrations")
+        fetch("/registrations"),
+        fetch("/devis")
       ]);
       const contactsData = await contactsRes.json();
       const ordersData = await ordersRes.json();
       const registrationsData = await registrationsRes.json();
+      const devisData = await devisRes.json();
 
       // Stats
       document.getElementById("totalContacts").textContent = contactsData.total;
       document.getElementById("totalOrders").textContent = ordersData.total;
       document.getElementById("totalRegistrations").textContent = registrationsData.total;
+      document.getElementById("totalDevis").textContent = devisData.total;
 
       const ca = ordersData.orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
       document.getElementById("totalCA").textContent = formatNumber(ca);
 
       const attenteOrders = ordersData.orders.filter(o => o.status === "en_attente").length;
       const attenteRegs = registrationsData.registrations.filter(r => r.status === "en_attente").length;
-      document.getElementById("totalAttente").textContent = attenteOrders + attenteRegs;
+      const attenteDevis = devisData.devis.filter(d => d.status === "en_attente").length;
+      document.getElementById("totalAttente").textContent = attenteOrders + attenteRegs + attenteDevis;
 
       // Commandes
       const tbody = document.getElementById("ordersBody");
@@ -329,6 +361,31 @@
               ${r.status === 'en_attente' ? `
                 <button onclick="updateStatus('${r._id}', 'confirmée', 'registration')" style="background:#25D366;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;margin-right:4px;font-size:12px;">✅ Confirmer</button>
                 <button onclick="updateStatus('${r._id}', 'annulée', 'registration')" style="background:#dc3545;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;">❌ Annuler</button>
+              ` : '—'}
+            </td>
+          </tr>
+        `).join("");
+      }
+
+      // Devis
+      const dbody = document.getElementById("devisBody");
+      if (devisData.devis.length === 0) {
+        dbody.innerHTML = `<tr><td colspan="9" class="empty">Aucune demande de devis</td></tr>`;
+      } else {
+        dbody.innerHTML = devisData.devis.map(d => `
+          <tr>
+            <td>${formatDate(d.createdAt)}</td>
+            <td>${d.name}</td>
+            <td>+${d.phone}</td>
+            <td>${d.profil || '—'}</td>
+            <td>${d.ville || '—'}</td>
+            <td>${d.superficie || '—'}</td>
+            <td>${formatNumber(d.sujets)}</td>
+            <td><span class="badge ${d.status === 'en_attente' ? 'attente' : d.status === 'confirmée' ? 'confirmee' : 'annulee'}">${d.status}</span></td>
+            <td>
+              ${d.status === 'en_attente' ? `
+                <button onclick="updateStatus('${d._id}', 'confirmée', 'registration')" style="background:#6f42c1;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;margin-right:4px;font-size:12px;">✅ Confirmer</button>
+                <button onclick="updateStatus('${d._id}', 'annulée', 'registration')" style="background:#dc3545;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;">❌ Annuler</button>
               ` : '—'}
             </td>
           </tr>

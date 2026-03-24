@@ -323,9 +323,11 @@ async function handleMessage(from, text) {
       await Registration.create({
         phone: from,
         name: session.nom,
-        type: "formation",
+        type: "devis",
         ville: session.ville,
-        profil: `Devis ${typeDevis} - ${sujets} sujets`,
+        profil: typeDevis,
+        superficie: session.superficie,
+        sujets: sujets,
       });
       await Contact.findOneAndUpdate(
         { phone: from },

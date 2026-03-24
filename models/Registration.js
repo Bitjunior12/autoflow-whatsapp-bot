@@ -5,11 +5,13 @@ const RegistrationSchema = new mongoose.Schema({
   name: { type: String, required: true },
   type: {
     type: String,
-    enum: ["formation", "decem"],
+    enum: ["formation", "devis"],
     required: true,
   },
   ville: { type: String, default: "" },
-  profil: { type: String, default: "" }, // diaspora ou CI
+  profil: { type: String, default: "" },
+  superficie: { type: String, default: "" },
+  sujets: { type: Number, default: 0 },
   status: {
     type: String,
     enum: ["en_attente", "confirmée", "annulée"],
