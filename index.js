@@ -7,6 +7,7 @@ const Contact = require("./models/Contact");
 const Order = require("./models/Order");
 const Registration = require("./models/Registration");
 const { setSession, getSession, clearSession } = require("./services/session");
+const { askClaude } = require("./services/claude");
 
 const app = express();
 app.use(express.json());
@@ -460,7 +461,13 @@ Tapez la quantité :`;
   }
   if (msg === "contact" || msg === "conseiller") return CONTACT;
 
-  return MESSAGE_INCONNU;
+  // Claude AI répond aux questions libres
+console.log(`🤖 Question libre → Claude AI : "${text}"`);
+const reponseIA = await askClaude(text);
+if (reponseIA) {
+  return reponseIA;
+}
+return MESSAGE_INCONNU;
 }
 
 function getChoiceLabel(text) {
