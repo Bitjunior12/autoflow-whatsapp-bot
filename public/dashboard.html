@@ -160,10 +160,11 @@
           <th>Quantité</th>
           <th>Total</th>
           <th>Statut</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody id="ordersBody">
-        <tr><td colspan="7" class="empty">Chargement...</td></tr>
+        <tr><td colspan="8" class="empty">Chargement...</td></tr>
       </tbody>
     </table>
   </div>
@@ -217,6 +218,27 @@
     return n?.toLocaleString("fr-FR") || "0";
   }
 
+  async function updateStatus(id, status) {
+    const label = status === "confirmée" ? "confirmer" : "annuler";
+    if (!confirm(`Voulez-vous ${label} cette commande ?`)) return;
+    try {
+      const res = await fetch(`/orders/${id}/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`✅ Commande ${status} avec succès !`);
+        loadData();
+      } else {
+        alert("❌ Erreur : " + data.error);
+      }
+    } catch (err) {
+      alert("❌ Erreur réseau");
+    }
+  }
+
   async function loadData() {
     try {
       const [contactsRes, ordersRes] = await Promise.all([
@@ -239,7 +261,7 @@
       // Commandes
       const tbody = document.getElementById("ordersBody");
       if (ordersData.orders.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="empty">Aucune commande pour l'instant</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="empty">Aucune commande pour l'instant</td></tr>`;
       } else {
         tbody.innerHTML = ordersData.orders.map(o => `
           <tr>
@@ -250,6 +272,12 @@
             <td>${formatNumber(o.quantity)}</td>
             <td>${formatNumber(o.totalPrice)} FCFA</td>
             <td><span class="badge ${o.status === 'en_attente' ? 'attente' : o.status === 'confirmée' ? 'confirmee' : 'annulee'}">${o.status}</span></td>
+            <td>
+              ${o.status === 'en_attente' ? `
+                <button onclick="updateStatus('${o._id}', 'confirmée')" style="background:#25D366;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;margin-right:4px;">✅ Confirmer</button>
+                <button onclick="updateStatus('${o._id}', 'annulée')" style="background:#dc3545;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">❌ Annuler</button>
+              ` : '—'}
+            </td>
           </tr>
         `).join("");
       }

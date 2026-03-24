@@ -442,7 +442,62 @@ app.post("/send-message", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+// ==============================
+// CHANGER STATUT COMMANDE
+// ==============================
+app.post("/orders/:id/status", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
 
+    if (!["en_attente", "confirmée", "annulée"].includes(status)) {
+      return res.status(400).json({ error: "Statut invalide" });
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ error: "Commande introuvable" });
+    }
+
+    // Notifier le client
+    const messages = {
+      "confirmée": `✅ *Votre commande est confirmée !*
+
+🐥 Race : ${order.race}
+📦 Quantité : ${order.quantity} poussins
+💰 Total : ${order.totalPrice.toLocaleString("fr-FR")} FCFA
+
+📞 Notre équipe vous contactera pour les modalités de paiement et livraison.
+
+Merci de faire confiance au *Partenaire des Éleveurs* 🙏`,
+
+      "annulée": `❌ *Votre commande a été annulée.*
+
+Si c'est une erreur ou si vous souhaitez recommander :
+↩️ Tapez *menu* pour revenir au menu principal
+
+📞 Besoin d'aide : *+225 01 02 64 20 80*`
+    };
+
+    if (messages[status]) {
+      try {
+        await sendWhatsAppMessage(order.phone, messages[status]);
+        console.log(`📱 Client ${order.phone} notifié : ${status}`);
+      } catch (err) {
+        console.error("❌ Erreur notification client :", err.message);
+      }
+    }
+
+    res.json({ success: true, order });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 app.get("/contacts", async (req, res) => {
   try {
     const contacts = await Contact.find().sort({ lastSeen: -1 });
