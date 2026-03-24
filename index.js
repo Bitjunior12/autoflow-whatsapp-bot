@@ -104,7 +104,7 @@ Vous souhaitez construire un bâtiment avicole professionnel et adapté à votre
 
 📝 *Modèle de réponses :*
 - Nom complet
-- Superficie du bâtiment (en m²)
+- Superficie du terrain (en m²)
 - Race de poussins souhaitée
 - Nombre de poussins
 
@@ -139,7 +139,7 @@ Nous vous proposons une solution clé en main :
 
 📝 *Modèle de réponses :*
 - Nom complet
-- Superficie du bâtiment (en m²)
+- Superficie du terrain (en m²)
 - Race de poussins souhaitée
 - Nombre de poussins
 
@@ -207,17 +207,17 @@ async function handleMessage(from, text) {
 
   // Annulation
   if (msg === "menu" || msg === "annuler") {
-    clearSession(from);
+    await clearSession(from);
     return MENU_PRINCIPAL;
   }
 
   // ── TUNNEL FORMATION ──
   if (session?.step === "formation_inscription") {
     if (msg === "oui") {
-      setSession(from, { step: "formation_nom" });
+      await setSession(from, { step: "formation_nom" });
       return `✅ Super ! Vous allez vous inscrire à la formation.\n\n👤 *Quel est votre nom complet ?*`;
     } else if (msg === "non") {
-      clearSession(from);
+      await clearSession(from);
       return MENU_PRINCIPAL;
     } else {
       return `❓ Tapez *oui* pour vous inscrire ou *non* pour revenir au menu.`;
@@ -227,7 +227,7 @@ async function handleMessage(from, text) {
   if (session?.step === "formation_nom") {
     const nom = text.trim();
     if (nom.length < 2) return `❌ Nom invalide. Entrez votre nom complet.`;
-    setSession(from, { step: "formation_ville", nom });
+    await setSession(from, { step: "formation_ville", nom });
     return `👤 Nom enregistré : *${nom}*\n\n📍 *Quelle est votre ville ?*`;
   }
 
@@ -254,7 +254,7 @@ async function handleMessage(from, text) {
     } catch (err) {
       console.error("❌ Erreur inscription formation :", err.message);
     }
-    clearSession(from);
+    await clearSession(from);
     return `🎉 *Inscription formation enregistrée !*
 
 📋 *Récapitulatif :*
@@ -273,41 +273,34 @@ async function handleMessage(from, text) {
   // ── TUNNEL DEVIS ──
   if (session?.step === "devis_choix") {
     if (msg === "1") {
-      setSession(from, { step: "devis_nom", type: "batiment" });
+      await setSession(from, { step: "devis_nom", type: "batiment" });
       return DEVIS_BATIMENT_INFO;
     } else if (msg === "2") {
-      setSession(from, { step: "devis_nom", type: "complet" });
+      await setSession(from, { step: "devis_nom", type: "complet" });
       return DEVIS_COMPLET_INFO;
     } else {
       return `❓ Tapez *1* pour Devis Bâtiment ou *2* pour Devis Complet.\n\n↩️ Tapez *menu* pour annuler`;
     }
   }
 
+  if (session?.step === "devis_nom") {
+    const nom = text.trim();
+    if (nom.length < 2) return `❌ Nom invalide. Entrez votre nom complet.`;
+    await setSession(from, { step: "devis_ville", nom });
+    return `👤 Nom enregistré : *${nom}*\n\n📍 *Quelle est votre ville / localisation du projet ?*`;
+  }
+
   if (session?.step === "devis_ville") {
     const ville = text.trim();
     if (ville.length < 2) return `❌ Ville invalide.`;
-    setSession(from, { step: "devis_superficie", ville });
+    await setSession(from, { step: "devis_superficie", ville });
     return `📍 Localisation : *${ville}*\n\n📐 *Quelle est la superficie de votre terrain ?*\nEx: 500 m², 1000 m², 1 hectare...`;
   }
 
   if (session?.step === "devis_superficie") {
     const superficie = text.trim();
     if (superficie.length < 1) return `❌ Superficie invalide.`;
-    setSession(from, { step: "devis_sujets", superficie });
-    return `📐 Superficie : *${superficie}*\n\n🐔 *Combien de sujets (volailles) prévoyez-vous d'élever ?*\nEx: 500, 1000, 2000...`;
-  }
-
-  if (session?.step === "devis_ville") {
-    const ville = text.trim();
-    if (ville.length < 2) return `❌ Ville invalide.`;
-    setSession(from, { step: "devis_superficie", ville });
-    return `📍 Localisation : *${ville}*\n\n📐 *Quelle est la superficie de votre terrain ?*\nEx: 500 m², 1000 m², 1 hectare...`;
-  }
-
-  if (session?.step === "devis_superficie") {
-    const superficie = text.trim();
-    if (superficie.length < 1) return `❌ Superficie invalide.`;
-    setSession(from, { step: "devis_sujets", superficie });
+    await setSession(from, { step: "devis_sujets", superficie });
     return `📐 Superficie : *${superficie}*\n\n🐔 *Combien de sujets (volailles) prévoyez-vous d'élever ?*\nEx: 500, 1000, 2000...`;
   }
 
@@ -316,9 +309,7 @@ async function handleMessage(from, text) {
     if (isNaN(sujets) || sujets < 1) {
       return `❌ Nombre invalide. Entrez un nombre entier.\nEx: *500* ou *1000*`;
     }
-
     const typeDevis = session.type === "batiment" ? "Bâtiment avicole" : "Complet (Bâtiment + Matériels + Poussins)";
-
     try {
       await Registration.create({
         phone: from,
@@ -333,27 +324,16 @@ async function handleMessage(from, text) {
         { phone: from },
         { name: session.nom, lastSeen: new Date() }
       );
-
       const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
       if (CONSEILLER_PHONE) {
         await sendWhatsAppMessage(CONSEILLER_PHONE,
-          `🔔 *NOUVELLE DEMANDE DE DEVIS !*
-
-👤 Nom : ${session.nom}
-📱 Téléphone : +${from}
-📋 Type : ${typeDevis}
-📍 Localisation : ${session.ville}
-🐔📐 Superficie terrain : ${session.superficie}
-🐔 Nombre de sujets : ${sujets}
-
-👉 À contacter sous 24h pour établir le devis`
+          `🔔 *NOUVELLE DEMANDE DE DEVIS !*\n\n👤 Nom : ${session.nom}\n📱 Téléphone : +${from}\n📋 Type : ${typeDevis}\n📍 Localisation : ${session.ville}\n📐 Superficie : ${session.superficie}\n🐔 Nombre de sujets : ${sujets}\n\n👉 À contacter sous 24h`
         );
       }
     } catch (err) {
       console.error("❌ Erreur devis :", err.message);
     }
-
-    clearSession(from);
+    await clearSession(from);
     return `🎉 *Demande de devis enregistrée !*
 
 📋 *Récapitulatif :*
@@ -376,7 +356,7 @@ async function handleMessage(from, text) {
     if (!choix) {
       return `❌ Choix invalide. Tapez un numéro entre 1 et 8\n\n${MENU_RACES}`;
     }
-    setSession(from, { step: "quantite", race: choix.race, prix: choix.prix });
+    await setSession(from, { step: "quantite", race: choix.race, prix: choix.prix });
     return `✅ *${choix.race}* sélectionné (${choix.prix} FCFA/unité)
 
 📦 *Combien de poussins souhaitez-vous ?*
@@ -392,7 +372,7 @@ Tapez la quantité :`;
     }
     const total = qty * session.prix;
     const totalFormate = total.toLocaleString("fr-FR");
-    setSession(from, { step: "nom", quantity: qty, totalPrice: total });
+    await setSession(from, { step: "nom", quantity: qty, totalPrice: total });
     return `✅ *${qty} poussins* (${session.race})
 💰 Total estimé : *${totalFormate} FCFA*
 
@@ -427,7 +407,7 @@ Tapez la quantité :`;
       console.error("❌ Erreur sauvegarde commande :", err.message);
     }
     const totalFormate = session.totalPrice.toLocaleString("fr-FR");
-    clearSession(from);
+    await clearSession(from);
     return `🎉 *Commande enregistrée avec succès !*
 
 📋 *Récapitulatif :*
@@ -448,7 +428,7 @@ Tapez la quantité :`;
     return MENU_PRINCIPAL;
   }
   if (msg === "1") {
-    setSession(from, { step: "formation_inscription" });
+    await setSession(from, { step: "formation_inscription" });
     try {
       await sendWhatsAppImage(
         from,
@@ -461,7 +441,7 @@ Tapez la quantité :`;
     return FORMATION;
   }
   if (msg === "2") {
-    setSession(from, { step: "choix_race" });
+    await setSession(from, { step: "choix_race" });
     try {
       await sendWhatsAppImage(
         from,
@@ -475,7 +455,7 @@ Tapez la quantité :`;
   }
   if (msg === "3") return MATERIELS;
   if (msg === "4") {
-    setSession(from, { step: "devis_choix" });
+    await setSession(from, { step: "devis_choix" });
     return MENU_DEVIS;
   }
   if (msg === "contact" || msg === "conseiller") return CONTACT;
@@ -739,12 +719,13 @@ app.get("/orders", async (req, res) => {
 
 app.get("/registrations", async (req, res) => {
   try {
-    const registrations = await Registration.find().sort({ createdAt: -1 });
+    const registrations = await Registration.find({ type: "formation" }).sort({ createdAt: -1 });
     res.json({ total: registrations.length, registrations });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 app.get("/devis", async (req, res) => {
   try {
     const devis = await Registration.find({ type: "devis" }).sort({ createdAt: -1 });
@@ -753,6 +734,7 @@ app.get("/devis", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 // ==============================
 // KEEP ALIVE
 // ==============================
