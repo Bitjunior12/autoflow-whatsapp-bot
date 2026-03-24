@@ -5,6 +5,7 @@ const connectDB = require("./config/database");
 const { sendWhatsAppMessage, sendWhatsAppImage } = require("./services/whatsapp");
 const Contact = require("./models/Contact");
 const Order = require("./models/Order");
+const Registration = require("./models/Registration");
 const { setSession, getSession, clearSession } = require("./services/session");
 
 const app = express();
@@ -44,10 +45,32 @@ const FORMATION = `🎓 *FORMATION EN AVICULTURE*
 ✓ Accès à notre WhatsApp Assistance 24H/24
 ✓ _(Optionnel)_ Nous pouvons être votre fournisseur en matériels et poussins
 
-📲 Pour vous inscrire ou avoir plus d'infos :
-👉 Tapez *contact* pour parler à un conseiller
+💬 *Souhaitez-vous vous inscrire ?*
+👉 Tapez *oui* pour vous inscrire
+👉 Tapez *non* pour revenir au menu`;
 
-↩️ Tapez *menu* pour revenir au menu principal`;
+const DECEM = `🌍 *PROGRAMME DECEM*
+_Diaspora Élevage Clé En Main_
+
+🔷 *C'est quoi le DECEM ?*
+Un programme d'accompagnement complet qui vous permet de :
+
+✅ Créer une ferme avicole rentable
+✅ Sans faire d'erreurs de débutant
+✅ Avec un système déjà structuré
+
+👉 _On vous accompagne de l'idée jusqu'à une ferme qui génère de l'argent._
+
+💰 *Coût du programme :* 85 000 FCFA
+
+🎯 *Pour qui ?*
+- Diaspora
+- Fonctionnaires
+- Entrepreneurs
+
+💬 *Souhaitez-vous vous inscrire ?*
+👉 Tapez *oui* pour vous inscrire
+👉 Tapez *non* pour revenir au menu`;
 
 const MATERIELS = `🏪 *MATÉRIELS D'ÉLEVAGE DISPONIBLES*
 📍 Nos magasins à *Yopougon*
@@ -69,30 +92,6 @@ const MATERIELS = `🏪 *MATÉRIELS D'ÉLEVAGE DISPONIBLES*
 - Fourneau de chauffage → 8 000 FCFA
 
 📲 Pour commander :
-👉 Tapez *contact* pour parler à un conseiller
-
-↩️ Tapez *menu* pour revenir au menu principal`;
-
-const DECEM = `🌍 *PROGRAMME DECEM*
-_Diaspora Élevage Clé En Main_
-
-🔷 *C'est quoi le DECEM ?*
-Un programme d'accompagnement complet qui vous permet de :
-
-✅ Créer une ferme avicole rentable
-✅ Sans faire d'erreurs de débutant
-✅ Avec un système déjà structuré
-
-👉 _On vous accompagne de l'idée jusqu'à une ferme qui génère de l'argent._
-
-💰 *Coût du programme :* 85 000 FCFA
-
-🎯 *Pour qui ?*
-- Diaspora
-- Fonctionnaires
-- Entrepreneurs
-
-📲 Pour en savoir plus ou vous inscrire :
 👉 Tapez *contact* pour parler à un conseiller
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
@@ -163,7 +162,170 @@ async function handleMessage(from, text) {
     return MENU_PRINCIPAL;
   }
 
-  // Étape 1 : Choix de la race
+  // ── TUNNEL FORMATION ──
+  if (session?.step === "formation_inscription") {
+    if (msg === "oui") {
+      setSession(from, { step: "formation_nom" });
+      return `✅ Super ! Vous allez vous inscrire à la formation.
+
+👤 *Quel est votre nom complet ?*`;
+    } else if (msg === "non") {
+      clearSession(from);
+      return MENU_PRINCIPAL;
+    } else {
+      return `❓ Tapez *oui* pour vous inscrire ou *non* pour revenir au menu.`;
+    }
+  }
+
+  if (session?.step === "formation_nom") {
+    const nom = text.trim();
+    if (nom.length < 2) return `❌ Nom invalide. Entrez votre nom complet.`;
+    setSession(from, { step: "formation_ville", nom });
+    return `👤 Nom enregistré : *${nom}*
+
+📍 *Quelle est votre ville ?*`;
+  }
+
+  if (session?.step === "formation_ville") {
+    const ville = text.trim();
+    if (ville.length < 2) return `❌ Ville invalide. Entrez votre ville.`;
+
+    try {
+      await Registration.create({
+        phone: from,
+        name: session.nom,
+        type: "formation",
+        ville: ville,
+      });
+      await Contact.findOneAndUpdate(
+        { phone: from },
+        { name: session.nom, lastSeen: new Date() }
+      );
+
+      // Notifier conseiller
+      const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+      if (CONSEILLER_PHONE) {
+        await sendWhatsAppMessage(CONSEILLER_PHONE,
+          `🔔 *NOUVELLE INSCRIPTION FORMATION !*
+
+👤 Nom : ${session.nom}
+📱 Téléphone : +${from}
+📍 Ville : ${ville}
+
+👉 À contacter sous 24h`
+        );
+      }
+    } catch (err) {
+      console.error("❌ Erreur inscription formation :", err.message);
+    }
+
+    clearSession(from);
+    return `🎉 *Inscription formation enregistrée !*
+
+📋 *Récapitulatif :*
+👤 Nom : ${session.nom}
+📍 Ville : ${ville}
+📅 Formation : Chaque mois du 1er à la fin du mois
+💰 Coût : 85 000 FCFA
+
+✅ Un conseiller vous contactera sous *24h* pour confirmer votre inscription et vous donner les détails de paiement.
+
+📞 Pour toute urgence : *+225 01 02 64 20 80*
+
+↩️ Tapez *menu* pour revenir au menu principal`;
+  }
+
+  // ── TUNNEL DECEM ──
+  if (session?.step === "decem_inscription") {
+    if (msg === "oui") {
+      setSession(from, { step: "decem_nom" });
+      return `✅ Super ! Vous allez vous inscrire au programme DECEM.
+
+👤 *Quel est votre nom complet ?*`;
+    } else if (msg === "non") {
+      clearSession(from);
+      return MENU_PRINCIPAL;
+    } else {
+      return `❓ Tapez *oui* pour vous inscrire ou *non* pour revenir au menu.`;
+    }
+  }
+
+  if (session?.step === "decem_nom") {
+    const nom = text.trim();
+    if (nom.length < 2) return `❌ Nom invalide. Entrez votre nom complet.`;
+    setSession(from, { step: "decem_ville", nom });
+    return `👤 Nom enregistré : *${nom}*
+
+📍 *Quelle est votre ville / pays ?*`;
+  }
+
+  if (session?.step === "decem_ville") {
+    const ville = text.trim();
+    if (ville.length < 2) return `❌ Ville invalide.`;
+    setSession(from, { step: "decem_profil", ville });
+    return `📍 Ville enregistrée : *${ville}*
+
+🌍 *Vous êtes :*
+1️⃣ Diaspora (hors Côte d'Ivoire)
+2️⃣ En Côte d'Ivoire
+
+Tapez *1* ou *2*`;
+  }
+
+  if (session?.step === "decem_profil") {
+    let profil = "";
+    if (msg === "1") profil = "Diaspora";
+    else if (msg === "2") profil = "Côte d'Ivoire";
+    else return `❓ Tapez *1* pour Diaspora ou *2* pour Côte d'Ivoire.`;
+
+    try {
+      await Registration.create({
+        phone: from,
+        name: session.nom,
+        type: "decem",
+        ville: session.ville,
+        profil: profil,
+      });
+      await Contact.findOneAndUpdate(
+        { phone: from },
+        { name: session.nom, lastSeen: new Date() }
+      );
+
+      // Notifier conseiller
+      const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+      if (CONSEILLER_PHONE) {
+        await sendWhatsAppMessage(CONSEILLER_PHONE,
+          `🔔 *NOUVELLE INSCRIPTION DECEM !*
+
+👤 Nom : ${session.nom}
+📱 Téléphone : +${from}
+📍 Ville : ${session.ville}
+🌍 Profil : ${profil}
+
+👉 À contacter sous 24h`
+        );
+      }
+    } catch (err) {
+      console.error("❌ Erreur inscription DECEM :", err.message);
+    }
+
+    clearSession(from);
+    return `🎉 *Inscription DECEM enregistrée !*
+
+📋 *Récapitulatif :*
+👤 Nom : ${session.nom}
+📍 Ville : ${session.ville}
+🌍 Profil : ${profil}
+💰 Coût : 85 000 FCFA
+
+✅ Un conseiller vous contactera sous *24h* pour vous donner tous les détails du programme.
+
+📞 Pour toute urgence : *+225 01 02 64 20 80*
+
+↩️ Tapez *menu* pour revenir au menu principal`;
+  }
+
+  // ── TUNNEL POUSSINS ──
   if (session?.step === "choix_race") {
     const choix = PRIX_POUSSINS[msg];
     if (!choix) {
@@ -178,7 +340,6 @@ _(minimum 1, carton = 50 poussins)_
 Tapez la quantité :`;
   }
 
-  // Étape 2 : Quantité
   if (session?.step === "quantite") {
     const qty = parseInt(msg);
     if (isNaN(qty) || qty < 1) {
@@ -193,7 +354,6 @@ Tapez la quantité :`;
 👤 *Quel est votre nom complet ?*`;
   }
 
-  // Étape 3 : Nom + sauvegarde commande
   if (session?.step === "nom") {
     const nom = text.trim();
     if (nom.length < 2) {
@@ -212,7 +372,6 @@ Tapez la quantité :`;
         { name: nom, lastSeen: new Date() }
       );
 
-      // Notification conseiller
       const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
       if (CONSEILLER_PHONE) {
         const totalFormate = session.totalPrice.toLocaleString("fr-FR");
@@ -253,11 +412,14 @@ Tapez la quantité :`;
 ↩️ Tapez *menu* pour revenir au menu principal`;
   }
 
-  // Menu principal
+  // ── MENU PRINCIPAL ──
   if (["bonjour", "bonsoir", "salut", "hi", "hello", "start", "0", "menu"].includes(msg)) {
     return MENU_PRINCIPAL;
   }
-  if (msg === "1") return FORMATION;
+  if (msg === "1") {
+    setSession(from, { step: "formation_inscription" });
+    return FORMATION;
+  }
   if (msg === "2") {
     setSession(from, { step: "choix_race" });
     try {
@@ -272,7 +434,10 @@ Tapez la quantité :`;
     return MENU_RACES;
   }
   if (msg === "3") return MATERIELS;
-  if (msg === "4") return DECEM;
+  if (msg === "4") {
+    setSession(from, { step: "decem_inscription" });
+    return DECEM;
+  }
   if (msg === "contact" || msg === "conseiller") return CONTACT;
 
   return MESSAGE_INCONNU;
@@ -396,7 +561,6 @@ app.post("/webhook", async (req, res) => {
     const text = message.text.body;
     console.log(`📨 Message de ${from} : "${text}"`);
 
-    // Sauvegarde contact
     try {
       const existing = await Contact.findOne({ phone: from });
       if (existing) {
@@ -442,16 +606,11 @@ app.post("/orders/:id/status", async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-
     if (!["en_attente", "confirmée", "annulée"].includes(status)) {
       return res.status(400).json({ error: "Statut invalide" });
     }
-
     const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
-
-    if (!order) {
-      return res.status(404).json({ error: "Commande introuvable" });
-    }
+    if (!order) return res.status(404).json({ error: "Commande introuvable" });
 
     const messages = {
       "confirmée": `✅ *Votre commande est confirmée !*
@@ -466,21 +625,17 @@ Merci de faire confiance au *Partenaire des Éleveurs* 🙏`,
 
       "annulée": `❌ *Votre commande a été annulée.*
 
-Si c'est une erreur ou si vous souhaitez recommander :
 ↩️ Tapez *menu* pour revenir au menu principal
-
 📞 Besoin d'aide : *+225 01 02 64 20 80*`
     };
 
     if (messages[status]) {
       try {
         await sendWhatsAppMessage(order.phone, messages[status]);
-        console.log(`📱 Client ${order.phone} notifié : ${status}`);
       } catch (err) {
         console.error("❌ Erreur notification client :", err.message);
       }
     }
-
     res.json({ success: true, order });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -500,6 +655,15 @@ app.get("/orders", async (req, res) => {
   try {
     const orders = await Order.find().sort({ createdAt: -1 });
     res.json({ total: orders.length, orders });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/registrations", async (req, res) => {
+  try {
+    const registrations = await Registration.find().sort({ createdAt: -1 });
+    res.json({ total: registrations.length, registrations });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
