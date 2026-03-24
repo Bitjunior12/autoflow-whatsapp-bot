@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const connectDB = require("./config/database");
-const { sendWhatsAppMessage } = require("./services/whatsapp");
+const { sendWhatsAppMessage, sendWhatsAppImage } = require("./services/whatsapp");
 const Contact = require("./models/Contact");
 const Order = require("./models/Order");
 const { setSession, getSession, clearSession } = require("./services/session");
@@ -274,8 +274,19 @@ if (CONSEILLER_PHONE) {
   }
   if (msg === "1") return FORMATION;
   if (msg === "2") {
-    setSession(from, { step: "choix_race" });
-    return MENU_RACES;
+  setSession(from, { step: "choix_race" });
+  // Envoie d'abord l'image
+  try {
+    await sendWhatsAppImage(
+      from,
+      process.env.IMAGE_POUSSINS,
+      "🐥 Nos poussins disponibles — Le Partenaire des Éleveurs"
+    );
+  } catch (err) {
+    console.error("❌ Erreur envoi image :", err.message);
+  }
+  return MENU_RACES;
+}
   }
   if (msg === "3") return MATERIELS;
   if (msg === "4") return DECEM;
