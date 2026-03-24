@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const path = require("path");
 const connectDB = require("./config/database");
 const { sendWhatsAppMessage } = require("./services/whatsapp");
 const Contact = require("./models/Contact");
@@ -298,13 +299,16 @@ async function subscribeToWABA() {
     console.error("❌ Erreur abonnement WABA :", err.message);
   }
 }
-
 // ==============================
 // ROUTES
 // ==============================
 
 app.get("/", (req, res) => res.send("Bot WhatsApp opérationnel 🚀"));
 
+// ← ICI
+app.get("/dashboard", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/dashboard.html"));
+});
 app.get("/debug-subscription", async (req, res) => {
   try {
     const wabaId = process.env.WABA_ID;
