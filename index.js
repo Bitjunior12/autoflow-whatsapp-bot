@@ -226,6 +226,11 @@ function isHotLead(message) {
 async function handleMessage(from, text) {
   const msg = text.trim().toLowerCase();
   const session = await getSession(from);
+  // 🔥 annule relance si le client répond
+if (relanceTimers[from]) {
+  clearTimeout(relanceTimers[from]);
+  delete relanceTimers[from];
+}
 // ==============================
 // PRIORITÉ À L'IA (CLAUDE)
 // ==============================
@@ -520,33 +525,62 @@ Tapez la quantité :`;
   }
   if (msg === "contact" || msg === "conseiller") return CONTACT;
   if (!isSmartQuestion(text) && !isHotLead(text)) {
+relanceTimers[from] = [];
 
-  // 🔥 annule ancien timer si existe
-  if (relanceTimers[from]) {
-    clearTimeout(relanceTimers[from]);
-  }
+// =========================
+// ⏱️ RELANCE 1 → 10 MIN
+// =========================
+const t1 = setTimeout(async () => {
+  console.log("⏰ Relance 10 min");
 
-  // 🔥 crée un nouveau timer
-  relanceTimers[from] = setTimeout(async () => {
-    console.log("⏰ Relance automatique envoyée");
+  await sendWhatsAppMessage(
+    from,
+    `👋 Juste pour savoir si vous avez pu avancer sur votre projet d’élevage 🙂
 
-    await sendWhatsAppMessage(
-      from,
-      `👋 Juste un petit message pour savoir si vous avez pu avancer sur votre projet d’élevage.
+Nous pouvons vous guider étape par étape pour bien démarrer.
 
-Nous pouvons vous aider à démarrer rapidement et éviter les erreurs.
+👉 Tapez *menu* pour voir nos solutions`
+  );
+}, 600000);
+
+relanceTimers[from].push(t1);
+
+// =========================
+// ⏱️ RELANCE 2 → 1 HEURE
+// =========================
+const t2 = setTimeout(async () => {
+  console.log("⏰ Relance 1h");
+
+  await sendWhatsAppMessage(
+    from,
+    `👍 Beaucoup de nos clients étaient comme vous au début.
+
+Aujourd’hui ils réussissent leur élevage grâce à un bon accompagnement.
 
 👉 Souhaitez-vous :
 1️⃣ Acheter des poussins
 2️⃣ Suivre la formation
-3️⃣ Avoir un devis
+3️⃣ Avoir un devis`
+  );
+}, 3600000);
 
-Répondez simplement par le numéro 😊`
-    );
+relanceTimers[from].push(t2);
 
-    delete relanceTimers[from]; // nettoyage
+// =========================
+// ⏱️ RELANCE 3 → 24 HEURES
+// =========================
+const t3 = setTimeout(async () => {
+  console.log("⏰ Relance 24h");
 
-  }, 300000); // 5 minutes
+  await sendWhatsAppMessage(
+    from,
+    `🚀 Vous pouvez commencer avec seulement 500 poussins.
+
+C’est la meilleure façon de tester et devenir rentable rapidement.
+
+👉 Voulez-vous un devis personnalisé ?
+  );
+}, 86400000);
 return MESSAGE_INCONNU;
 }
 function getChoiceLabel(text) {
@@ -820,10 +854,9 @@ app.get("/devis", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-// ==============================
+// ===============================
 // KEEP ALIVE
-// ==============================
+// ===============================
 setInterval(async () => {
   try {
     await fetch("https://autoflow-whatsapp-bot.onrender.com/");
@@ -831,12 +864,15 @@ setInterval(async () => {
   } catch (err) {
     console.error("Keep alive error:", err.message);
   }
-}, 14 * 60 * 1000);
+}, 14 * 60 * 1000); // 14 minutes
 
-// ==============================
+
+// ===============================
 // LANCEMENT SERVEUR
-// ==============================
+// ===============================
+const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, async () => {
   console.log(`🚀 Serveur lancé sur le port ${PORT}`);
   await subscribeToWABA();
-});
+});}
