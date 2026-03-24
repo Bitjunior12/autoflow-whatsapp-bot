@@ -283,18 +283,32 @@ async function handleMessage(from, text) {
     }
   }
 
-  if (session?.step === "devis_nom") {
-    const nom = text.trim();
-    if (nom.length < 2) return `❌ Nom invalide. Entrez votre nom complet.`;
-    setSession(from, { step: "devis_ville", nom });
-    return `👤 Nom enregistré : *${nom}*\n\n📍 *Quelle est votre ville / localisation du projet ?*`;
+  if (session?.step === "devis_ville") {
+    const ville = text.trim();
+    if (ville.length < 2) return `❌ Ville invalide.`;
+    setSession(from, { step: "devis_superficie", ville });
+    return `📍 Localisation : *${ville}*\n\n📐 *Quelle est la superficie de votre terrain ?*\nEx: 500 m², 1000 m², 1 hectare...`;
+  }
+
+  if (session?.step === "devis_superficie") {
+    const superficie = text.trim();
+    if (superficie.length < 1) return `❌ Superficie invalide.`;
+    setSession(from, { step: "devis_sujets", superficie });
+    return `📐 Superficie : *${superficie}*\n\n🐔 *Combien de sujets (volailles) prévoyez-vous d'élever ?*\nEx: 500, 1000, 2000...`;
   }
 
   if (session?.step === "devis_ville") {
     const ville = text.trim();
     if (ville.length < 2) return `❌ Ville invalide.`;
-    setSession(from, { step: "devis_sujets", ville });
-    return `📍 Localisation : *${ville}*\n\n🐔 *Combien de sujets (volailles) prévoyez-vous d'élever ?*\nEx: 500, 1000, 2000...`;
+    setSession(from, { step: "devis_superficie", ville });
+    return `📍 Localisation : *${ville}*\n\n📐 *Quelle est la superficie de votre terrain ?*\nEx: 500 m², 1000 m², 1 hectare...`;
+  }
+
+  if (session?.step === "devis_superficie") {
+    const superficie = text.trim();
+    if (superficie.length < 1) return `❌ Superficie invalide.`;
+    setSession(from, { step: "devis_sujets", superficie });
+    return `📐 Superficie : *${superficie}*\n\n🐔 *Combien de sujets (volailles) prévoyez-vous d'élever ?*\nEx: 500, 1000, 2000...`;
   }
 
   if (session?.step === "devis_sujets") {
@@ -327,6 +341,7 @@ async function handleMessage(from, text) {
 📱 Téléphone : +${from}
 📋 Type : ${typeDevis}
 📍 Localisation : ${session.ville}
+🐔📐 Superficie terrain : ${session.superficie}
 🐔 Nombre de sujets : ${sujets}
 
 👉 À contacter sous 24h pour établir le devis`
@@ -343,6 +358,7 @@ async function handleMessage(from, text) {
 👤 Nom : ${session.nom}
 📋 Type : ${typeDevis}
 📍 Localisation : ${session.ville}
+📐 Superficie terrain : ${session.superficie}
 🐔 Nombre de sujets : ${sujets}
 
 ✅ Un technicien vous contactera sous *24h* avec votre devis personnalisé.
