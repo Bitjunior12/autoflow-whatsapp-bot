@@ -574,7 +574,7 @@ const t3 = setTimeout(async () => {
 
   await sendWhatsAppMessage(
     from,
-    `🚀 Vous pouvez commencer avec seulement 500 poussins.
+    `🚀 Vous pouvez commencer avec seulement 500 poussins.'
 
 C’est la meilleure façon de tester et devenir rentable rapidement.
 
