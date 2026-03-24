@@ -201,11 +201,42 @@ Tapez le *numéro* de votre choix
 // ==============================
 // LOGIQUE DE RÉPONSE
 // ==============================
+function isSmartQuestion(message) {
+  const msg = message.toLowerCase();
 
+  const keywords = [
+    "quoi", "comment", "pourquoi", "différence",
+    "prix", "combien", "conseil", "expliquer",
+    "c'est quoi", "avantage", "inconvénient"
+  ];
+
+  return keywords.some(word => msg.includes(word));
+}
 async function handleMessage(from, text) {
   const msg = text.trim().toLowerCase();
   const session = await getSession(from);
+// ==============================
+// PRIORITÉ À L'IA (CLAUDE)
+// ==============================
 
+const isInCriticalFlow = [
+  "quantite",
+  "nom",
+  "devis_nom",
+  "devis_ville",
+  "devis_superficie",
+  "devis_sujets"
+].includes(session?.step);
+
+if (isSmartQuestion(text)) {
+  console.log(`🤖 Question détectée → Claude : "${text}"`);
+
+  const reponseIA = await askClaude(text);
+
+  if (reponseIA) {
+    return reponseIA;
+  }
+}
   // Annulation
   if (msg === "menu" || msg === "annuler") {
     await clearSession(from);
@@ -305,7 +336,7 @@ async function handleMessage(from, text) {
     return `📐 Superficie : *${superficie}*\n\n🐔 *Combien de sujets (volailles) prévoyez-vous d'élever ?*\nEx: 500, 1000, 2000...`;
   }
 
-  if (session?.step === "devis_sujets") {
+  if (session?.step === "devis_sujets" && !isSmartQuestion(text)) {
     const sujets = parseInt(msg);
     if (isNaN(sujets) || sujets < 1) {
       return `❌ Nombre invalide. Entrez un nombre entier.\nEx: *500* ou *1000*`;
@@ -460,13 +491,6 @@ Tapez la quantité :`;
     return MENU_DEVIS;
   }
   if (msg === "contact" || msg === "conseiller") return CONTACT;
-
-  // Claude AI répond aux questions libres
-console.log(`🤖 Question libre → Claude AI : "${text}"`);
-const reponseIA = await askClaude(text);
-if (reponseIA) {
-  return reponseIA;
-}
 return MESSAGE_INCONNU;
 }
 
