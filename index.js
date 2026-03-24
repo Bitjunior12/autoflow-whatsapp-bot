@@ -641,7 +641,46 @@ Merci de faire confiance au *Partenaire des Éleveurs* 🙏`,
     res.status(500).json({ error: err.message });
   }
 });
+app.post("/registrations/:id/status", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!["en_attente", "confirmée", "annulée"].includes(status)) {
+      return res.status(400).json({ error: "Statut invalide" });
+    }
+    const reg = await Registration.findByIdAndUpdate(id, { status }, { new: true });
+    if (!reg) return res.status(404).json({ error: "Inscription introuvable" });
 
+    const messages = {
+      "confirmée": `✅ *Votre inscription est confirmée !*
+
+📋 Programme : ${reg.type === 'formation' ? 'Formation en aviculture' : 'Programme DECEM'}
+👤 Nom : ${reg.name}
+📍 Ville : ${reg.ville}
+💰 Coût : 85 000 FCFA
+
+📞 Notre équipe vous contactera pour les détails de paiement.
+
+Merci de faire confiance au *Partenaire des Éleveurs* 🙏`,
+
+      "annulée": `❌ *Votre inscription a été annulée.*
+
+↩️ Tapez *menu* pour revenir au menu principal
+📞 Besoin d'aide : *+225 01 02 64 20 80*`
+    };
+
+    if (messages[status]) {
+      try {
+        await sendWhatsAppMessage(reg.phone, messages[status]);
+      } catch (err) {
+        console.error("❌ Erreur notification :", err.message);
+      }
+    }
+    res.json({ success: true, reg });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 app.get("/contacts", async (req, res) => {
   try {
     const contacts = await Contact.find().sort({ lastSeen: -1 });

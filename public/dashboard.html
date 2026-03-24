@@ -28,7 +28,7 @@
       border-radius: 12px;
       padding: 20px 28px;
       flex: 1;
-      min-width: 180px;
+      min-width: 150px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       text-align: center;
     }
@@ -63,6 +63,8 @@
     .badge.attente { background: #fff3cd; color: #856404; }
     .badge.confirmee { background: #d1e7dd; color: #0f5132; }
     .badge.annulee { background: #f8d7da; color: #842029; }
+    .badge.formation { background: #cfe2ff; color: #084298; }
+    .badge.decem { background: #e2d9f3; color: #432874; }
     .refresh { font-size: 12px; color: #999; text-align: right; padding: 0 24px 8px; }
     .empty { text-align: center; padding: 32px; color: #999; font-size: 14px; }
     #login {
@@ -136,6 +138,10 @@
       <div class="label">🛒 Commandes</div>
     </div>
     <div class="stat-card">
+      <div class="number" id="totalRegistrations">—</div>
+      <div class="label">📝 Inscriptions</div>
+    </div>
+    <div class="stat-card">
       <div class="number" id="totalCA">—</div>
       <div class="label">💰 CA estimé (FCFA)</div>
     </div>
@@ -145,7 +151,7 @@
     </div>
   </div>
 
-  <div class="refresh" id="refreshInfo">Actualisation auto toutes les 30s</div>
+  <div class="refresh">Actualisation auto toutes les 30s</div>
 
   <!-- COMMANDES -->
   <div class="section">
@@ -164,6 +170,28 @@
         </tr>
       </thead>
       <tbody id="ordersBody">
+        <tr><td colspan="8" class="empty">Chargement...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- INSCRIPTIONS -->
+  <div class="section">
+    <h2>📝 Inscriptions récentes</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Nom</th>
+          <th>Téléphone</th>
+          <th>Programme</th>
+          <th>Ville</th>
+          <th>Profil</th>
+          <th>Statut</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="registrationsBody">
         <tr><td colspan="8" class="empty">Chargement...</td></tr>
       </tbody>
     </table>
@@ -218,18 +246,19 @@
     return n?.toLocaleString("fr-FR") || "0";
   }
 
-  async function updateStatus(id, status) {
+  async function updateStatus(id, status, type) {
     const label = status === "confirmée" ? "confirmer" : "annuler";
-    if (!confirm(`Voulez-vous ${label} cette commande ?`)) return;
+    if (!confirm(`Voulez-vous ${label} ?`)) return;
+    const url = type === "registration" ? `/registrations/${id}/status` : `/orders/${id}/status`;
     try {
-      const res = await fetch(`/orders/${id}/status`, {
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status })
       });
       const data = await res.json();
       if (data.success) {
-        alert(`✅ Commande ${status} avec succès !`);
+        alert(`✅ ${status} avec succès !`);
         loadData();
       } else {
         alert("❌ Erreur : " + data.error);
@@ -241,27 +270,31 @@
 
   async function loadData() {
     try {
-      const [contactsRes, ordersRes] = await Promise.all([
+      const [contactsRes, ordersRes, registrationsRes] = await Promise.all([
         fetch("/contacts"),
-        fetch("/orders")
+        fetch("/orders"),
+        fetch("/registrations")
       ]);
       const contactsData = await contactsRes.json();
       const ordersData = await ordersRes.json();
+      const registrationsData = await registrationsRes.json();
 
       // Stats
       document.getElementById("totalContacts").textContent = contactsData.total;
       document.getElementById("totalOrders").textContent = ordersData.total;
+      document.getElementById("totalRegistrations").textContent = registrationsData.total;
 
       const ca = ordersData.orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
       document.getElementById("totalCA").textContent = formatNumber(ca);
 
-      const attente = ordersData.orders.filter(o => o.status === "en_attente").length;
-      document.getElementById("totalAttente").textContent = attente;
+      const attenteOrders = ordersData.orders.filter(o => o.status === "en_attente").length;
+      const attenteRegs = registrationsData.registrations.filter(r => r.status === "en_attente").length;
+      document.getElementById("totalAttente").textContent = attenteOrders + attenteRegs;
 
       // Commandes
       const tbody = document.getElementById("ordersBody");
       if (ordersData.orders.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="empty">Aucune commande pour l'instant</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="empty">Aucune commande</td></tr>`;
       } else {
         tbody.innerHTML = ordersData.orders.map(o => `
           <tr>
@@ -274,8 +307,32 @@
             <td><span class="badge ${o.status === 'en_attente' ? 'attente' : o.status === 'confirmée' ? 'confirmee' : 'annulee'}">${o.status}</span></td>
             <td>
               ${o.status === 'en_attente' ? `
-                <button onclick="updateStatus('${o._id}', 'confirmée')" style="background:#25D366;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;margin-right:4px;">✅ Confirmer</button>
-                <button onclick="updateStatus('${o._id}', 'annulée')" style="background:#dc3545;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">❌ Annuler</button>
+                <button onclick="updateStatus('${o._id}', 'confirmée', 'order')" style="background:#25D366;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;margin-right:4px;font-size:12px;">✅ Confirmer</button>
+                <button onclick="updateStatus('${o._id}', 'annulée', 'order')" style="background:#dc3545;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;">❌ Annuler</button>
+              ` : '—'}
+            </td>
+          </tr>
+        `).join("");
+      }
+
+      // Inscriptions
+      const rbody = document.getElementById("registrationsBody");
+      if (registrationsData.registrations.length === 0) {
+        rbody.innerHTML = `<tr><td colspan="8" class="empty">Aucune inscription</td></tr>`;
+      } else {
+        rbody.innerHTML = registrationsData.registrations.map(r => `
+          <tr>
+            <td>${formatDate(r.createdAt)}</td>
+            <td>${r.name}</td>
+            <td>+${r.phone}</td>
+            <td><span class="badge ${r.type === 'formation' ? 'formation' : 'decem'}">${r.type === 'formation' ? '🎓 Formation' : '🌍 DECEM'}</span></td>
+            <td>${r.ville || '—'}</td>
+            <td>${r.profil || '—'}</td>
+            <td><span class="badge ${r.status === 'en_attente' ? 'attente' : r.status === 'confirmée' ? 'confirmee' : 'annulee'}">${r.status}</span></td>
+            <td>
+              ${r.status === 'en_attente' ? `
+                <button onclick="updateStatus('${r._id}', 'confirmée', 'registration')" style="background:#25D366;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;margin-right:4px;font-size:12px;">✅ Confirmer</button>
+                <button onclick="updateStatus('${r._id}', 'annulée', 'registration')" style="background:#dc3545;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;">❌ Annuler</button>
               ` : '—'}
             </td>
           </tr>
@@ -285,7 +342,7 @@
       // Contacts
       const cbody = document.getElementById("contactsBody");
       if (contactsData.contacts.length === 0) {
-        cbody.innerHTML = `<tr><td colspan="6" class="empty">Aucun contact pour l'instant</td></tr>`;
+        cbody.innerHTML = `<tr><td colspan="6" class="empty">Aucun contact</td></tr>`;
       } else {
         cbody.innerHTML = contactsData.contacts.map(c => `
           <tr>
@@ -307,12 +364,8 @@
     }
   }
 
-  // Vérification login au chargement
-  if (token === DASHBOARD_PWD) {
-    showDashboard();
-  }
+  if (token === DASHBOARD_PWD) showDashboard();
 
-  // Actualisation toutes les 30 secondes
   setInterval(() => {
     if (token === DASHBOARD_PWD) loadData();
   }, 30000);
