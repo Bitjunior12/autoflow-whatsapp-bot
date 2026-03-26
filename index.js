@@ -249,20 +249,12 @@ async function handleMessage(from, text) {
   if (isHotLead(text)) {
     console.log("🔥 CLIENT CHAUD DÉTECTÉ");
 
-    return `🔥 Super ! Nous pouvons vous accompagner dans votre projet.
-
-Que souhaitez-vous faire ?
-
-1️⃣ Acheter des poussins
-2️⃣ Suivre la formation
-3️⃣ Demander un devis complet
-
-👉 Tapez directement :
-- "1" pour commander
-- "2" pour la formation
-- "3" pour un devis
-
-👇 Ou précisez votre besoin (ex : "500 poussins")`;
+     if (isSmartQuestion(text)) {
+    console.log(`🤖 Question détectée → Claude : "${text}"`);
+    const reponseIA = await askClaude(text);
+    if (reponseIA) {
+      return reponseIA;  // ← Retourne la réponse de Claude
+    }
   }
 
   if (isSmartQuestion(text)) {
@@ -879,7 +871,7 @@ setInterval(async () => {
 // ===============================
 // LANCEMENT SERVEUR
 // ===============================
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 Serveur lancé sur le port ${PORT}`);
