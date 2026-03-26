@@ -841,7 +841,14 @@ setInterval(async () => {
     console.error("Keep alive error:", err.message);
   }
 }, 14 * 60 * 1000);
-
+app.get("/test-claude", async (req, res) => {
+  try {
+    const reponse = await askClaude("Quelle est la différence entre poulet chair et pondeuse ?");
+    res.json({ success: true, reponse });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 // ==============================
 // LANCEMENT SERVEUR
 // ==============================
