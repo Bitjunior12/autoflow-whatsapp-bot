@@ -581,9 +581,7 @@ const t3 = setTimeout(async () => {
 
 C'est la meilleure façon de tester et devenir rentable rapidement.
 
-👉 Voulez-vous un devis personnalisé ?`
-  );
-
+👉 'Voulez-vous un devis personnalisé ?`
 }, 86400000);
 return MESSAGE_INCONNU;
 }
@@ -879,4 +877,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   console.log(`🚀 Serveur lancé sur le port ${PORT}`);
   await subscribeToWABA();
-});}
+});
