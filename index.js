@@ -873,8 +873,18 @@ setInterval(async () => {
 // ===============================
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`🚀 Serveur lancé sur le port ${PORT}`);
-  await subscribeToWABA();
+// ✅ ROUTE TEST OBLIGATOIRE
+app.get("/", (req, res) => {
+  res.send("✅ Bot actif");
 });
+
+// ✅ LANCEMENT IMMÉDIAT (CRITIQUE POUR RENDER)
+app.listen(PORT, () => {
+  console.log(`🚀 Serveur lancé sur le port ${PORT}`);
+});
+
+// ✅ DB APRÈS (important)
+connectDB()
+  .then(() => console.log("✅ MongoDB connecté"))
+  .catch(err => console.error("❌ DB error:", err));
 }
