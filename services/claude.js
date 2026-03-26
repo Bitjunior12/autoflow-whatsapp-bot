@@ -10,7 +10,7 @@ const askClaude = async (question, context = "") => {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-3-5-sonnet-20241022",  // ✅ MODÈLE CORRIGÉ
+        model: "claude-3-5-sonnet-latest",  // ✅ MODÈLE CORRIGÉ
         max_tokens: 500,
         system: `Tu es l'assistant commercial de "Le Partenaire des Éleveurs".
 
