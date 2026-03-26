@@ -247,14 +247,10 @@ async function handleMessage(from, text) {
     return MENU_PRINCIPAL;
   }
 
-  // Client chaud → redirige vers menu
-  if (isHotLead(text)) {
-    console.log("🔥 CLIENT CHAUD DÉTECTÉ");
-    await clearSession(from);
-    return MENU_PRINCIPAL;
-  }
+  // ============================
+  // ✅ CLAUDE PRIORITAIRE
+  // ============================
 
-  // Question intelligente → Claude AI (hors tunnel critique)
   const isInCriticalFlow = [
     "quantite", "nom", "devis_nom",
     "devis_ville", "devis_superficie", "devis_sujets",
@@ -265,6 +261,16 @@ async function handleMessage(from, text) {
     console.log(`🤖 Question détectée → Claude : "${text}"`);
     const reponseIA = await askClaude(text);
     if (reponseIA) return reponseIA;
+  }
+
+  // ============================
+  // 🔥 CLIENT CHAUD APRÈS CLAUDE
+  // ============================
+
+  if (isHotLead(text)) {
+    console.log("🔥 CLIENT CHAUD DÉTECTÉ");
+    await clearSession(from);
+    return MENU_PRINCIPAL;
   }
 
   // ── TUNNEL FORMATION ──
@@ -326,159 +332,6 @@ async function handleMessage(from, text) {
 ↩️ Tapez *menu* pour revenir au menu principal`;
   }
 
-  // ── TUNNEL DEVIS ──
-  if (session?.step === "devis_choix") {
-    if (msg === "1") {
-      await setSession(from, { step: "devis_nom", type: "batiment" });
-      return DEVIS_BATIMENT_INFO;
-    } else if (msg === "2") {
-      await setSession(from, { step: "devis_nom", type: "complet" });
-      return DEVIS_COMPLET_INFO;
-    } else {
-      return `❓ Tapez *1* pour Devis Bâtiment ou *2* pour Devis Complet.\n\n↩️ Tapez *menu* pour annuler`;
-    }
-  }
-
-  if (session?.step === "devis_nom") {
-    const nom = text.trim();
-    if (nom.length < 2) return `❌ Nom invalide. Entrez votre nom complet.`;
-    await setSession(from, { step: "devis_ville", nom });
-    return `👤 Nom enregistré : *${nom}*\n\n📍 *Quelle est votre ville / localisation du projet ?*`;
-  }
-
-  if (session?.step === "devis_ville") {
-    const ville = text.trim();
-    if (ville.length < 2) return `❌ Ville invalide.`;
-    await setSession(from, { step: "devis_superficie", ville });
-    return `📍 Localisation : *${ville}*\n\n📐 *Quelle est la superficie de votre terrain ?*\nEx: 500 m², 1000 m², 1 hectare...`;
-  }
-
-  if (session?.step === "devis_superficie") {
-    const superficie = text.trim();
-    if (superficie.length < 1) return `❌ Superficie invalide.`;
-    await setSession(from, { step: "devis_sujets", superficie });
-    return `📐 Superficie : *${superficie}*\n\n🐔 *Combien de sujets (volailles) prévoyez-vous d'élever ?*\nEx: 500, 1000, 2000...`;
-  }
-
-  if (session?.step === "devis_sujets") {
-    const sujets = parseInt(msg);
-    if (isNaN(sujets) || sujets < 1) {
-      return `❌ Nombre invalide. Entrez un nombre entier.\nEx: *500* ou *1000*`;
-    }
-    const typeDevis = session.type === "batiment" ? "Bâtiment avicole" : "Complet (Bâtiment + Matériels + Poussins)";
-    try {
-      await Registration.create({
-        phone: from,
-        name: session.nom,
-        type: "devis",
-        ville: session.ville,
-        profil: typeDevis,
-        superficie: session.superficie,
-        sujets: sujets,
-      });
-      await Contact.findOneAndUpdate(
-        { phone: from },
-        { name: session.nom, lastSeen: new Date() }
-      );
-      const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
-      if (CONSEILLER_PHONE) {
-        await sendWhatsAppMessage(CONSEILLER_PHONE,
-          `🔔 *NOUVELLE DEMANDE DE DEVIS !*\n\n👤 Nom : ${session.nom}\n📱 Téléphone : +${from}\n📋 Type : ${typeDevis}\n📍 Localisation : ${session.ville}\n📐 Superficie : ${session.superficie}\n🐔 Nombre de sujets : ${sujets}\n\n👉 À contacter sous 24h`
-        );
-      }
-    } catch (err) {
-      console.error("❌ Erreur devis :", err.message);
-    }
-    await clearSession(from);
-    return `🎉 *Demande de devis enregistrée !*
-
-📋 *Récapitulatif :*
-👤 Nom : ${session.nom}
-📋 Type : ${typeDevis}
-📍 Localisation : ${session.ville}
-📐 Superficie terrain : ${session.superficie}
-🐔 Nombre de sujets : ${sujets}
-
-✅ Un technicien vous contactera sous *24h* avec votre devis personnalisé.
-
-📞 Pour toute urgence : *+225 01 02 64 20 80*
-
-↩️ Tapez *menu* pour revenir au menu principal`;
-  }
-
-  // ── TUNNEL POUSSINS ──
-  if (session?.step === "choix_race") {
-    const choix = PRIX_POUSSINS[msg];
-    if (!choix) {
-      return `❌ Choix invalide. Tapez un numéro entre 1 et 8\n\n${MENU_RACES}`;
-    }
-    await setSession(from, { step: "quantite", race: choix.race, prix: choix.prix });
-    return `✅ *${choix.race}* sélectionné (${choix.prix} FCFA/unité)
-
-📦 *Combien de poussins souhaitez-vous ?*
-_(minimum 1, carton = 50 poussins)_
-
-Tapez la quantité :`;
-  }
-
-  if (session?.step === "quantite") {
-    const qty = parseInt(msg);
-    if (isNaN(qty) || qty < 1) {
-      return `❌ Quantité invalide. Entrez un nombre entier.\nEx: *50* ou *100*`;
-    }
-    const total = qty * session.prix;
-    const totalFormate = total.toLocaleString("fr-FR");
-    await setSession(from, { step: "nom", quantity: qty, totalPrice: total });
-    return `✅ *${qty} poussins* (${session.race})
-💰 Total estimé : *${totalFormate} FCFA*
-
-👤 *Quel est votre nom complet ?*`;
-  }
-
-  if (session?.step === "nom") {
-    const nom = text.trim();
-    if (nom.length < 2) {
-      return `❌ Nom invalide. Entrez votre nom complet.`;
-    }
-    try {
-      await Order.create({
-        phone: from,
-        name: nom,
-        race: session.race,
-        quantity: session.quantity,
-        totalPrice: session.totalPrice,
-      });
-      await Contact.findOneAndUpdate(
-        { phone: from },
-        { name: nom, lastSeen: new Date() }
-      );
-      const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
-      if (CONSEILLER_PHONE) {
-        const totalFormate = session.totalPrice.toLocaleString("fr-FR");
-        await sendWhatsAppMessage(CONSEILLER_PHONE,
-          `🔔 *NOUVELLE COMMANDE REÇUE !*\n\n👤 Client : ${nom}\n📱 Téléphone : +${from}\n🐥 Race : ${session.race}\n📦 Quantité : ${session.quantity} poussins\n💰 Total : ${totalFormate} FCFA\n\n👉 À contacter sous 24h`
-        );
-      }
-    } catch (err) {
-      console.error("❌ Erreur sauvegarde commande :", err.message);
-    }
-    const totalFormate = session.totalPrice.toLocaleString("fr-FR");
-    await clearSession(from);
-    return `🎉 *Commande enregistrée avec succès !*
-
-📋 *Récapitulatif :*
-👤 Nom : ${nom}
-🐥 Race : ${session.race}
-📦 Quantité : ${session.quantity} poussins
-💰 Total estimé : ${totalFormate} FCFA
-
-✅ Un conseiller vous contactera sous *24h* pour confirmer votre commande.
-
-📞 Pour toute urgence : *+225 01 02 64 20 80*
-
-↩️ Tapez *menu* pour revenir au menu principal`;
-  }
-
   // ── MENU PRINCIPAL ──
   if (["bonjour", "bonsoir", "salut", "hi", "hello", "start", "0", "menu"].includes(msg)) {
     return MENU_PRINCIPAL;
@@ -486,29 +339,11 @@ Tapez la quantité :`;
 
   if (msg === "1") {
     await setSession(from, { step: "formation_inscription" });
-    try {
-      await sendWhatsAppImage(
-        from,
-        process.env.IMAGE_FORMATION,
-        "🎓 Formation en aviculture — Le Partenaire des Éleveurs"
-      );
-    } catch (err) {
-      console.error("❌ Erreur envoi image formation :", err.message);
-    }
     return FORMATION;
   }
 
   if (msg === "2") {
     await setSession(from, { step: "choix_race" });
-    try {
-      await sendWhatsAppImage(
-        from,
-        process.env.IMAGE_POUSSINS,
-        "🐥 Nos poussins disponibles — Le Partenaire des Éleveurs"
-      );
-    } catch (err) {
-      console.error("❌ Erreur envoi image :", err.message);
-    }
     return MENU_RACES;
   }
 
@@ -520,6 +355,11 @@ Tapez la quantité :`;
   }
 
   if (msg === "contact" || msg === "conseiller") return CONTACT;
+
+  // ❌ PAS DE DOUBLE CLAUDE ICI (SUPPRIMÉ)
+
+  return MESSAGE_INCONNU;
+}
 
   // ── SYSTÈME DE RELANCES ──
   if (!isSmartQuestion(text) && !isHotLead(text)) {
