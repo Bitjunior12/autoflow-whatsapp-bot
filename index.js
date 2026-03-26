@@ -223,6 +223,16 @@ function isHotLead(message) {
   return keywords.some(word => msg.includes(word));
 }
 
+function getChoiceLabel(text) {
+  const msg = text.trim().toLowerCase();
+  if (["1", "formation"].includes(msg)) return "Formation en aviculture";
+  if (["2", "poussin", "poussins"].includes(msg)) return "Achat de poussins";
+  if (["3", "materiel", "matériels"].includes(msg)) return "Matériels d'élevage";
+  if (["4", "devis"].includes(msg)) return "Demande de devis";
+  if (["contact"].includes(msg)) return "Demande de contact";
+  return "Autre";
+}
+
 // ==============================
 // LOGIQUE DE RÉPONSE
 // ==============================
@@ -264,7 +274,7 @@ async function handleMessage(from, text) {
   }
 
   // ============================
-  // 🔥 CLIENT CHAUD APRÈS CLAUDE
+  // 🔥 CLIENT CHAUD
   // ============================
 
   if (isHotLead(text)) {
@@ -356,12 +366,7 @@ async function handleMessage(from, text) {
 
   if (msg === "contact" || msg === "conseiller") return CONTACT;
 
-  // ❌ PAS DE DOUBLE CLAUDE ICI (SUPPRIMÉ)
-
-  return MESSAGE_INCONNU;
-}
-
-  // ── SYSTÈME DE RELANCES ──
+  // ── SYSTÈME DE RELANCES ──  ✅ MAINTENANT BIEN À L'INTÉRIEUR DE handleMessage
   if (!isSmartQuestion(text) && !isHotLead(text)) {
     const timers = [];
 
@@ -390,23 +395,14 @@ async function handleMessage(from, text) {
     relanceTimers[from] = timers;
   }
 
-  // ── CLAUDE AI pour questions libres ──
+  // ── CLAUDE AI pour toutes les autres questions ──
   console.log(`🤖 Question libre → Claude : "${text}"`);
   const reponseIA = await askClaude(text);
   if (reponseIA) return reponseIA;
 
   return MESSAGE_INCONNU;
-}
 
-function getChoiceLabel(text) {
-  const msg = text.trim().toLowerCase();
-  if (["1", "formation"].includes(msg)) return "Formation en aviculture";
-  if (["2", "poussin", "poussins"].includes(msg)) return "Achat de poussins";
-  if (["3", "materiel", "matériels"].includes(msg)) return "Matériels d'élevage";
-  if (["4", "devis"].includes(msg)) return "Demande de devis";
-  if (["contact"].includes(msg)) return "Demande de contact";
-  return "Autre";
-}
+} // ✅ FIN de handleMessage
 
 // ==============================
 // ABONNEMENT WABA
@@ -681,6 +677,7 @@ setInterval(async () => {
     console.error("Keep alive error:", err.message);
   }
 }, 14 * 60 * 1000);
+
 app.get("/test-claude", async (req, res) => {
   try {
     const reponse = await askClaude("Quelle est la différence entre poulet chair et pondeuse ?");
@@ -689,6 +686,7 @@ app.get("/test-claude", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 // ==============================
 // LANCEMENT SERVEUR
 // ==============================
