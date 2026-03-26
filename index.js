@@ -14,8 +14,6 @@ app.use(express.json());
 
 connectDB();
 
-const PORT = process.env.PORT || 10000;
-
 // ==============================
 // MESSAGES DU MENU
 // ==============================
@@ -212,6 +210,7 @@ function isSmartQuestion(message) {
 
   return keywords.some(word => msg.includes(word));
 }
+
 function isHotLead(message) {
   const msg = message.toLowerCase();
 
@@ -223,31 +222,34 @@ function isHotLead(message) {
 
   return keywords.some(word => msg.includes(word));
 }
+
 async function handleMessage(from, text) {
   const msg = text.trim().toLowerCase();
   const session = await getSession(from);
+  
   // 🔥 annule relance si le client répond
-if (relanceTimers[from]) {
-  clearTimeout(relanceTimers[from]);
-  delete relanceTimers[from];
-}
-// ==============================
-// PRIORITÉ À L'IA (CLAUDE)
-// ==============================
+  if (relanceTimers[from]) {
+    clearTimeout(relanceTimers[from]);
+    delete relanceTimers[from];
+  }
 
-const isInCriticalFlow = [
-  "quantite",
-  "nom",
-  "devis_nom",
-  "devis_ville",
-  "devis_superficie",
-  "devis_sujets"
-].includes(session?.step);
+  // ==============================
+  // PRIORITÉ À L'IA (CLAUDE)
+  // ==============================
 
-if (isHotLead(text)) {
-  console.log("🔥 CLIENT CHAUD DÉTECTÉ");
+  const isInCriticalFlow = [
+    "quantite",
+    "nom",
+    "devis_nom",
+    "devis_ville",
+    "devis_superficie",
+    "devis_sujets"
+  ].includes(session?.step);
 
-  return `🔥 Super ! Nous pouvons vous accompagner dans votre projet.
+  if (isHotLead(text)) {
+    console.log("🔥 CLIENT CHAUD DÉTECTÉ");
+
+    return `🔥 Super ! Nous pouvons vous accompagner dans votre projet.
 
 Que souhaitez-vous faire ?
 
@@ -261,15 +263,17 @@ Que souhaitez-vous faire ?
 - "3" pour un devis
 
 👇 Ou précisez votre besoin (ex : "500 poussins")`;
-}
-if (isSmartQuestion(text)) {
-  console.log(`🤖 Question détectée → Claude : "${text}"`);
-  const reponseIA = await askClaude(text);
-
-  if (reponseIA) {
-    return reponseIA;
   }
-}
+
+  if (isSmartQuestion(text)) {
+    console.log(`🤖 Question détectée → Claude : "${text}"`);
+    const reponseIA = await askClaude(text);
+
+    if (reponseIA) {
+      return reponseIA;
+    }
+  }
+
   // Annulation
   if (msg === "menu" || msg === "annuler") {
     await clearSession(from);
@@ -492,6 +496,7 @@ Tapez la quantité :`;
   if (["bonjour", "bonsoir", "salut", "hi", "hello", "start", "0", "menu"].includes(msg)) {
     return MENU_PRINCIPAL;
   }
+
   if (msg === "1") {
     await setSession(from, { step: "formation_inscription" });
     try {
@@ -505,6 +510,7 @@ Tapez la quantité :`;
     }
     return FORMATION;
   }
+
   if (msg === "2") {
     await setSession(from, { step: "choix_race" });
     try {
@@ -518,72 +524,74 @@ Tapez la quantité :`;
     }
     return MENU_RACES;
   }
+
   if (msg === "3") return MATERIELS;
+
   if (msg === "4") {
     await setSession(from, { step: "devis_choix" });
     return MENU_DEVIS;
   }
+
   if (msg === "contact" || msg === "conseiller") return CONTACT;
+
+  // ==============================
+  // SYSTÈME DE RELANCES
+  // ==============================
   if (!isSmartQuestion(text) && !isHotLead(text)) {
-relanceTimers[from] = [];
+    relanceTimers[from] = [];
 
-// =========================
-// ⏱️ RELANCE 1 → 10 MIN
-// =========================
-const t1 = setTimeout(async () => {
-  console.log("⏰ Relance 10 min");
-
-  await sendWhatsAppMessage(
-    from,
-    `👋 Juste pour savoir si vous avez pu avancer sur votre projet d’élevage 🙂
+    // RELANCE 1 → 10 MINUTES
+    const t1 = setTimeout(async () => {
+      console.log("⏰ Relance 10 min");
+      await sendWhatsAppMessage(
+        from,
+        `👋 Juste pour savoir si vous avez pu avancer sur votre projet d'élevage 🙂
 
 Nous pouvons vous guider étape par étape pour bien démarrer.
 
 👉 Tapez *menu* pour voir nos solutions`
-  );
-}, 600000);
+      );
+    }, 600000);
 
-relanceTimers[from].push(t1);
+    relanceTimers[from].push(t1);
 
-// =========================
-// ⏱️ RELANCE 2 → 1 HEURE
-// =========================
-const t2 = setTimeout(async () => {
-  console.log("⏰ Relance 1h");
+    // RELANCE 2 → 1 HEURE
+    const t2 = setTimeout(async () => {
+      console.log("⏰ Relance 1h");
+      await sendWhatsAppMessage(
+        from,
+        `👍 Beaucoup de nos clients étaient comme vous au début.
 
-  await sendWhatsAppMessage(
-    from,
-    `👍 Beaucoup de nos clients étaient comme vous au début.
-
-Aujourd’hui ils réussissent leur élevage grâce à un bon accompagnement.
+Aujourd'hui ils réussissent leur élevage grâce à un bon accompagnement.
 
 👉 Souhaitez-vous :
 1️⃣ Acheter des poussins
 2️⃣ Suivre la formation
 3️⃣ Avoir un devis`
-  );
-}, 3600000);
+      );
+    }, 3600000);
 
-relanceTimers[from].push(t2);
+    relanceTimers[from].push(t2);
 
-// =========================
-// ⏱️ RELANCE 3 → 24 HEURES
-// =========================
-const t3 = setTimeout(async () => {
-  console.log("⏰ Relance 24h");
+    // RELANCE 3 → 24 HEURES
+    const t3 = setTimeout(async () => {
+      console.log("⏰ Relance 24h");
+      await sendWhatsAppMessage(
+        from,
+        `🚀 Vous pouvez commencer avec seulement 500 poussins.
 
-  const t3 = setTimeout(async () => {
-  console.log("⏰ Relance 24h");
+C'est la meilleure façon de tester et devenir rentable rapidement.
 
-  await sendWhatsAppMessage(
-    from,
-"🚀 Vous pouvez commencer avec seulement 500 poussins.",
-"C'est la meilleure façon de tester et devenir rentable rapidement.",
-"👉 Voulez-vous un devis personnalisé ?",
-864000000,
-  );
-return MESSAGE_INCONNU;
+👉 Voulez-vous un devis personnalisé ?`
+      );
+    }, 86400000);
+
+    relanceTimers[from].push(t3);
+  }
+
+  return MESSAGE_INCONNU;
 }
+
 function getChoiceLabel(text) {
   const msg = text.trim().toLowerCase();
   if (["1", "formation"].includes(msg)) return "Formation en aviculture";
@@ -855,6 +863,7 @@ app.get("/devis", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 // ===============================
 // KEEP ALIVE
 // ===============================
@@ -865,15 +874,14 @@ setInterval(async () => {
   } catch (err) {
     console.error("Keep alive error:", err.message);
   }
-}, 14 * 60 * 1000); // 14 minutes
-
+}, 14 * 60 * 1000);
 
 // ===============================
 // LANCEMENT SERVEUR
 // ===============================
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 Serveur lancé sur le port ${PORT}`);
   await subscribeToWABA();
 });
