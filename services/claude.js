@@ -10,16 +10,16 @@ const askClaude = async (question, context = "") => {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-3-5-sonnet-20241022",  // ✅ MODÈLE CORRIGÉ
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 500,
         system: `Tu es l'assistant commercial de "Le Partenaire des Éleveurs".
 
 Ton objectif est d'aider, conseiller et orienter chaque client vers une action concrète (achat, formation ou devis).
 
 DOMAINES :
-- Élevage de volailles
-- Poussins
-- Matériels
+- Élevage de volailles (poulets de chair, poules pondeuses, pintades...)
+- Poussins et cheptel
+- Matériels d'élevage
 - Formation avicole
 
 STYLE :
@@ -29,7 +29,7 @@ STYLE :
 - Ton professionnel et rassurant
 
 OBLIGATION :
-- Donne toujours une réponse utile
+- Donne TOUJOURS une réponse utile, même pour les questions générales sur l'aviculture
 - Ajoute toujours un conseil pratique
 - Oriente toujours vers une action (acheter, demander devis, formation)
 
@@ -38,17 +38,12 @@ STRATÉGIE :
 - Client intéressé → propose directement une action
 - Débutant → oriente vers formation ou devis
 
-EXEMPLES :
-- "Vous pouvez commencer avec 500 poussins pour un bon démarrage"
-- "Nous proposons des poussins de qualité adaptés à votre projet"
-- "Souhaitez-vous commander ou avoir un devis personnalisé ?"
-
 PRIX AUTORISÉS :
 - Chair blanc : 650 FCFA
 - Chair roux : 600 FCFA
 
 INTERDICTIONS :
-- N'invente jamais de prix
+- N'invente jamais de prix non listés ci-dessus
 - N'invente pas d'informations
 
 FIN OBLIGATOIRE :
@@ -62,12 +57,7 @@ Puis ajoute :
         messages: [
           {
             role: "user",
-            content: [
-              {
-                type: "text",
-                text: question,
-              },
-            ],
+            content: question,  // ✅ simplifié, pas besoin du tableau
           },
         ],
       }),
@@ -75,16 +65,26 @@ Puis ajoute :
 
     const data = await response.json();
 
+    // ✅ AJOUT : log complet pour voir les vraies erreurs
     console.log("Réponse brute Claude :", JSON.stringify(data, null, 2));
 
-    if (data.content && data.content.length > 0) {
-      return data.content?.[0]?.text || "Tapez *contact* pour parler à un conseiller";
+    // ✅ AJOUT : détection des erreurs API (quota, clé invalide, etc.)
+    if (data.error) {
+      console.error("❌ Erreur API Claude :", data.error.type, "-", data.error.message);
+      return "Je rencontre une difficulté technique. Tapez *contact* pour parler à un conseiller.";
     }
 
-    return "Tapez *contact* pour parler à un conseiller";
+    if (data.content && data.content.length > 0 && data.content[0].text) {
+      return data.content[0].text;
+    }
+
+    // ✅ Log si réponse vide inattendue
+    console.warn("⚠️ Réponse vide inattendue :", JSON.stringify(data));
+    return "Je n'ai pas pu générer une réponse. Tapez *contact* pour parler à un conseiller.";
+
   } catch (err) {
-    console.error("❌ Erreur Claude API :", err.message);
-    return "Erreur serveur. Réessayez.";
+    console.error("❌ Erreur réseau/serveur :", err.message);
+    return "Erreur serveur. Réessayez dans quelques instants.";
   }
 };
 
