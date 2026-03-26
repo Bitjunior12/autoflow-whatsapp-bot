@@ -63,28 +63,15 @@ Puis ajoute :
       }),
     });
 
-    const data = await response.json();
+        const data = await response.json();
 
-    // ✅ AJOUT : log complet pour voir les vraies erreurs
-    console.log("Réponse brute Claude :", JSON.stringify(data, null, 2));
-
-    // ✅ AJOUT : détection des erreurs API (quota, clé invalide, etc.)
-    if (data.error) {
-      console.error("❌ Erreur API Claude :", data.error.type, "-", data.error.message);
-      return "Je rencontre une difficulté technique. Tapez *contact* pour parler à un conseiller.";
-    }
-
-    if (data.content && data.content.length > 0 && data.content[0].text) {
+    if (data.content && data.content[0]) {
       return data.content[0].text;
     }
-
-    // ✅ Log si réponse vide inattendue
-    console.warn("⚠️ Réponse vide inattendue :", JSON.stringify(data));
-    return "Je n'ai pas pu générer une réponse. Tapez *contact* pour parler à un conseiller.";
-
+    return null;
   } catch (err) {
-    console.error("❌ Erreur réseau/serveur :", err.message);
-    return "Erreur serveur. Réessayez dans quelques instants.";
+    console.error("❌ Erreur Claude API :", err.message);
+    return null;
   }
 };
 
