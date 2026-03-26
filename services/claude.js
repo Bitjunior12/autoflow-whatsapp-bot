@@ -1,5 +1,6 @@
 const askClaude = async (question) => {
   try {
+    console.log("🔥 CLAUDE VERSION HAÏKU ACTIVE 🔥");
     console.log("Question envoyée à Claude :", question);
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
