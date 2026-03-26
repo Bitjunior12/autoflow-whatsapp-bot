@@ -577,12 +577,11 @@ const t3 = setTimeout(async () => {
 
   await sendWhatsAppMessage(
     from,
-    `🚀 Vous pouvez commencer avec seulement 500 poussins.
-
-C'est la meilleure façon de tester et devenir rentable rapidement.
-
-👉 'Voulez-vous un devis personnalisé ?`
-}, 86400000);
+"🚀 Vous pouvez commencer avec seulement 500 poussins.",
+"C'est la meilleure façon de tester et devenir rentable rapidement.",
+"👉 Voulez-vous un devis personnalisé ?",
+864000000,
+  );
 return MESSAGE_INCONNU;
 }
 function getChoiceLabel(text) {
