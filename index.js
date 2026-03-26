@@ -8,9 +8,12 @@ const Order = require("./models/Order");
 const Registration = require("./models/Registration");
 const { setSession, getSession, clearSession } = require("./services/session");
 const { askClaude } = require("./services/claude");
+
 const relanceTimers = {};
 const app = express();
 app.use(express.json());
+
+const PORT = process.env.PORT || 10000;
 
 connectDB();
 
@@ -197,79 +200,71 @@ Tapez le *numéro* de votre choix
 ↩️ Tapez *menu* pour annuler`;
 
 // ==============================
-// LOGIQUE DE RÉPONSE
+// FONCTIONS UTILITAIRES
 // ==============================
+
 function isSmartQuestion(message) {
   const msg = message.toLowerCase();
-
   const keywords = [
     "quoi", "comment", "pourquoi", "différence",
     "prix", "combien", "conseil", "expliquer",
     "c'est quoi", "avantage", "inconvénient"
   ];
-
   return keywords.some(word => msg.includes(word));
 }
 
 function isHotLead(message) {
   const msg = message.toLowerCase();
-
   const keywords = [
     "je veux", "je suis intéressé", "je veux commencer",
     "je veux acheter", "comment acheter", "je commande",
     "je veux des poussins", "je veux un devis"
   ];
-
   return keywords.some(word => msg.includes(word));
 }
+
+// ==============================
+// LOGIQUE DE RÉPONSE
+// ==============================
 
 async function handleMessage(from, text) {
   const msg = text.trim().toLowerCase();
   const session = await getSession(from);
-  
-  // 🔥 annule relance si le client répond
+
+  // Annule relance si le client répond
   if (relanceTimers[from]) {
-    clearTimeout(relanceTimers[from]);
+    if (Array.isArray(relanceTimers[from])) {
+      relanceTimers[from].forEach(t => clearTimeout(t));
+    } else {
+      clearTimeout(relanceTimers[from]);
+    }
     delete relanceTimers[from];
-  }
-
-  // ==============================
-  // PRIORITÉ À L'IA (CLAUDE)
-  // ==============================
-
-  const isInCriticalFlow = [
-    "quantite",
-    "nom",
-    "devis_nom",
-    "devis_ville",
-    "devis_superficie",
-    "devis_sujets"
-  ].includes(session?.step);
-
-  if (isHotLead(text)) {
-    console.log("🔥 CLIENT CHAUD DÉTECTÉ");
-
-     if (isSmartQuestion(text)) {
-    console.log(`🤖 Question détectée → Claude : "${text}"`);
-    const reponseIA = await askClaude(text);
-    if (reponseIA) {
-      return reponseIA;  // ← Retourne la réponse de Claude
-    }
-  }
-
-  if (isSmartQuestion(text)) {
-    console.log(`🤖 Question détectée → Claude : "${text}"`);
-    const reponseIA = await askClaude(text);
-
-    if (reponseIA) {
-      return reponseIA;
-    }
   }
 
   // Annulation
   if (msg === "menu" || msg === "annuler") {
     await clearSession(from);
     return MENU_PRINCIPAL;
+  }
+
+  // Client chaud → redirige vers menu
+  if (isHotLead(text)) {
+    console.log("🔥 CLIENT CHAUD DÉTECTÉ");
+    await clearSession(from);
+    return MENU_PRINCIPAL;
+  }
+
+  // Question intelligente → Claude AI (hors tunnel critique)
+  const isInCriticalFlow = [
+    "quantite", "nom", "devis_nom",
+    "devis_ville", "devis_superficie", "devis_sujets",
+    "formation_nom", "formation_ville", "formation_inscription"
+  ].includes(session?.step);
+
+  if (isSmartQuestion(text) && !isInCriticalFlow) {
+    console.log(`🤖 Question détectée → Claude : "${text}"`);
+    const reponseIA = await askClaude(text);
+    if (reponseIA) return reponseIA;
   }
 
   // ── TUNNEL FORMATION ──
@@ -365,7 +360,7 @@ async function handleMessage(from, text) {
     return `📐 Superficie : *${superficie}*\n\n🐔 *Combien de sujets (volailles) prévoyez-vous d'élever ?*\nEx: 500, 1000, 2000...`;
   }
 
-  if (session?.step === "devis_sujets" && !isSmartQuestion(text)) {
+  if (session?.step === "devis_sujets") {
     const sujets = parseInt(msg);
     if (isNaN(sujets) || sujets < 1) {
       return `❌ Nombre invalide. Entrez un nombre entier.\nEx: *500* ou *1000*`;
@@ -526,60 +521,39 @@ Tapez la quantité :`;
 
   if (msg === "contact" || msg === "conseiller") return CONTACT;
 
-  // ==============================
-  // SYSTÈME DE RELANCES
-  // ==============================
+  // ── SYSTÈME DE RELANCES ──
   if (!isSmartQuestion(text) && !isHotLead(text)) {
-    relanceTimers[from] = [];
+    const timers = [];
 
-    // RELANCE 1 → 10 MINUTES
     const t1 = setTimeout(async () => {
       console.log("⏰ Relance 10 min");
-      await sendWhatsAppMessage(
-        from,
-        `👋 Juste pour savoir si vous avez pu avancer sur votre projet d'élevage 🙂
-
-Nous pouvons vous guider étape par étape pour bien démarrer.
-
-👉 Tapez *menu* pour voir nos solutions`
+      await sendWhatsAppMessage(from,
+        `👋 Juste pour savoir si vous avez pu avancer sur votre projet d'élevage 🙂\n\nNous pouvons vous guider étape par étape pour bien démarrer.\n\n👉 Tapez *menu* pour voir nos solutions`
       );
     }, 600000);
 
-    relanceTimers[from].push(t1);
-
-    // RELANCE 2 → 1 HEURE
     const t2 = setTimeout(async () => {
       console.log("⏰ Relance 1h");
-      await sendWhatsAppMessage(
-        from,
-        `👍 Beaucoup de nos clients étaient comme vous au début.
-
-Aujourd'hui ils réussissent leur élevage grâce à un bon accompagnement.
-
-👉 Souhaitez-vous :
-1️⃣ Acheter des poussins
-2️⃣ Suivre la formation
-3️⃣ Avoir un devis`
+      await sendWhatsAppMessage(from,
+        `👍 Beaucoup de nos clients étaient comme vous au début.\n\nAujourd'hui ils réussissent leur élevage grâce à un bon accompagnement.\n\n👉 Souhaitez-vous :\n1️⃣ Acheter des poussins\n2️⃣ Suivre la formation\n3️⃣ Avoir un devis`
       );
     }, 3600000);
 
-    relanceTimers[from].push(t2);
-
-    // RELANCE 3 → 24 HEURES
     const t3 = setTimeout(async () => {
       console.log("⏰ Relance 24h");
-      await sendWhatsAppMessage(
-        from,
-        `🚀 Vous pouvez commencer avec seulement 500 poussins.
-
-C'est la meilleure façon de tester et devenir rentable rapidement.
-
-👉 Voulez-vous un devis personnalisé ?`
+      await sendWhatsAppMessage(from,
+        `🚀 Vous pouvez commencer avec seulement 500 poussins.\n\nC'est la meilleure façon de tester et devenir rentable rapidement.\n\n👉 Voulez-vous un devis personnalisé ?`
       );
     }, 86400000);
 
-    relanceTimers[from].push(t3);
+    timers.push(t1, t2, t3);
+    relanceTimers[from] = timers;
   }
+
+  // ── CLAUDE AI pour questions libres ──
+  console.log(`🤖 Question libre → Claude : "${text}"`);
+  const reponseIA = await askClaude(text);
+  if (reponseIA) return reponseIA;
 
   return MESSAGE_INCONNU;
 }
@@ -856,9 +830,9 @@ app.get("/devis", async (req, res) => {
   }
 });
 
-// ===============================
+// ==============================
 // KEEP ALIVE
-// ===============================
+// ==============================
 setInterval(async () => {
   try {
     await fetch("https://autoflow-whatsapp-bot.onrender.com/");
@@ -868,23 +842,10 @@ setInterval(async () => {
   }
 }, 14 * 60 * 1000);
 
-// ===============================
+// ==============================
 // LANCEMENT SERVEUR
-// ===============================
-const PORT = process.env.PORT || 3000;
-
-// ✅ ROUTE TEST OBLIGATOIRE
-app.get("/", (req, res) => {
-  res.send("✅ Bot actif");
-});
-
-// ✅ LANCEMENT IMMÉDIAT (CRITIQUE POUR RENDER)
-app.listen(PORT, () => {
+// ==============================
+app.listen(PORT, async () => {
   console.log(`🚀 Serveur lancé sur le port ${PORT}`);
+  await subscribeToWABA();
 });
-
-// ✅ DB APRÈS (important)
-connectDB()
-  .then(() => console.log("✅ MongoDB connecté"))
-  .catch(err => console.error("❌ DB error:", err));
-}
