@@ -240,7 +240,15 @@ function getChoiceLabel(text) {
 async function handleMessage(from, text) {
   const msg = text.trim().toLowerCase();
   const session = await getSession(from);
+const ADMIN_PHONE = "225XXXXXXXX"; // TON numéro
 
+if (from !== ADMIN_PHONE) {
+  return `🚧 *Bot en maintenance*
+
+Nous améliorons actuellement nos services pour mieux vous servir 🙏
+
+⏳ Merci de réessayer dans quelques heures.`;
+}
   // Annule relance si le client répond
   if (relanceTimers[from]) {
     if (Array.isArray(relanceTimers[from])) {
