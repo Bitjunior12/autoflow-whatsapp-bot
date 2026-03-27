@@ -172,6 +172,16 @@ _Le Partenaire des Éleveurs_
 
 Tapez le *numéro* de votre choix
 ↩️ Tapez *menu* pour annuler`;
+const MENU_ESTIMATION = `📊 *ESTIMER MES COÛTS & BÉNÉFICES*
+_Le Partenaire des Éleveurs_
+
+Quel type de production souhaitez-vous estimer ?
+
+1️⃣ Poulets de chair
+2️⃣ Poules pondeuses
+
+Tapez le *numéro* de votre choix
+↩️ Tapez *menu* pour annuler`;
 const MENU_SUIVI = `📊 *SUIVRE & AMÉLIORER MON ÉLEVAGE*
 _Le Partenaire des Éleveurs_
 
@@ -331,7 +341,8 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "suivi_type", "suivi_sujets", "suivi_probleme",
     "choix_race", "commande_quantite", "commande_nom", "commande_ville",
     "estimation_race", "premium_nom", "premium_ville",
-    "materiel_choix", "materiel_sujets", "materiel_action", "materiel_nom", "materiel_ville"
+    "materiel_choix", "materiel_sujets", "materiel_action", "materiel_nom", "materiel_ville",
+    "estimation_type", "estimation_sujets", "estimation_budget"
   ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow && !session?.step) {
@@ -434,18 +445,8 @@ if (msg === "4") {
 }
 
 if (msg === "5") {
-    await setSession(from, { step: "estimation_race" });
-    return `📊 *ESTIMER MES COÛTS & BÉNÉFICES*
-_Le Partenaire des Éleveurs_
-
-Choisissez la race de vos poussins :
-
-1️⃣ Chairs Blanc → 650 FCFA/unité
-2️⃣ Chairs Roux → 600 FCFA/unité
-3️⃣ Hybrides → 450 FCFA/unité
-
-Tapez le *numéro* de votre choix
-↩️ Tapez *menu* pour annuler`;
+    await setSession(from, { step: "estimation_type" });
+    return MENU_ESTIMATION;
 }
 
 if (msg === "6") {
@@ -887,6 +888,55 @@ Termine par : "Souhaitez-vous commander ou recevoir un devis ?"`;
 📞 Urgence : *+225 01 02 64 20 80*
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
+  }
+  // ── TUNNEL ESTIMATION COÛTS & BÉNÉFICES ──
+  if (session?.step === "estimation_type") {
+    const types = { "1": "Poulets de chair", "2": "Poules pondeuses" };
+    if (!types[msg]) return `❓ Tapez *1* ou *2* pour choisir.`;
+    await setSession(from, { ...session, step: "estimation_sujets", type: types[msg] });
+    return `✅ Type : *${types[msg]}*\n\n🐔 *Combien de sujets voulez-vous élever ?*\n\nExemple : 500`;
+  }
+
+  if (session?.step === "estimation_sujets") {
+    const sujets = parseInt(text.trim());
+    if (isNaN(sujets) || sujets < 1) return `❌ Entrez un nombre valide. Exemple : *500*`;
+    await setSession(from, { ...session, step: "estimation_budget", sujets });
+    return `✅ Nombre de sujets : *${sujets}*\n\n💰 *Quel est votre budget disponible ?* (en FCFA)\n\nExemple : 500000`;
+  }
+
+  if (session?.step === "estimation_budget") {
+    const budget = parseInt(text.trim().replace(/\s/g, ""));
+    if (isNaN(budget) || budget < 1) return `❌ Entrez un budget valide. Exemple : *500000*`;
+
+    const { type, sujets } = session;
+
+    const prompt = `Tu es expert en gestion financière avicole en Côte d'Ivoire.
+Un éleveur veut estimer la rentabilité de son projet :
+- Type : ${type}
+- Nombre de sujets : ${sujets}
+- Budget disponible : ${budget.toLocaleString("fr-FR")} FCFA
+
+Génère une estimation financière complète et réaliste :
+1. 💰 Coût des poussins (utilise ces prix : Chair Blanc 650 FCFA, Chair Roux 600 FCFA, Ponte ISA Brown 1150 FCFA)
+2. 🍽️ Coût alimentation estimé (durée du cycle)
+3. 🏗️ Coût matériels estimé
+4. 📈 Revenu potentiel à la vente
+5. 💵 Bénéfice net estimé
+6. ⏱️ Délai de rentabilité
+7. ✅ Conclusion : ce projet est-il réalisable avec ce budget ?
+
+Termine par : "Souhaitez-vous commander vos poussins ou vous inscrire à la formation ?"
+Puis : "↩️ Tapez *menu* pour voir nos services"`;
+
+    let estimation = "";
+    try {
+      estimation = await askClaude(prompt);
+    } catch (err) {
+      estimation = `📊 Estimation pour ${sujets} ${type} :\n\nVeuillez contacter notre conseiller pour une estimation personnalisée.\n\n👉 Tapez *contact*\n\n↩️ Tapez *menu* pour voir nos services`;
+    }
+
+    await clearSession(from);
+    return estimation;
   }
   return MESSAGE_INCONNU;
 
