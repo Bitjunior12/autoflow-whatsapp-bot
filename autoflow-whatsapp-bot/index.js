@@ -162,6 +162,16 @@ const CONTACT = `📞 *CONTACTEZ-NOUS*
 🕐 Disponible *24H/24* sur WhatsApp
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
+const MENU_MATERIELS_CHOIX = `🏪 *QUE RECHERCHEZ-VOUS ?*
+_Le Partenaire des Éleveurs_
+
+1️⃣ Abreuvoirs
+2️⃣ Mangeoires
+3️⃣ Chauffage
+4️⃣ Pack complet (tout)
+
+Tapez le *numéro* de votre choix
+↩️ Tapez *menu* pour annuler`;
 const MENU_SUIVI = `📊 *SUIVRE & AMÉLIORER MON ÉLEVAGE*
 _Le Partenaire des Éleveurs_
 
@@ -320,7 +330,8 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "debutant_nom", "debutant_ville",
     "suivi_type", "suivi_sujets", "suivi_probleme",
     "choix_race", "commande_quantite", "commande_nom", "commande_ville",
-    "estimation_race", "premium_nom", "premium_ville"
+    "estimation_race", "premium_nom", "premium_ville",
+    "materiel_choix", "materiel_sujets", "materiel_action", "materiel_nom", "materiel_ville"
   ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow) {
@@ -417,7 +428,10 @@ if (msg === "3") {
     return MENU_RACES;
 }
 
-if (msg === "4") return MATERIELS;
+if (msg === "4") {
+    await setSession(from, { step: "materiel_choix" });
+    return MATERIELS + `\n\n👉 *Qu'est-ce qui vous intéresse ?*\n\n` + MENU_MATERIELS_CHOIX;
+}
 
 if (msg === "5") {
     await setSession(from, { step: "estimation_race" });
@@ -770,6 +784,105 @@ Puis : "↩️ Tapez *menu* pour voir nos services"`;
 💰 Total : ${total.toLocaleString("fr-FR")} FCFA
 
 ✅ Un conseiller vous contactera sous *24h* pour les modalités de paiement et livraison.
+
+📞 Urgence : *+225 01 02 64 20 80*
+
+↩️ Tapez *menu* pour revenir au menu principal`;
+  }
+  // ── TUNNEL MATÉRIELS ──
+  if (session?.step === "materiel_choix") {
+    const materiels = {
+      "1": "Abreuvoirs",
+      "2": "Mangeoires",
+      "3": "Chauffage",
+      "4": "Pack complet"
+    };
+    if (!materiels[msg]) return `❓ Tapez *1*, *2*, *3* ou *4* pour choisir.`;
+    await setSession(from, { ...session, step: "materiel_sujets", materiel: materiels[msg] });
+    return `✅ Choix : *${materiels[msg]}*\n\n🐔 *Combien de sujets avez-vous dans votre élevage ?*\n\nExemple : 500`;
+  }
+
+  if (session?.step === "materiel_sujets") {
+    const sujets = parseInt(text.trim());
+    if (isNaN(sujets) || sujets < 1) return `❌ Entrez un nombre valide. Exemple : *500*`;
+
+    const prompt = `Tu es expert en équipement avicole en Côte d'Ivoire.
+Un éleveur a ${sujets} sujets et s'intéresse à : ${session.materiel}.
+Recommande en 3-4 lignes :
+1. La quantité exacte nécessaire
+2. Les références recommandées avec prix depuis cette liste :
+   - Abreuvoir Automatique Jumbo : 11 000 FCFA
+   - Abreuvoir avec pied 11L : 4 500 FCFA
+   - Abreuvoir avec pied 6L : 3 000 FCFA
+   - Abreuvoir sans pied 11L : 4 300 FCFA
+   - Abreuvoir sans pied 6L : 2 500 FCFA
+   - Abreuvoir Conique 5L : 1 800 FCFA
+   - Mangeoire démarrage : 1 500 FCFA
+   - Mangeoire anti-gaspillage : 2 500 FCFA
+   - Mangeoire métallique : 1 700 FCFA
+   - Fourneau de chauffage : 8 000 FCFA
+3. Le coût total estimé
+Termine par : "Souhaitez-vous commander ou recevoir un devis ?"`;
+
+    let conseil = "";
+    try {
+      conseil = await askClaude(prompt);
+    } catch (err) {
+      conseil = `Pour ${sujets} sujets, nous vous recommandons les équipements adaptés.\n\nSouhaitez-vous commander ou recevoir un devis ?`;
+    }
+
+    await setSession(from, { ...session, step: "materiel_action", sujets });
+    return conseil + `\n\n1️⃣ Commander maintenant\n2️⃣ Recevoir un devis\n\n↩️ Tapez *menu* pour annuler`;
+  }
+
+  if (session?.step === "materiel_action") {
+    if (msg !== "1" && msg !== "2") return `❓ Tapez *1* pour commander ou *2* pour un devis.`;
+    const action = msg === "1" ? "commande" : "devis";
+    await setSession(from, { ...session, step: "materiel_nom", action });
+    return `✅ *${action === "commande" ? "Commande" : "Devis"} sélectionné*\n\n👤 *Quel est votre nom complet ?*`;
+  }
+
+  if (session?.step === "materiel_nom") {
+    const nom = text.trim();
+    if (nom.length < 2) return `❌ Nom invalide.`;
+    await setSession(from, { ...session, step: "materiel_ville", nom });
+    return `✅ Nom : *${nom}*\n\n📍 *Quelle est votre ville ?*`;
+  }
+
+  if (session?.step === "materiel_ville") {
+    const ville = text.trim();
+    if (ville.length < 2) return `❌ Ville invalide.`;
+    const { materiel, sujets, action, nom } = session;
+
+    try {
+      await Registration.create({
+        phone: from,
+        name: nom,
+        type: action === "commande" ? "commande_materiel" : "devis_materiel",
+        ville,
+        profil: `${materiel} | ${sujets} sujets`
+      });
+
+      const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+      if (CONSEILLER_PHONE) {
+        await sendWhatsAppMessage(CONSEILLER_PHONE,
+          `🏪 *${action === "commande" ? "COMMANDE" : "DEVIS"} MATÉRIELS !*\n\n👤 Nom : ${nom}\n📱 Téléphone : +${from}\n📍 Ville : ${ville}\n🛒 Matériel : ${materiel}\n🐔 Sujets : ${sujets}\n\n👉 À traiter sous 24h`
+        );
+      }
+    } catch (err) {
+      console.error("❌ Erreur matériel :", err.message);
+    }
+
+    await clearSession(from);
+    return `🎉 *${action === "commande" ? "Commande" : "Devis"} enregistré !*
+
+📋 *Récapitulatif :*
+👤 Nom : ${nom}
+📍 Ville : ${ville}
+🛒 Matériel : ${materiel}
+🐔 Pour : ${sujets} sujets
+
+✅ Un conseiller vous contactera sous *24h*.
 
 📞 Urgence : *+225 01 02 64 20 80*
 
