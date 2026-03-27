@@ -345,7 +345,7 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "estimation_type", "estimation_sujets", "estimation_budget"
   ].includes(session?.step);
 
-  if (isSmartQuestion(text) && !isInCriticalFlow && !session?.step) {
+  if (isSmartQuestion(text) && !isInCriticalFlow) {
     console.log(`🤖 Question détectée → Claude : "${text}"`);
     const reponseIA = await askClaude(text);
     if (reponseIA) return reponseIA;
