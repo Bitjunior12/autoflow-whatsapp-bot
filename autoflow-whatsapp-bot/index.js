@@ -316,7 +316,8 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "devis_ville", "devis_superficie", "devis_sujets",
     "formation_nom", "formation_ville", "formation_inscription",
     "debutant_objectif", "debutant_superficie", "debutant_budget",
-    "debutant_nom", "debutant_ville","suivi_type", "suivi_sujets", "suivi_probleme"
+    "debutant_nom", "debutant_ville","suivi_type", "suivi_sujets", "suivi_probleme",
+    "commande_quantite", "commande_nom", "commande_ville",
   ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow) {
@@ -704,6 +705,72 @@ Puis : "↩️ Tapez *menu* pour voir nos services"`;
 
     await clearSession(from);
     return diagnostic;
+  }
+  // ── TUNNEL ACHAT POUSSINS ──
+  if (session?.step === "choix_race") {
+    const choix = PRIX_POUSSINS[msg];
+    if (!choix) return `❓ Tapez un numéro entre *1* et *8* pour choisir votre race.`;
+    await setSession(from, { ...session, step: "commande_quantite", race: choix.race, prix: choix.prix });
+    return `✅ Race choisie : *${choix.race}*\nPrix unitaire : *${choix.prix} FCFA*\n\n📦 *Combien de poussins souhaitez-vous commander ?*\n\nExemple : 500`;
+  }
+
+  if (session?.step === "commande_quantite") {
+    const quantite = parseInt(text.trim());
+    if (isNaN(quantite) || quantite < 1) return `❌ Entrez un nombre valide. Exemple : *500*`;
+    const total = quantite * session.prix;
+    await setSession(from, { ...session, step: "commande_nom", quantite, total });
+    return `✅ Quantité : *${quantite} poussins*\n💰 Total estimé : *${total.toLocaleString("fr-FR")} FCFA*\n\n👤 *Quel est votre nom complet ?*`;
+  }
+
+  if (session?.step === "commande_nom") {
+    const nom = text.trim();
+    if (nom.length < 2) return `❌ Nom invalide. Entrez votre nom complet.`;
+    await setSession(from, { ...session, step: "commande_ville", nom });
+    return `✅ Nom : *${nom}*\n\n📍 *Quelle est votre ville ?*`;
+  }
+
+  if (session?.step === "commande_ville") {
+    const ville = text.trim();
+    if (ville.length < 2) return `❌ Ville invalide.`;
+    const { race, prix, quantite, total, nom } = session;
+
+    try {
+      await Order.create({
+        phone: from,
+        name: nom,
+        race,
+        quantity: quantite,
+        unitPrice: prix,
+        totalPrice: total,
+        ville,
+        status: "en_attente"
+      });
+
+      const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+      if (CONSEILLER_PHONE) {
+        await sendWhatsAppMessage(CONSEILLER_PHONE,
+          `🐥 *NOUVELLE COMMANDE POUSSINS !*\n\n👤 Nom : ${nom}\n📱 Téléphone : +${from}\n📍 Ville : ${ville}\n🐔 Race : ${race}\n📦 Quantité : ${quantite} poussins\n💰 Total : ${total.toLocaleString("fr-FR")} FCFA\n\n👉 À confirmer sous 24h`
+        );
+      }
+    } catch (err) {
+      console.error("❌ Erreur commande poussins :", err.message);
+    }
+
+    await clearSession(from);
+    return `🎉 *Commande enregistrée avec succès !*
+
+📋 *Récapitulatif :*
+👤 Nom : ${nom}
+📍 Ville : ${ville}
+🐔 Race : ${race}
+📦 Quantité : ${quantite} poussins
+💰 Total : ${total.toLocaleString("fr-FR")} FCFA
+
+✅ Un conseiller vous contactera sous *24h* pour les modalités de paiement et livraison.
+
+📞 Urgence : *+225 01 02 64 20 80*
+
+↩️ Tapez *menu* pour revenir au menu principal`;
   }
   return MESSAGE_INCONNU;
 
