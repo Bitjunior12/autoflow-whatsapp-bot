@@ -376,24 +376,81 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     return MENU_PRINCIPAL;
   }
 
-  if (msg === "1") {
+  if (msg === "1" && !session?.step) {
     await setSession(from, { step: "debutant_objectif" });
     return MENU_DEBUTANT;
 }
 
-  if (msg === "2") {
+if (msg === "2") {
+    const reponse = await askClaude(`Un éleveur veut améliorer son élevage. 
+    Donne-lui 3 conseils pratiques pour optimiser sa production avicole en Côte d'Ivoire.
+    Oriente-le vers le programme premium de suivi et coaching du Partenaire des Éleveurs.
+    Termine par : "Souhaitez-vous rejoindre notre programme premium ?"
+    Puis : "↩️ Tapez *menu* pour voir nos services"`);
+    return reponse;
+}
+
+if (msg === "3") {
     await setSession(from, { step: "choix_race" });
     return MENU_RACES;
-  }
+}
 
-  if (msg === "3") return MATERIELS;
+if (msg === "4") return MATERIELS;
 
-  if (msg === "4") {
-    await setSession(from, { step: "devis_choix" });
-    return MENU_DEVIS;
-  }
+if (msg === "5") {
+    await setSession(from, { step: "estimation_race" });
+    return `📊 *ESTIMER MES COÛTS & BÉNÉFICES*
+_Le Partenaire des Éleveurs_
 
-  if (msg === "contact" || msg === "conseiller") return CONTACT;
+Choisissez la race de vos poussins :
+
+1️⃣ Chairs Blanc → 650 FCFA/unité
+2️⃣ Chairs Roux → 600 FCFA/unité
+3️⃣ Hybrides → 450 FCFA/unité
+
+Tapez le *numéro* de votre choix
+↩️ Tapez *menu* pour annuler`;
+}
+
+if (msg === "6") {
+    await setSession(from, { step: "formation_inscription" });
+    return FORMATION;
+}
+
+if (msg === "7") {
+    await setSession(from, { step: "premium_nom" });
+    return `⭐ *PROGRAMME PREMIUM*
+_Le Partenaire des Éleveurs_
+
+Notre programme premium vous offre :
+
+✅ Suivi personnalisé de votre élevage
+✅ Coaching hebdomadaire avec un expert
+✅ Alertes maladies & conseils nutrition
+✅ Accès prioritaire à nos poussins
+✅ Rapport mensuel de performance
+
+💬 Commençons ! *Quel est votre nom complet ?*
+
+↩️ Tapez *menu* pour annuler`;
+}
+
+if (msg === "8") {
+    await setSession(from, { step: null });
+    return `🤖 *POSEZ VOTRE QUESTION*
+
+Je suis votre assistant avicole. Posez-moi n'importe quelle question sur :
+🐔 L'élevage de volailles
+💊 Les maladies et traitements
+🍽️ L'alimentation
+🏗️ Les bâtiments
+📈 La rentabilité
+
+👉 *Tapez votre question maintenant*
+↩️ Tapez *menu* pour revenir au menu`;
+}
+
+if (msg === "9" || msg === "contact" || msg === "conseiller") return CONTACT;
 
   // ── SYSTÈME DE RELANCES ──  ✅ MAINTENANT BIEN À L'INTÉRIEUR DE handleMessage
   if (!isSmartQuestion(text) && !isHotLead(text)) {
@@ -517,6 +574,46 @@ Puis : "↩️ Tapez *menu* pour voir nos services"`;
 
     await clearSession(from);
     return planPersonnalise;
+  }
+  // ── TUNNEL PREMIUM ──
+  if (session?.step === "premium_nom") {
+    const nom = text.trim();
+    if (nom.length < 2) return `❌ Nom invalide. Entrez votre nom complet.`;
+    await setSession(from, { step: "premium_ville", nom });
+    return `👤 Nom : *${nom}*\n\n📍 *Quelle est votre ville ?*`;
+  }
+
+  if (session?.step === "premium_ville") {
+    const ville = text.trim();
+    if (ville.length < 2) return `❌ Ville invalide.`;
+    try {
+      await Registration.create({
+        phone: from,
+        name: session.nom,
+        type: "premium",
+        ville,
+        profil: "Programme Premium"
+      });
+      const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+      if (CONSEILLER_PHONE) {
+        await sendWhatsAppMessage(CONSEILLER_PHONE,
+          `⭐ *NOUVELLE DEMANDE PREMIUM !*\n\n👤 Nom : ${session.nom}\n📱 Téléphone : +${from}\n📍 Ville : ${ville}\n\n👉 À contacter sous 24h`
+        );
+      }
+    } catch (err) {
+      console.error("❌ Erreur premium :", err.message);
+    }
+    await clearSession(from);
+    return `*Demande Premium enregistrée !*
+
+👤 Nom : ${session.nom}
+📍 Ville : ${ville}
+
+✅ Un conseiller vous contactera sous *24h* pour vous présenter le programme et ses tarifs.
+
+📞 Urgence : *+225 01 02 64 20 80*
+
+↩️ Tapez *menu* pour revenir au menu principal`;
   }
   return MESSAGE_INCONNU;
 
