@@ -334,7 +334,7 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "materiel_choix", "materiel_sujets", "materiel_action", "materiel_nom", "materiel_ville"
   ].includes(session?.step);
 
-  if (isSmartQuestion(text) && !isInCriticalFlow) {
+  if (isSmartQuestion(text) && !isInCriticalFlow && !session?.step) {
     console.log(`🤖 Question détectée → Claude : "${text}"`);
     const reponseIA = await askClaude(text);
     if (reponseIA) return reponseIA;
