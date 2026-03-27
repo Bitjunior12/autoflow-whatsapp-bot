@@ -377,9 +377,9 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
   }
 
   if (msg === "1") {
-    await setSession(from, { step: "formation_inscription" });
-    return FORMATION;
-  }
+    await setSession(from, { step: "debutant_objectif" });
+    return MENU_DEBUTANT;
+}
 
   if (msg === "2") {
     await setSession(from, { step: "choix_race" });
