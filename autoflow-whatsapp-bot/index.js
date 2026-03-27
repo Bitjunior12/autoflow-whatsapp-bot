@@ -21,9 +21,7 @@ connectDB();
 // MESSAGES DU MENU
 // ==============================
 
-const MENU_PRINCIPAL = `📲 *MENU PRINCIPAL - FLIMADAUTOFLOW*
-
-👋 Bienvenue chez *Le Partenaire des Éleveurs* 🐔
+const MENU_PRINCIPAL = `👋 Bienvenue chez *Le Partenaire des Éleveurs* 🐔
 Votre assistant pour réussir et rentabiliser votre élevage en Côte d'Ivoire 🇨🇮
 
 💡 *Que voulez-vous faire aujourd’hui ?*
@@ -164,7 +162,19 @@ const CONTACT = `📞 *CONTACTEZ-NOUS*
 🕐 Disponible *24H/24* sur WhatsApp
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
+const MENU_DEBUTANT = `*DÉMARRER MON ÉLEVAGE*
+_Le Partenaire des Éleveurs_
 
+Bienvenue ! On va construire votre projet d'élevage ensemble 🐔
+
+Quel est votre objectif principal ?
+
+1️⃣ Vendre de la viande (poulets de chair)
+2️⃣ Vendre des œufs (poules pondeuses)
+3️⃣ Les deux à la fois
+
+Tapez le numéro de votre choix
+↩️ Tapez *menu* pour annuler`;
 const MESSAGE_INCONNU = `❓ Je n'ai pas compris votre message.
 
 Tapez un numéro pour choisir :
@@ -281,7 +291,9 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
   const isInCriticalFlow = [
     "quantite", "nom", "devis_nom",
     "devis_ville", "devis_superficie", "devis_sujets",
-    "formation_nom", "formation_ville", "formation_inscription"
+    "formation_nom", "formation_ville", "formation_inscription",
+    "debutant_objectif", "debutant_superficie", "debutant_budget",
+    "debutant_nom", "debutant_ville"
   ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow) {
@@ -404,7 +416,7 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     const t3 = setTimeout(async () => {
       console.log("⏰ Relance 24h");
       await sendWhatsAppMessage(from,
-        `🚀 Vous pouvez commencer avec seulement 500 poussins.\n\nC'est la meilleure façon de tester et devenir rentable rapidement.\n\n👉 Voulez-vous un devis personnalisé ?`
+        `Vous pouvez commencer avec seulement 500 poussins.\n\nC'est la meilleure façon de tester et devenir rentable rapidement.\n\n👉 Voulez-vous un devis personnalisé ?`
       );
     }, 86400000);
 
@@ -417,6 +429,95 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
   const reponseIA = await askClaude(text);
   if (reponseIA) return reponseIA;
 
+  // ── TUNNEL DÉBUTANT ──
+  if (msg === "1" && !session?.step) {
+    await setSession(from, { step: "debutant_objectif" });
+    return MENU_DEBUTANT;
+  }
+
+  if (session?.step === "debutant_objectif") {
+    const objectifs = { "1": "Vendre de la viande (chair)", "2": "Vendre des œufs (ponte)", "3": "Les deux" };
+    if (!objectifs[msg]) return `❓ Tapez *1*, *2* ou *3* pour choisir votre objectif.`;
+    await setSession(from, { ...session, step: "debutant_superficie", objectif: objectifs[msg] });
+    return `✅ Objectif : *${objectifs[msg]}*\n\n📐 *Quelle est la superficie de votre terrain ?* (en m²)\n\nExemple : 200`;
+  }
+
+  if (session?.step === "debutant_superficie") {
+    const superficie = text.trim();
+    if (isNaN(superficie) || superficie < 1) return `❌ Entrez une superficie valide en m². Exemple : *200*`;
+    await setSession(from, { ...session, step: "debutant_budget", superficie });
+    return `✅ Superficie : *${superficie} m²*\n\n💰 *Quel est votre budget de démarrage ?* (en FCFA)\n\nExemple : 500000`;
+  }
+
+  if (session?.step === "debutant_budget") {
+    const budget = text.trim().replace(/\s/g, "");
+    if (isNaN(budget) || budget < 1) return `❌ Entrez un budget valide en FCFA. Exemple : *500000*`;
+    await setSession(from, { ...session, step: "debutant_nom", budget });
+    return `✅ Budget : *${Number(budget).toLocaleString("fr-FR")} FCFA*\n\n👤 *Quel est votre nom complet ?*`;
+  }
+
+  if (session?.step === "debutant_nom") {
+    const nom = text.trim();
+    if (nom.length < 2) return `❌ Nom invalide. Entrez votre nom complet.`;
+    await setSession(from, { ...session, step: "debutant_ville", nom });
+    return `✅ Nom : *${nom}*\n\n📍 *Quelle est votre ville ?*`;
+  }
+
+  if (session?.step === "debutant_ville") {
+    const ville = text.trim();
+    if (ville.length < 2) return `❌ Ville invalide.`;
+
+    const { objectif, superficie, budget, nom } = session;
+
+    // Claude génère un plan personnalisé
+    const prompt = `Tu es expert en aviculture en Côte d'Ivoire.
+Un débutant veut démarrer son élevage avec ces informations :
+- Objectif : ${objectif}
+- Superficie du terrain : ${superficie} m²
+- Budget : ${Number(budget).toLocaleString("fr-FR")} FCFA
+- Nom : ${nom}
+- Ville : ${ville}
+
+Génère un plan de démarrage personnalisé en 4-5 lignes maximum :
+1. Nombre de poussins recommandé selon la superficie
+2. Race recommandée selon l'objectif
+3. Estimation du coût des poussins
+4. Un conseil clé pour bien démarrer
+5. Recommande la formation à 85 000 FCFA du Partenaire des Éleveurs
+
+Termine par : "Souhaitez-vous commander vos poussins ou vous inscrire à la formation ?"
+Puis : "↩️ Tapez *menu* pour voir nos services"`;
+
+    let planPersonnalise = "";
+    try {
+      planPersonnalise = await askClaude(prompt);
+    } catch (err) {
+      planPersonnalise = `Basé sur votre profil, nous vous recommandons de démarrer avec des poulets de chair sur votre terrain de ${superficie} m².\n\n✅ Souhaitez-vous commander vos poussins ou vous inscrire à la formation ?`;
+    }
+
+    // Sauvegarde en base
+    try {
+      await Registration.create({
+        phone: from,
+        name: nom,
+        type: "devis",
+        ville,
+        profil: `Débutant | ${objectif} | ${superficie}m² | Budget: ${Number(budget).toLocaleString("fr-FR")} FCFA`
+      });
+
+      const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+      if (CONSEILLER_PHONE) {
+        await sendWhatsAppMessage(CONSEILLER_PHONE,
+          `*NOUVEAU DÉBUTANT !*\n\n👤 Nom : ${nom}\n📱 Téléphone : +${from}\n📍 Ville : ${ville}\n🎯 Objectif : ${objectif}\n📐 Superficie : ${superficie} m²\n💰 Budget : ${Number(budget).toLocaleString("fr-FR")} FCFA\n\n👉 À contacter sous 24h`
+        );
+      }
+    } catch (err) {
+      console.error("❌ Erreur sauvegarde débutant :", err.message);
+    }
+
+    await clearSession(from);
+    return planPersonnalise;
+  }
   return MESSAGE_INCONNU;
 
 } // ✅ FIN de handleMessage
