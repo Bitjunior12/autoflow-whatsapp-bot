@@ -61,18 +61,24 @@ async function safeSend(to, message) {
 // MESSAGES DU MENU
 // ==============================
 
-const MENU_PRINCIPAL = `👋 Bienvenue chez *Le Partenaire des Éleveurs* 🐔
+const MENU_PRINCIPAL = `📲 *MENU PRINCIPAL - FLIMADAUTOFLOW*
 
-Nous accompagnons les éleveurs en Côte d'Ivoire 🇨🇮
+👋 Bienvenue chez *Le Partenaire des Éleveurs* 🐔  
+Votre assistant pour réussir et rentabiliser votre élevage en Côte d'Ivoire 🇨🇮
 
-Tapez le numéro de votre choix :
+💡 *Que voulez-vous faire aujourd’hui ?*
 
-1️⃣ Formation en aviculture
-2️⃣ Achat de poussins
-3️⃣ Matériels d'élevage
-4️⃣ Demande de devis
+1️⃣ 🚀 Démarrer mon élevage (débutant)  
+2️⃣ 📊 Suivre & améliorer mon élevage  
+3️⃣ 🐣 Acheter des poussins  
+4️⃣ 🛠️ Voir les matériels disponibles  
+5️⃣ 💰 Estimer mes coûts & bénéfices  
+6️⃣ 🎓 Accéder aux formations  
+7️⃣ 🔥 Rejoindre le programme premium (suivi + coaching)  
+8️⃣ 🤖 Poser une question  
+9️⃣ 📞 Parler à un conseiller  
 
-↩️ Tapez *menu* à tout moment pour revenir ici`;
+🔁 Tapez *menu* à tout moment`;
 
 const FORMATION = `🎓 *FORMATION EN AVICULTURE*
 
