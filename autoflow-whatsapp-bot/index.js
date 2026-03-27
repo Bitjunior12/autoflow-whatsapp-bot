@@ -210,6 +210,33 @@ _Le Partenaire des Éleveurs_
 3️⃣ Je veux me perfectionner
 
 ↩️ Tapez *menu* pour annuler`;
+const PRESENTATION_PREMIUM = `⭐ *PROGRAMME PREMIUM*
+_Le Partenaire des Éleveurs_
+
+🏆 *Le programme d'accompagnement le plus complet de Côte d'Ivoire*
+
+✅ *Ce qui est inclus :*
+✓ Suivi personnalisé de votre élevage
+✓ Coaching hebdomadaire avec un expert
+✓ Alertes maladies & conseils nutrition
+✓ Accès prioritaire à nos poussins
+✓ Rapport mensuel de performance
+✓ Support WhatsApp 24H/24
+✓ Visites terrain sur demande
+
+🎯 *Pour qui ?*
+✓ Éleveurs débutants qui veulent bien démarrer
+✓ Éleveurs existants qui veulent optimiser
+✓ Investisseurs qui veulent maximiser leurs profits
+
+👉 *Quelle est la taille de votre élevage actuel ?*
+
+1️⃣ Pas encore démarré
+2️⃣ Moins de 500 sujets
+3️⃣ 500 à 2000 sujets
+4️⃣ Plus de 2000 sujets
+
+↩️ Tapez *menu* pour annuler`;
 const MENU_SUIVI = `📊 *SUIVRE & AMÉLIORER MON ÉLEVAGE*
 _Le Partenaire des Éleveurs_
 
@@ -371,7 +398,8 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "estimation_race", "premium_nom", "premium_ville",
     "materiel_choix", "materiel_sujets", "materiel_action", "materiel_nom", "materiel_ville",
     "estimation_type", "estimation_sujets", "estimation_budget",
-    "formation_niveau", "formation_objectif", "formation_motivation"
+    "formation_niveau", "formation_objectif", "formation_motivation",
+    "premium_taille", "premium_besoin", "premium_pitch"
   ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow) {
@@ -484,21 +512,8 @@ if (msg === "6") {
 }
 
 if (msg === "7") {
-    await setSession(from, { step: "premium_nom" });
-    return `⭐ *PROGRAMME PREMIUM*
-_Le Partenaire des Éleveurs_
-
-Notre programme premium vous offre :
-
-✅ Suivi personnalisé de votre élevage
-✅ Coaching hebdomadaire avec un expert
-✅ Alertes maladies & conseils nutrition
-✅ Accès prioritaire à nos poussins
-✅ Rapport mensuel de performance
-
-💬 Commençons ! *Quel est votre nom complet ?*
-
-↩️ Tapez *menu* pour annuler`;
+    await setSession(from, { step: "premium_taille" });
+    return PRESENTATION_PREMIUM;
 }
 
 if (msg === "8") {
@@ -1022,6 +1037,100 @@ Puis : "1️⃣ Oui je m'inscris  2️⃣ Je veux plus d'infos"`;
     if (msg !== "1") return `❓ Tapez *1* pour vous inscrire ou *2* pour plus d'infos.`;
     await setSession(from, { ...session, step: "formation_nom" });
     return `✅ Excellent choix ! 🎉\n\n👤 *Quel est votre nom complet ?*`;
+  }
+  // ── TUNNEL PROGRAMME PREMIUM ──
+  if (session?.step === "premium_taille") {
+    const tailles = {
+      "1": "Pas encore démarré",
+      "2": "Moins de 500 sujets",
+      "3": "500 à 2000 sujets",
+      "4": "Plus de 2000 sujets"
+    };
+    if (!tailles[msg]) return `❓ Tapez *1*, *2*, *3* ou *4* pour choisir.`;
+    await setSession(from, { ...session, step: "premium_besoin", taille: tailles[msg] });
+    return `✅ Élevage : *${tailles[msg]}*\n\n🎯 *Quel est votre besoin principal ?*\n\n1️⃣ Suivi sanitaire\n2️⃣ Optimisation rentabilité\n3️⃣ Coaching personnalisé\n4️⃣ Tout à la fois\n\n↩️ Tapez *menu* pour annuler`;
+  }
+
+  if (session?.step === "premium_besoin") {
+    const besoins = {
+      "1": "Suivi sanitaire",
+      "2": "Optimisation rentabilité",
+      "3": "Coaching personnalisé",
+      "4": "Accompagnement complet"
+    };
+    if (!besoins[msg]) return `❓ Tapez *1*, *2*, *3* ou *4* pour choisir votre besoin.`;
+
+    const besoin = besoins[msg];
+    const { taille } = session;
+
+    const prompt = `Tu es commercial senior en élevage avicole en Côte d'Ivoire.
+Un prospect veut rejoindre le programme premium :
+- Taille élevage : ${taille}
+- Besoin principal : ${besoin}
+
+Génère une proposition commerciale personnalisée en 4-5 lignes :
+1. Montre que tu comprends son profil et ses défis
+2. Explique comment le programme premium résout exactement son problème
+3. Donne 2 bénéfices concrets et chiffrés
+4. Crée l'urgence : places limitées chaque mois
+
+Termine par : "Puis-je avoir votre nom pour réserver votre place ?"`;
+
+    let pitch = "";
+    try {
+      pitch = await askClaude(prompt);
+    } catch (err) {
+      pitch = `⭐ Le programme premium est exactement fait pour votre profil !\n\nNos experts vous accompagneront personnellement pour maximiser votre rentabilité.\n\nPuis-je avoir votre nom pour réserver votre place ?`;
+    }
+
+    await setSession(from, { ...session, step: "premium_nom", besoin });
+    return pitch;
+  }
+
+  if (session?.step === "premium_nom") {
+    const nom = text.trim();
+    if (nom.length < 2) return `❌ Nom invalide. Entrez votre nom complet.`;
+    await setSession(from, { ...session, step: "premium_ville", nom });
+    return `✅ Parfait *${nom}* ! 🎉\n\n📍 *Quelle est votre ville ?*`;
+  }
+
+  if (session?.step === "premium_ville") {
+    const ville = text.trim();
+    if (ville.length < 2) return `❌ Ville invalide.`;
+    const { taille, besoin, nom } = session;
+
+    try {
+      await Registration.create({
+        phone: from,
+        name: nom,
+        type: "premium",
+        ville,
+        profil: `Premium | ${taille} | ${besoin}`
+      });
+
+      const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+      if (CONSEILLER_PHONE) {
+        await sendWhatsAppMessage(CONSEILLER_PHONE,
+          `⭐ *NOUVEAU PROSPECT PREMIUM !*\n\n👤 Nom : ${nom}\n📱 Téléphone : +${from}\n📍 Ville : ${ville}\n🐔 Élevage : ${taille}\n🎯 Besoin : ${besoin}\n\n🔥 PROSPECT CHAUD — Contacter immédiatement !`
+        );
+      }
+    } catch (err) {
+      console.error("❌ Erreur premium :", err.message);
+    }
+
+    await clearSession(from);
+    return `🎉 *Votre place est réservée !*
+
+👤 Nom : ${nom}
+📍 Ville : ${ville}
+🐔 Élevage : ${taille}
+🎯 Besoin : ${besoin}
+
+✅ Un conseiller expert vous contactera sous *24h* pour vous présenter le programme et ses tarifs.
+
+📞 Urgence : *+225 01 02 64 20 80*
+
+↩️ Tapez *menu* pour revenir au menu principal`;
   }
   return MESSAGE_INCONNU;
 
