@@ -399,7 +399,7 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "materiel_choix", "materiel_sujets", "materiel_action", "materiel_nom", "materiel_ville",
     "estimation_type", "estimation_sujets", "estimation_budget",
     "formation_niveau", "formation_objectif", "formation_motivation",
-    "premium_taille", "premium_besoin", "premium_pitch"
+    "premium_taille", "premium_besoin", "premium_pitch","question_libre"
   ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow) {
@@ -517,18 +517,25 @@ if (msg === "7") {
 }
 
 if (msg === "8") {
-    await setSession(from, { step: null });
-    return `🤖 *POSEZ VOTRE QUESTION*
+    await setSession(from, { step: "question_libre" });
+    return `🤖 *VOTRE EXPERT AVICOLE PERSONNEL*
+_Le Partenaire des Éleveurs_
 
-Je suis votre assistant avicole. Posez-moi n'importe quelle question sur :
-🐔 L'élevage de volailles
-💊 Les maladies et traitements
-🍽️ L'alimentation
-🏗️ Les bâtiments
-📈 La rentabilité
+Je suis votre assistant expert disponible *24H/24* 🐔
 
-👉 *Tapez votre question maintenant*
-↩️ Tapez *menu* pour revenir au menu`;
+Je peux répondre à toutes vos questions sur :
+
+🐣 Races & poussins
+🍽️ Alimentation & nutrition
+💊 Maladies & traitements
+🏗️ Bâtiments & équipements
+📈 Rentabilité & gestion
+🌡️ Température & conditions d'élevage
+📅 Planning & prophylaxie
+
+👉 *Posez votre question maintenant...*
+
+↩️ Tapez *menu* pour revenir au menu principal`;
 }
 
 if (msg === "9" || msg === "contact" || msg === "conseiller") return CONTACT;
@@ -1131,6 +1138,40 @@ Termine par : "Puis-je avoir votre nom pour réserver votre place ?"`;
 📞 Urgence : *+225 01 02 64 20 80*
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
+  }
+  // ── TUNNEL QUESTION LIBRE EXPERT ──
+  if (session?.step === "question_libre") {
+    const prompt = `Tu es un expert vétérinaire et consultant en aviculture en Côte d'Ivoire avec 20 ans d'expérience.
+Tu travailles pour "Le Partenaire des Éleveurs".
+
+Un éleveur te pose cette question : "${text}"
+
+Réponds en expert avec :
+1. Une réponse précise, pratique et adaptée au contexte ivoirien
+2. Un conseil concret applicable immédiatement
+3. Une mise en garde si nécessaire
+4. Une recommandation de produit ou service si pertinent
+
+STYLE :
+- Maximum 5 lignes
+- Utilise des emojis pertinents
+- Ton chaleureux et professionnel
+- Données chiffrées si possible
+
+FIN OBLIGATOIRE :
+- "❓ Avez-vous d'autres questions ?"
+- "↩️ Tapez *menu* pour voir nos services"
+- "📞 Besoin d'un suivi personnalisé ? Tapez *contact*"`;
+
+    let reponse = "";
+    try {
+      reponse = await askClaude(prompt);
+    } catch (err) {
+      reponse = `Je n'ai pas pu traiter votre question.\n\n📞 Contactez directement notre expert :\n*+225 01 02 64 20 80*\n\n↩️ Tapez *menu* pour revenir au menu principal`;
+    }
+
+    // On garde la session active pour questions suivantes
+    return reponse;
   }
   return MESSAGE_INCONNU;
 
