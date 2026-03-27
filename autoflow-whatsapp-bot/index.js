@@ -316,7 +316,7 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "devis_ville", "devis_superficie", "devis_sujets",
     "formation_nom", "formation_ville", "formation_inscription",
     "debutant_objectif", "debutant_superficie", "debutant_budget",
-    "debutant_nom", "debutant_ville" "suivi_type", "suivi_sujets", "suivi_probleme"
+    "debutant_nom", "debutant_ville","suivi_type", "suivi_sujets", "suivi_probleme"
   ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow) {
