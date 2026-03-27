@@ -497,41 +497,42 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     return MENU_PRINCIPAL;
   }
 
-  if (msg === "1" && !session?.step) {
+ if (msg === "1" && !session?.step) {
     await setSession(from, { step: "debutant_objectif" });
     return MENU_DEBUTANT;
 }
 
-if (msg === "2") {
+if (msg === "2" && !session?.step) {
     await setSession(from, { step: "suivi_type" });
     return MENU_SUIVI;
 }
-if (msg === "3") {
+
+if (msg === "3" && !session?.step) {
     await setSession(from, { step: "choix_race" });
     return MENU_RACES;
 }
 
-if (msg === "4") {
+if (msg === "4" && !session?.step) {
     await setSession(from, { step: "materiel_choix" });
     return MATERIELS + `\n\n👉 *Qu'est-ce qui vous intéresse ?*\n\n` + MENU_MATERIELS_CHOIX;
 }
 
-if (msg === "5") {
+if (msg === "5" && !session?.step) {
     await setSession(from, { step: "estimation_type" });
     return MENU_ESTIMATION;
 }
 
-if (msg === "6") {
+if (msg === "6" && !session?.step) {
     await setSession(from, { step: "formation_niveau" });
     return PRESENTATION_FORMATION;
 }
 
-if (msg === "7") {
+if (msg === "7" && !session?.step) {
     await setSession(from, { step: "premium_taille" });
     return PRESENTATION_PREMIUM;
 }
 
-if (msg === "8") {
+if (msg === "8" && !session?.step) {
     await setSession(from, { step: "question_libre" });
     return `🤖 *VOTRE EXPERT AVICOLE PERSONNEL*
 _Le Partenaire des Éleveurs_
@@ -553,7 +554,7 @@ Je peux répondre à toutes vos questions sur :
 ↩️ Tapez *menu* pour revenir au menu principal`;
 }
 
-if (msg === "9" || msg === "contact" || msg === "conseiller") {
+if ((msg === "9" || msg === "contact" || msg === "conseiller") && !session?.step) {
     await setSession(from, { step: "conseiller_motif" });
     return MENU_CONSEILLER;
 }
