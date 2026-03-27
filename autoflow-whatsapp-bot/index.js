@@ -162,6 +162,29 @@ const CONTACT = `📞 *CONTACTEZ-NOUS*
 🕐 Disponible *24H/24* sur WhatsApp
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
+const MENU_SUIVI = `📊 *SUIVRE & AMÉLIORER MON ÉLEVAGE*
+_Le Partenaire des Éleveurs_
+
+Quel type d'élevage avez-vous ?
+
+1️⃣ Poulets de chair
+2️⃣ Poules pondeuses
+3️⃣ Mixte (chair + ponte)
+
+Tapez le *numéro* de votre choix
+↩️ Tapez *menu* pour annuler`;
+
+const MENU_PROBLEME = `⚠️ *QUEL EST VOTRE PROBLÈME PRINCIPAL ?*
+
+1️⃣ Mortalité élevée
+2️⃣ Croissance lente
+3️⃣ Faible production d'œufs
+4️⃣ Alimentation & coûts élevés
+5️⃣ Maladies & prévention
+6️⃣ Rentabilité insuffisante
+
+Tapez le *numéro* de votre choix
+↩️ Tapez *menu* pour annuler`;
 const MENU_DEBUTANT = `*DÉMARRER MON ÉLEVAGE*
 _Le Partenaire des Éleveurs_
 
@@ -293,7 +316,7 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "devis_ville", "devis_superficie", "devis_sujets",
     "formation_nom", "formation_ville", "formation_inscription",
     "debutant_objectif", "debutant_superficie", "debutant_budget",
-    "debutant_nom", "debutant_ville"
+    "debutant_nom", "debutant_ville" "suivi_type", "suivi_sujets", "suivi_probleme"
   ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow) {
@@ -382,14 +405,9 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
 }
 
 if (msg === "2") {
-    const reponse = await askClaude(`Un éleveur veut améliorer son élevage. 
-    Donne-lui 3 conseils pratiques pour optimiser sa production avicole en Côte d'Ivoire.
-    Oriente-le vers le programme premium de suivi et coaching du Partenaire des Éleveurs.
-    Termine par : "Souhaitez-vous rejoindre notre programme premium ?"
-    Puis : "↩️ Tapez *menu* pour voir nos services"`);
-    return reponse;
+    await setSession(from, { step: "suivi_type" });
+    return MENU_SUIVI;
 }
-
 if (msg === "3") {
     await setSession(from, { step: "choix_race" });
     return MENU_RACES;
@@ -614,6 +632,78 @@ Puis : "↩️ Tapez *menu* pour voir nos services"`;
 📞 Urgence : *+225 01 02 64 20 80*
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
+  }
+  // ── TUNNEL SUIVI & AMÉLIORATION ──
+  if (session?.step === "suivi_type") {
+    const types = {
+      "1": "Poulets de chair",
+      "2": "Poules pondeuses",
+      "3": "Mixte (chair + ponte)"
+    };
+    if (!types[msg]) return `❓ Tapez *1*, *2* ou *3* pour choisir votre type d'élevage.`;
+    await setSession(from, { ...session, step: "suivi_sujets", type: types[msg] });
+    return `✅ Type : *${types[msg]}*\n\n🐔 *Combien de sujets avez-vous actuellement ?*\n\nExemple : 500`;
+  }
+
+  if (session?.step === "suivi_sujets") {
+    const sujets = text.trim();
+    if (isNaN(sujets) || sujets < 1) return `❌ Entrez un nombre valide. Exemple : *500*`;
+    await setSession(from, { ...session, step: "suivi_probleme", sujets });
+    return MENU_PROBLEME;
+  }
+
+  if (session?.step === "suivi_probleme") {
+    const problemes = {
+      "1": "Mortalité élevée",
+      "2": "Croissance lente",
+      "3": "Faible production d'œufs",
+      "4": "Alimentation & coûts élevés",
+      "5": "Maladies & prévention",
+      "6": "Rentabilité insuffisante"
+    };
+    if (!problemes[msg]) return `❓ Tapez un numéro entre *1* et *6* pour choisir votre problème.`;
+    
+    const probleme = problemes[msg];
+    const { type, sujets } = session;
+
+    // Claude génère un diagnostic personnalisé
+    const prompt = `Tu es un expert vétérinaire et consultant en aviculture en Côte d'Ivoire.
+Un éleveur a ce profil :
+- Type d'élevage : ${type}
+- Nombre de sujets : ${sujets}
+- Problème principal : ${probleme}
+
+Génère un diagnostic personnalisé en 5 lignes maximum :
+1. Cause probable du problème
+2. Solution immédiate à appliquer aujourd'hui
+3. Conseil de prévention pour éviter la récidive
+4. Indicateur à surveiller cette semaine
+5. Recommande le programme premium de suivi du Partenaire des Éleveurs
+
+Termine par : "Souhaitez-vous rejoindre notre programme premium de suivi ?"
+Puis : "↩️ Tapez *menu* pour voir nos services"`;
+
+    let diagnostic = "";
+    try {
+      diagnostic = await askClaude(prompt);
+    } catch (err) {
+      diagnostic = `⚠️ Problème détecté : *${probleme}* sur votre élevage de ${sujets} ${type}.\n\nNous vous recommandons de contacter immédiatement un conseiller.\n\n👉 Tapez *contact* pour parler à un expert.\n\n↩️ Tapez *menu* pour voir nos services`;
+    }
+
+    // Notifie le conseiller
+    try {
+      const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+      if (CONSEILLER_PHONE) {
+        await sendWhatsAppMessage(CONSEILLER_PHONE,
+          `⚠️ *ÉLEVEUR EN DIFFICULTÉ !*\n\n📱 Téléphone : +${from}\n🐔 Type : ${type}\n📦 Sujets : ${sujets}\n❗ Problème : ${probleme}\n\n👉 À contacter rapidement !`
+        );
+      }
+    } catch (err) {
+      console.error("❌ Erreur notification suivi :", err.message);
+    }
+
+    await clearSession(from);
+    return diagnostic;
   }
   return MESSAGE_INCONNU;
 
