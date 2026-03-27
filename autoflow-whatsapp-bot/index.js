@@ -316,8 +316,10 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "devis_ville", "devis_superficie", "devis_sujets",
     "formation_nom", "formation_ville", "formation_inscription",
     "debutant_objectif", "debutant_superficie", "debutant_budget",
-    "debutant_nom", "debutant_ville","suivi_type", "suivi_sujets", "suivi_probleme",
-    "commande_quantite", "commande_nom", "commande_ville",
+    "debutant_nom", "debutant_ville",
+    "suivi_type", "suivi_sujets", "suivi_probleme",
+    "choix_race", "commande_quantite", "commande_nom", "commande_ville",
+    "estimation_race", "premium_nom", "premium_ville"
   ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow) {
