@@ -237,6 +237,20 @@ _Le Partenaire des Éleveurs_
 4️⃣ Plus de 2000 sujets
 
 ↩️ Tapez *menu* pour annuler`;
+const MENU_CONSEILLER = `📞 *PARLER À UN CONSEILLER*
+_Le Partenaire des Éleveurs_
+
+Notre équipe est disponible *24H/24* pour vous aider 🙂
+
+Quel est le motif de votre demande ?
+
+1️⃣ Commande de poussins
+2️⃣ Informations sur la formation
+3️⃣ Problème urgent sur mon élevage
+4️⃣ Autre demande
+
+Tapez le *numéro* de votre choix
+↩️ Tapez *menu* pour annuler`;
 const MENU_SUIVI = `📊 *SUIVRE & AMÉLIORER MON ÉLEVAGE*
 _Le Partenaire des Éleveurs_
 
@@ -399,7 +413,8 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "materiel_choix", "materiel_sujets", "materiel_action", "materiel_nom", "materiel_ville",
     "estimation_type", "estimation_sujets", "estimation_budget",
     "formation_niveau", "formation_objectif", "formation_motivation",
-    "premium_taille", "premium_besoin", "premium_pitch","question_libre"
+    "premium_taille", "premium_besoin", "premium_pitch","question_libre",
+    "conseiller_motif", "conseiller_nom", "conseiller_message"
   ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow) {
@@ -538,7 +553,10 @@ Je peux répondre à toutes vos questions sur :
 ↩️ Tapez *menu* pour revenir au menu principal`;
 }
 
-if (msg === "9" || msg === "contact" || msg === "conseiller") return CONTACT;
+if (msg === "9" || msg === "contact" || msg === "conseiller") {
+    await setSession(from, { step: "conseiller_motif" });
+    return MENU_CONSEILLER;
+}
 
   // ── SYSTÈME DE RELANCES ──  ✅ MAINTENANT BIEN À L'INTÉRIEUR DE handleMessage
   if (!isSmartQuestion(text) && !isHotLead(text)) {
@@ -1172,6 +1190,56 @@ FIN OBLIGATOIRE :
 
     // On garde la session active pour questions suivantes
     return reponse;
+  }
+  // ── TUNNEL CONSEILLER ──
+  if (session?.step === "conseiller_motif") {
+    const motifs = {
+      "1": "Commande de poussins",
+      "2": "Informations sur la formation",
+      "3": "Problème urgent sur élevage",
+      "4": "Autre demande"
+    };
+    if (!motifs[msg]) return `❓ Tapez *1*, *2*, *3* ou *4* pour choisir le motif.`;
+    await setSession(from, { ...session, step: "conseiller_nom", motif: motifs[msg] });
+    return `✅ Motif : *${motifs[msg]}*\n\n👤 *Quel est votre nom complet ?*`;
+  }
+
+  if (session?.step === "conseiller_nom") {
+    const nom = text.trim();
+    if (nom.length < 2) return `❌ Nom invalide. Entrez votre nom complet.`;
+    await setSession(from, { ...session, step: "conseiller_message", nom });
+    return `✅ Nom : *${nom}*\n\n💬 *Décrivez brièvement votre demande :*\n\nExemple : "Je veux commander 500 poussins chairs"`;
+  }
+
+  if (session?.step === "conseiller_message") {
+    const messagClient = text.trim();
+    if (messagClient.length < 5) return `❌ Message trop court. Décrivez votre demande.`;
+    const { motif, nom } = session;
+
+    try {
+      const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+      if (CONSEILLER_PHONE) {
+        await sendWhatsAppMessage(CONSEILLER_PHONE,
+          `📞 *DEMANDE DE CONTACT !*\n\n👤 Nom : ${nom}\n📱 Téléphone : +${from}\n🎯 Motif : ${motif}\n💬 Message : ${messagClient}\n\n👉 À rappeler rapidement !`
+        );
+      }
+    } catch (err) {
+      console.error("❌ Erreur notification conseiller :", err.message);
+    }
+
+    await clearSession(from);
+    return `✅ *Demande transmise à notre équipe !*
+
+👤 Nom : ${nom}
+🎯 Motif : ${motif}
+💬 Message : ${messagClient}
+
+📞 Un conseiller vous contactera sous *2h* sur ce numéro.
+
+⚡ *Pour une urgence appelez directement :*
+*+225 01 02 64 20 80*
+
+↩️ Tapez *menu* pour revenir au menu principal`;
   }
   return MESSAGE_INCONNU;
 
