@@ -1,21 +1,16 @@
 const getFetch = async () => {
   if (typeof globalThis.fetch === "function") return globalThis.fetch.bind(globalThis);
-
-  // Fallback si Node < 18. Nécessite node-fetch (optionnel).
   try {
     const mod = await import("node-fetch");
     const fetchFn = mod.default || mod;
     if (typeof fetchFn !== "function") throw new Error("node-fetch importé mais invalide");
     return fetchFn;
   } catch {
-    throw new Error(
-      "fetch n'est pas disponible. Utilise Node 18+ ou installe 'node-fetch'."
-    );
+    throw new Error("fetch n'est pas disponible. Utilise Node 18+ ou installe 'node-fetch'.");
   }
 };
 
-const safeFallbackMessage =
-  "Je rencontre une difficulté technique. Tapez *contact* pour parler à un conseiller.";
+const safeFallbackMessage = "Je rencontre une difficulté technique. Tapez *contact* pour parler à un conseiller.";
 
 const askClaude = async (question) => {
   try {
@@ -29,7 +24,7 @@ const askClaude = async (question) => {
 
     const fetchFn = await getFetch();
 
-    console.log("🔥 CLAUDE VERSION HAÏKU ACTIVE 🔥");
+    console.log("🔥 CLAUDE SONNET ACTIF 🔥");
     console.log("Question envoyée à Claude :", q);
 
     const response = await fetchFn("https://api.anthropic.com/v1/messages", {
@@ -40,7 +35,7 @@ const askClaude = async (question) => {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-3-5-sonnet-20241022", // ✅ CORRIGÉ ICI
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 500,
         system: `Tu es l'assistant commercial de "Le Partenaire des Éleveurs".
 
@@ -74,12 +69,7 @@ INTERDICTIONS :
 FIN OBLIGATOIRE :
 Termine toujours par UNE question d'engagement puis ajoute :
 "↩️ Tapez *menu* pour voir nos services"`,
-        messages: [
-          {
-            role: "user",
-            content: q,
-          },
-        ],
+        messages: [{ role: "user", content: q }],
       }),
     });
 
@@ -98,25 +88,18 @@ Termine toujours par UNE question d'engagement puis ajoute :
     }
 
     if (!response.ok) {
-      const details =
-        data?.error?.message ||
-        rawText ||
-        `HTTP ${response.status} ${response.statusText || ""}`.trim();
+      const details = data?.error?.message || rawText || `HTTP ${response.status}`;
       console.error("❌ Erreur HTTP Claude :", details);
       return safeFallbackMessage;
     }
 
-    if (data) {
-      // Log de debug utile, sans spammer en prod si trop verbeux
-      console.log("Réponse Claude (résumé) :", {
-        id: data.id,
-        model: data.model,
-        stop_reason: data.stop_reason,
-        usage: data.usage,
-      });
-    }
+    console.log("✅ Réponse Claude :", {
+      id: data?.id,
+      model: data?.model,
+      stop_reason: data?.stop_reason,
+      usage: data?.usage,
+    });
 
-    // Détection erreur API
     if (data?.error) {
       console.error("❌ Erreur API Claude :", data.error.type, "-", data.error.message);
       return safeFallbackMessage;
@@ -126,7 +109,7 @@ Termine toujours par UNE question d'engagement puis ajoute :
       return data.content[0].text;
     }
 
-    console.warn("⚠️ Réponse vide inattendue (Claude).");
+    console.warn("⚠️ Réponse vide inattendue.");
     return safeFallbackMessage;
 
   } catch (err) {
