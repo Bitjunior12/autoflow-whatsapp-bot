@@ -182,6 +182,34 @@ Quel type de production souhaitez-vous estimer ?
 
 Tapez le *numéro* de votre choix
 ↩️ Tapez *menu* pour annuler`;
+const PRESENTATION_FORMATION = `🎓 *FORMATION EN AVICULTURE PROFESSIONNELLE*
+_Le Partenaire des Éleveurs_
+
+✅ *Ce que vous apprendrez :*
+✓ Bases de l'aviculture moderne
+✓ Choix des races et des poussins
+✓ Alimentation et prophylaxie
+✓ Gestion sanitaire et maladies
+✓ Rentabilité et gestion financière
+✓ Construction et aménagement du bâtiment
+
+📦 *Ce que vous recevez :*
+✓ Supports vidéos complets
+✓ La Boussole de l'Éleveur _(guide numérique)_
+✓ Certificat de participation
+✓ Accompagnement mise en place
+✓ Accès WhatsApp Assistance 24H/24
+
+📅 *Quand ?* Chaque mois
+💰 *Coût :* 85 000 FCFA
+
+👉 *Quel est votre niveau actuel ?*
+
+1️⃣ Débutant complet
+2️⃣ J'ai déjà un élevage
+3️⃣ Je veux me perfectionner
+
+↩️ Tapez *menu* pour annuler`;
 const MENU_SUIVI = `📊 *SUIVRE & AMÉLIORER MON ÉLEVAGE*
 _Le Partenaire des Éleveurs_
 
@@ -342,7 +370,8 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "choix_race", "commande_quantite", "commande_nom", "commande_ville",
     "estimation_race", "premium_nom", "premium_ville",
     "materiel_choix", "materiel_sujets", "materiel_action", "materiel_nom", "materiel_ville",
-    "estimation_type", "estimation_sujets", "estimation_budget"
+    "estimation_type", "estimation_sujets", "estimation_budget",
+    "formation_niveau", "formation_objectif", "formation_motivation"
   ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow) {
@@ -450,8 +479,8 @@ if (msg === "5") {
 }
 
 if (msg === "6") {
-    await setSession(from, { step: "formation_inscription" });
-    return FORMATION;
+    await setSession(from, { step: "formation_niveau" });
+    return PRESENTATION_FORMATION;
 }
 
 if (msg === "7") {
@@ -937,6 +966,62 @@ Puis : "↩️ Tapez *menu* pour voir nos services"`;
 
     await clearSession(from);
     return estimation;
+  }
+  // ── TUNNEL FORMATION COMPLET ──
+  if (session?.step === "formation_niveau") {
+    const niveaux = {
+      "1": "Débutant complet",
+      "2": "Éleveur existant",
+      "3": "Perfectionnement"
+    };
+    if (!niveaux[msg]) return `❓ Tapez *1*, *2* ou *3* pour choisir votre niveau.`;
+    await setSession(from, { ...session, step: "formation_objectif", niveau: niveaux[msg] });
+    return `✅ Niveau : *${niveaux[msg]}*\n\n🎯 *Quel est votre objectif principal ?*\n\n1️⃣ Élevage pour la famille\n2️⃣ Projet commercial\n3️⃣ Devenir formateur\n\n↩️ Tapez *menu* pour annuler`;
+  }
+
+  if (session?.step === "formation_objectif") {
+    const objectifs = {
+      "1": "Élevage familial",
+      "2": "Projet commercial",
+      "3": "Devenir formateur"
+    };
+    if (!objectifs[msg]) return `❓ Tapez *1*, *2* ou *3* pour choisir votre objectif.`;
+
+    const objectif = objectifs[msg];
+    const { niveau } = session;
+
+    const prompt = `Tu es conseiller en formation avicole en Côte d'Ivoire.
+Un candidat veut s'inscrire à la formation :
+- Niveau : ${niveau}
+- Objectif : ${objectif}
+
+Génère un message de motivation personnalisé en 3-4 lignes qui :
+1. Valorise son profil et son objectif
+2. Explique pourquoi cette formation est faite pour lui
+3. L'encourage à s'inscrire maintenant
+
+Termine par : "Souhaitez-vous vous inscrire à la prochaine session ?"
+Puis : "1️⃣ Oui je m'inscris  2️⃣ Je veux plus d'infos"`;
+
+    let motivation = "";
+    try {
+      motivation = await askClaude(prompt);
+    } catch (err) {
+      motivation = `🎓 Cette formation est parfaite pour votre profil !\n\nElle vous donnera toutes les clés pour réussir votre élevage.\n\nSouhaitez-vous vous inscrire à la prochaine session ?\n\n1️⃣ Oui je m'inscris  2️⃣ Je veux plus d'infos`;
+    }
+
+    await setSession(from, { ...session, step: "formation_motivation", objectif });
+    return motivation;
+  }
+
+  if (session?.step === "formation_motivation") {
+    if (msg === "2") {
+      await clearSession(from);
+      return `📞 *PLUS D'INFORMATIONS*\n\nN'hésitez pas à contacter notre équipe :\n\n📱 *+225 01 02 64 20 80*\n🕐 Disponible 24H/24 sur WhatsApp\n\n↩️ Tapez *menu* pour revenir au menu principal`;
+    }
+    if (msg !== "1") return `❓ Tapez *1* pour vous inscrire ou *2* pour plus d'infos.`;
+    await setSession(from, { ...session, step: "formation_nom" });
+    return `✅ Excellent choix ! 🎉\n\n👤 *Quel est votre nom complet ?*`;
   }
   return MESSAGE_INCONNU;
 
