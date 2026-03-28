@@ -1720,6 +1720,35 @@ Tapez *menu* pour profiter de tous vos avantages 🚀`
     res.status(500).json({ error: err.message });
   }
 });
+// Liste tous les abonnements
+app.get("/admin/subscriptions", async (req, res) => {
+  try {
+    const Subscription = require("./models/Subscription");
+    const subscriptions = await Subscription.find().sort({ createdAt: -1 });
+    res.json({ total: subscriptions.length, subscriptions });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Révoquer un abonnement
+app.post("/admin/revoquer-premium", async (req, res) => {
+  try {
+    const Subscription = require("./models/Subscription");
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ error: "phone requis" });
+    await Subscription.findOneAndUpdate(
+      { phone },
+      { plan: "starter", statut: "actif" }
+    );
+    await sendWhatsAppMessage(phone,
+      `ℹ️ Votre abonnement premium a été résilié.\n\nVous repassez sur le plan gratuit.\n\n👉 Tapez *upgrade* pour vous réabonner.\n↩️ Tapez *menu* pour voir nos services`
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 // ==============================
 // LANCEMENT SERVEUR
 // ==============================
