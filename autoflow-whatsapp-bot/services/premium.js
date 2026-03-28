@@ -4,7 +4,7 @@ const Subscription = require("../models/Subscription");
 const { sendWhatsAppMessage } = require("./whatsapp");
 
 const LIMITES = {
-  starter: { questions: 10, diagnostics: 3 },
+  starter: { questions: 20, diagnostics: 5 },
   pro:     { questions: Infinity, diagnostics: Infinity },
   premium: { questions: Infinity, diagnostics: Infinity },
 };
