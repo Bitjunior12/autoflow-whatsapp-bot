@@ -9,7 +9,7 @@ const Order = require("./models/Order");
 const Registration = require("./models/Registration");
 const { setSession, getSession, clearSession } = require("./services/session");
 const { askClaude } = require("./services/claude");
-const { peutPoserQuestion, peutFaireDiagnostic, messageUpgrade, activerAbonnement, getOrCreateSubscription } = require("./services/premium");
+const { peutPoserQuestion, peutFaireDiagnostic, messageUpgrade, activerAbonnement, getOrCreateSubscription, isPremium } = require("./services/premium");
 const { enregistrerBande, getBandesActives, verifierEtEnvoyerAlertes } = require("./services/prophylaxie");
 const relanceTimers = {};
 const app = express();
@@ -426,7 +426,7 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "formation_niveau", "formation_objectif", "formation_motivation",
     "premium_taille", "premium_besoin", "premium_pitch","question_libre",
     "conseiller_motif", "conseiller_nom", "conseiller_message",
-    "upgrade_plan", "upgrade_confirmation",
+    "upgrade_plan", "upgrade_confirmation","prophet_type", "prophet_sujets", "prophet_race", "prophet_date", "prophet_nom",
   ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow && !session?.step) {
@@ -522,7 +522,7 @@ if (["bonjour", "bonsoir", "salut", "hi", "hello", "start", "0", "menu"].include
 7️⃣ Rejoindre le programme premium
 8️⃣ Poser une question
 9️⃣ Parler à un conseiller
-
+🌱 Tapez *prophet* pour enregistrer une bande et recevoir vos alertes vaccins
 ↩️ Tapez le numéro de votre choix`;
     }
 }
@@ -1326,6 +1326,129 @@ FIN OBLIGATOIRE :
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
   }
+  // ── TUNNEL PROPHYLAXIE ──
+if (msg === "prophet" && !session?.step) {
+  const premium = await isPremium(from);
+  if (!premium) {
+    return `⭐ *Fonctionnalité Premium*
+
+Le calendrier de prophylaxie automatique est réservé aux abonnés Pro et Premium.
+
+✅ *Avec ce service vous recevez :*
+✓ Alertes vaccins automatiques sur WhatsApp
+✓ Rappels médicaments jour par jour
+✓ Suivi complet de votre bande
+
+💰 *Pro — 15 000 FCFA/mois seulement*
+
+👉 Tapez *upgrade* pour vous abonner
+↩️ Tapez *menu* pour revenir au menu principal`;
+  }
+  await setSession(from, { step: "prophet_type" });
+  return `🌱 *ENREGISTRER UNE BANDE*
+_Le Partenaire des Éleveurs_
+
+Nous allons configurer vos alertes prophylaxie automatiques 🔔
+
+Quel type d'élevage ?
+
+1️⃣ Poulets de chair
+2️⃣ Poules pondeuses
+
+↩️ Tapez *menu* pour annuler`;
+}
+
+if (session?.step === "prophet_type") {
+  const types = { "1": "chair", "2": "ponte" };
+  if (!types[msg]) return `❓ Tapez *1* pour chair ou *2* pour ponte.`;
+  await setSession(from, { ...session, step: "prophet_sujets", typeBande: types[msg] });
+  return `✅ Type : *${msg === "1" ? "Poulets de chair" : "Poules pondeuses"}*
+
+🐔 *Combien de sujets dans cette bande ?*
+
+Exemple : 500`;
+}
+
+if (session?.step === "prophet_sujets") {
+  const sujets = parseInt(text.trim());
+  if (isNaN(sujets) || sujets < 1) return `❌ Entrez un nombre valide. Exemple : *500*`;
+  await setSession(from, { ...session, step: "prophet_race", nombreSujets: sujets });
+  return `✅ Nombre de sujets : *${sujets}*
+
+🐣 *Quelle race ?*
+
+Exemple : Chairs Blanc, ISA Brown, Pintadeaux...`;
+}
+
+if (session?.step === "prophet_race") {
+  const race = text.trim();
+  if (race.length < 2) return `❌ Entrez une race valide.`;
+  await setSession(from, { ...session, step: "prophet_date", race });
+  return `✅ Race : *${race}*
+
+📅 *Quelle est la date de mise en place de votre bande ?*
+
+Format : JJ/MM/AAAA
+Exemple : 28/03/2026`;
+}
+
+if (session?.step === "prophet_date") {
+  const dateTxt = text.trim();
+  const parts = dateTxt.split("/");
+  if (parts.length !== 3) return `❌ Format invalide. Utilisez JJ/MM/AAAA\nExemple : *28/03/2026*`;
+  const dateMiseEnPlace = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+  if (isNaN(dateMiseEnPlace.getTime())) return `❌ Date invalide. Exemple : *28/03/2026*`;
+  await setSession(from, { ...session, step: "prophet_nom", dateMiseEnPlace: dateMiseEnPlace.toISOString() });
+  return `✅ Date de mise en place : *${dateTxt}*
+
+📝 *Donnez un nom à cette bande* (pour identifier vos alertes)
+
+Exemple : Bande Mars 2026, Lot A...`;
+}
+
+if (session?.step === "prophet_nom") {
+  const nom = text.trim();
+  if (nom.length < 2) return `❌ Nom trop court.`;
+  const { typeBande, nombreSujets, race, dateMiseEnPlace } = session;
+
+  try {
+    await enregistrerBande(from, {
+      nom,
+      typeBande,
+      nombreSujets,
+      dateMiseEnPlace,
+      race
+    });
+
+    const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+    if (CONSEILLER_PHONE) {
+      await sendWhatsAppMessage(CONSEILLER_PHONE,
+        `🌱 *NOUVELLE BANDE ENREGISTRÉE !*\n\n📱 Téléphone : +${from}\n📝 Nom : ${nom}\n🐔 Type : ${typeBande}\n📦 Sujets : ${nombreSujets}\n🐣 Race : ${race}\n📅 Mise en place : ${dateMiseEnPlace}`
+      );
+    }
+  } catch (err) {
+    console.error("❌ Erreur enregistrement bande :", err.message);
+  }
+
+  await clearSession(from);
+  return `🎉 *Bande enregistrée avec succès !*
+
+📋 *Récapitulatif :*
+📝 Nom : ${nom}
+🐔 Type : ${typeBande === "chair" ? "Poulets de chair" : "Poules pondeuses"}
+📦 Sujets : ${nombreSujets}
+🐣 Race : ${race}
+📅 Mise en place : ${session.dateMiseEnPlace?.split("T")[0]}
+
+✅ *Vos alertes prophylaxie sont activées !*
+
+Vous recevrez automatiquement sur WhatsApp :
+🔔 Rappels de vaccination
+💊 Alertes médicaments
+📊 Contrôles de croissance
+
+↩️ Tapez *menu* pour revenir au menu principal`;
+}
   // ── TUNNEL UPGRADE ──
   if (msg === "upgrade") {
   await setSession(from, { step: "upgrade_plan" });
