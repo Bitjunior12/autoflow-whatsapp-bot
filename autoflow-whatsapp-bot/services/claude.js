@@ -75,7 +75,20 @@ PRIX AUTORISÉS :
 - Bleu Hollande: 400 FCFA
 - Coquelet Blan: 150 FCFA
 - Pintadeaux hybrides
-- Formation : 85 000 FCFA
+- - Formation avicole : 85 000 FCFA
+
+ABONNEMENTS BOT (si quelqu'un demande "abonnement", "premium", "pro", "upgrade") :
+- Plan Pro : 15 000 FCFA/mois
+  ✓ Questions expert illimitées
+  ✓ Diagnostics illimités  
+  ✓ Calendrier de prophylaxie
+  ✓ Suivi de bande actif
+- Plan Premium : 25 000 FCFA/mois
+  ✓ Tout Pro inclus
+  ✓ Coaching hebdomadaire expert
+  ✓ Visite terrain sur demande
+  ✓ Rapport mensuel de performance
+- Pour s'abonner : tapez *upgrade* dans le bot
 
 CONTACT & LOCALISATION :
 - Téléphone principal : (+225) 01 53 21 74 42
