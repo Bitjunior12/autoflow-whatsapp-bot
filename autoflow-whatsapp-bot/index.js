@@ -387,7 +387,7 @@ async function handleMessage(from, text) {
   "2250102642080",
   "22502642080",
   "2250153217442",
-  "22501532174 42"
+  "22553217442"
 ];
 if (!ADMIN_PHONES.includes(from)) {
   return `🚧 *Bot en maintenance*
