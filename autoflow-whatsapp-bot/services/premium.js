@@ -36,6 +36,9 @@ async function isPremium(phone) {
 
 // Vérifie le compteur questions et reset si nouveau mois
 async function peutPoserQuestion(phone) {
+      if (ADMIN_PHONES.includes(phone)) {
+    return { peut: true, restantes: Infinity, limite: Infinity };
+  }
   const sub = await getOrCreateSubscription(phone);
   const limite = LIMITES[sub.plan].questions;
   
@@ -62,6 +65,9 @@ async function peutPoserQuestion(phone) {
 
 // Vérifie le compteur diagnostics
 async function peutFaireDiagnostic(phone) {
+    if (ADMIN_PHONES.includes(phone)) {
+    return { peut: true, restantes: Infinity, limite: Infinity };
+  }
   const sub = await getOrCreateSubscription(phone);
   const limite = LIMITES[sub.plan].diagnostics;
 
