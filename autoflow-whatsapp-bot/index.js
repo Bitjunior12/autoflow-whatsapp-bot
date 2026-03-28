@@ -606,12 +606,6 @@ if ((msg === "9" || msg === "contact" || msg === "conseiller") && !session?.step
     timers.push(t1, t2, t3);
     relanceTimers[from] = timers;
   }
-
-  // ── CLAUDE AI pour toutes les autres questions ──
-  console.log(`🤖 Question libre → Claude : "${text}"`);
-  const reponseIA = await askClaude(text);
-  if (reponseIA) return reponseIA;
-
   // ── TUNNEL DÉBUTANT ──
   if (msg === "1" && !session?.step) {
     await setSession(from, { step: "debutant_objectif" });
@@ -1294,6 +1288,10 @@ FIN OBLIGATOIRE :
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
   }
+  // ── CLAUDE AI pour toutes les autres questions ──
+  console.log(`🤖 Question libre → Claude : "${text}"`);
+  const reponseIA = await askClaude(text);
+  if (reponseIA) return reponseIA;
   return MESSAGE_INCONNU;
 
 } // ✅ FIN de handleMessage
