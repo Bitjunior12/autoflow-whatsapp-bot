@@ -27,7 +27,14 @@ async function getSession(phone) {
 
 async function clearSession(phone) {
   try {
-    await Session.deleteOne({ phone });
+    // ✅ On garde accueilli et ne supprime que le tunnel en cours
+    const existing = await Session.findOne({ phone });
+    if (existing) {
+      const accueilli = existing.data?.accueilli || false;
+      existing.data = { accueilli }; // garde uniquement accueilli
+      existing.updatedAt = new Date();
+      await existing.save();
+    }
   } catch (err) {
     console.error("❌ Erreur clearSession :", err.message);
   }
