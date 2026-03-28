@@ -516,11 +516,6 @@ if (["bonjour", "bonsoir", "salut", "hi", "hello", "start", "0", "menu"].include
     }
 }
 
- if (msg === "1" && !session?.step) {
-    await setSession(from, { step: "debutant_objectif" });
-    return MENU_DEBUTANT;
-}
-
 if (msg === "2" && !session?.step) {
     await setSession(from, { step: "suivi_type" });
     return MENU_SUIVI;
@@ -579,7 +574,14 @@ if ((msg === "9" || msg === "contact" || msg === "conseiller") && !session?.step
 }
 
   // ── SYSTÈME DE RELANCES ──  ✅ MAINTENANT BIEN À L'INTÉRIEUR DE handleMessage
-  if (!isSmartQuestion(text) && !isHotLead(text)) {
+  const isMenuChoice = [
+  "1","2","3","4","5","6","7","8","9",
+  "menu","annuler","contact","conseiller",
+  "bonjour","bonsoir","salut","hi","hello","start","0",
+  "oui","non"
+].includes(msg);
+
+if (!isSmartQuestion(text) && !isHotLead(text) && !session?.step && !isMenuChoice) {
     const timers = [];
 
     const t1 = setTimeout(async () => {
