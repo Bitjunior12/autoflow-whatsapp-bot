@@ -2,7 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const connectDB = require("./config/database");
-const { sendWhatsAppMessage, sendWhatsAppImage } = require("./services/whatsapp");
+const { sendWhatsAppMessage, sendWhatsAppImage, sendWhatsAppPDF } = require("./services/whatsapp");
+const { generateDevisPDF } = require("./services/pdf");
 const Contact = require("./models/Contact");
 const Order = require("./models/Order");
 const Registration = require("./models/Registration");
@@ -862,8 +863,20 @@ Puis : "↩️ Tapez *menu* pour voir nos services"`;
       console.error("❌ Erreur commande poussins :", err.message);
     }
 
-    await clearSession(from);
-    return `🎉 *Commande enregistrée avec succès !*
+    // Génération et envoi du PDF
+    try {
+      const pdfBuffer = await generateDevisPDF({
+        nom,
+        phone: from,
+        ville,
+        items: [{
+          designation: `Poussins ${race}`,
+          quantite,
+          prixUnitaire: prix
+        }]
+      });
+
+      await sendWhatsAppMessage(from, `🎉 *Commande enregistrée avec succès !*
 
 📋 *Récapitulatif :*
 👤 Nom : ${nom}
@@ -872,11 +885,32 @@ Puis : "↩️ Tapez *menu* pour voir nos services"`;
 📦 Quantité : ${quantite} poussins
 💰 Total : ${total.toLocaleString("fr-FR")} FCFA
 
-✅ Un conseiller vous contactera sous *24h* pour les modalités de paiement et livraison.
+✅ Votre facture proforma est en cours d'envoi...`);
 
-📞 Urgence : *+225 01 02 64 20 80*
+      await sendWhatsAppPDF(
+        from,
+        pdfBuffer,
+        `Facture_Proforma_${nom.replace(/\s/g, "_")}.pdf`,
+        `📄 Votre facture proforma - Le Partenaire des Éleveurs`
+      );
 
-↩️ Tapez *menu* pour revenir au menu principal`;
+    } catch (pdfErr) {
+      console.error("❌ Erreur PDF :", pdfErr.message);
+      await sendWhatsAppMessage(from, `🎉 *Commande enregistrée !*
+
+📋 Récapitulatif :
+👤 Nom : ${nom}
+📍 Ville : ${ville}
+🐔 Race : ${race}
+📦 Quantité : ${quantite} poussins
+💰 Total : ${total.toLocaleString("fr-FR")} FCFA
+
+✅ Un conseiller vous contactera sous *24h*.
+📞 Urgence : *+225 01 02 64 20 80*`);
+    }
+
+    await clearSession(from);
+    return `📞 Un conseiller vous contactera sous *24h* pour les modalités de paiement et livraison.\n\n↩️ Tapez *menu* pour revenir au menu principal`;
   }
   // ── TUNNEL MATÉRIELS ──
   if (session?.step === "materiel_choix") {
