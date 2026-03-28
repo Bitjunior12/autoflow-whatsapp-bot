@@ -383,7 +383,12 @@ async function handleMessage(from, text) {
   const msg = text.trim().toLowerCase();
   const session = await getSession(from);
   console.log("🔍 SESSION STEP :", session?.step);
-  const ADMIN_PHONES = ["2250102642080", "2250153217442"];
+  const ADMIN_PHONES = [
+  "2250102642080",
+  "22502642080",
+  "2250153217442",
+  "22501532174 42"
+];
 if (!ADMIN_PHONES.includes(from)) {
   return `🚧 *Bot en maintenance*
 
