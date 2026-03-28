@@ -9,7 +9,8 @@ const Order = require("./models/Order");
 const Registration = require("./models/Registration");
 const { setSession, getSession, clearSession } = require("./services/session");
 const { askClaude } = require("./services/claude");
-
+const { peutPoserQuestion, peutFaireDiagnostic, messageUpgrade, activerAbonnement, getOrCreateSubscription } = require("./services/premium");
+const { enregistrerBande, getBandesActives, verifierEtEnvoyerAlertes } = require("./services/prophylaxie");
 const relanceTimers = {};
 const app = express();
 app.use(express.json());
@@ -17,7 +18,15 @@ app.use(express.json());
 const PORT = process.env.PORT || 10000;
 
 connectDB();
-
+// Après connectDB() en haut du fichier — cron toutes les heures
+setInterval(async () => {
+  try {
+    await verifierEtEnvoyerAlertes();
+    console.log("✅ Vérification alertes prophylaxie terminée");
+  } catch (err) {
+    console.error("❌ Erreur cron prophylaxie :", err.message);
+  }
+}, 60 * 60 * 1000); // toutes les heures
 // ==============================
 // MESSAGES DU MENU
 // ==============================
@@ -757,18 +766,31 @@ Puis : "↩️ Tapez *menu* pour voir nos services"`;
   }
 
   if (session?.step === "suivi_probleme") {
-    const problemes = {
-      "1": "Mortalité élevée",
-      "2": "Croissance lente",
-      "3": "Faible production d'œufs",
-      "4": "Alimentation & coûts élevés",
-      "5": "Maladies & prévention",
-      "6": "Rentabilité insuffisante"
-    };
-    if (!problemes[msg]) return `❓ Tapez un numéro entre *1* et *6* pour choisir votre problème.`;
-    
-    const probleme = problemes[msg];
-    const { type, sujets } = session;
+  const problemes = {
+    "1": "Mortalité élevée",
+    "2": "Croissance lente",
+    "3": "Faible production d'œufs",
+    "4": "Alimentation & coûts élevés",
+    "5": "Maladies & prévention",
+    "6": "Rentabilité insuffisante"
+  };
+  if (!problemes[msg]) return `❓ Tapez un numéro entre *1* et *6*.`;
+
+  // Vérification limite diagnostic
+  const { peut, restantes } = await peutFaireDiagnostic(from);
+  if (!peut) {
+    const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+    if (CONSEILLER_PHONE) {
+      await sendWhatsAppMessage(CONSEILLER_PHONE,
+        `⭐ *PROSPECT UPGRADE !*\n\n📱 Téléphone : +${from}\n💡 A atteint sa limite de diagnostics gratuits\n\n🔥 À contacter pour abonnement Pro !`
+      );
+    }
+    await clearSession(from);
+    return messageUpgrade("diagnostic");
+  }
+
+  const probleme = problemes[msg];
+  const { type, sujets } = session;
 
     // Claude génère un diagnostic personnalisé
     const prompt = `Tu es un expert vétérinaire et consultant en aviculture en Côte d'Ivoire.
@@ -1208,7 +1230,22 @@ Termine par : "Puis-je avoir votre nom pour réserver votre place ?"`;
   }
   // ── TUNNEL QUESTION LIBRE EXPERT ──
   if (session?.step === "question_libre") {
-    const prompt = `Tu es un expert vétérinaire et consultant en aviculture en Côte d'Ivoire avec 20 ans d'expérience.
+  // Vérification limite
+  const { peut, restantes } = await peutPoserQuestion(from);
+  
+  if (!peut) {
+    // Notifier le conseiller — lead chaud
+    const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+    if (CONSEILLER_PHONE) {
+      await sendWhatsAppMessage(CONSEILLER_PHONE,
+        `⭐ *PROSPECT UPGRADE !*\n\n📱 Téléphone : +${from}\n💡 A atteint sa limite de questions gratuites\n\n🔥 À contacter pour abonnement Pro !`
+      );
+    }
+    await clearSession(from);
+    return messageUpgrade("question");
+  }
+
+  const prompt = `Tu es un expert vétérinaire et consultant en aviculture en Côte d'Ivoire avec 20 ans d'expérience.
 Tu travailles pour "Le Partenaire des Éleveurs".
 
 Un éleveur te pose cette question : "${text}"
@@ -1226,20 +1263,18 @@ STYLE :
 - Données chiffrées si possible
 
 FIN OBLIGATOIRE :
-- "❓ Avez-vous d'autres questions ?"
+- "❓ Avez-vous d'autres questions ?"${restantes > 0 ? `\n- "💡 Il vous reste *${restantes} question(s)* gratuite(s) ce mois-ci"` : ""}
 - "↩️ Tapez *menu* pour voir nos services"
 - "📞 Besoin d'un suivi personnalisé ? Tapez *contact*"`;
 
-    let reponse = "";
-    try {
-      reponse = await askClaude(prompt);
-    } catch (err) {
-      reponse = `Je n'ai pas pu traiter votre question.\n\n📞 Contactez directement notre expert :\n*+225 01 02 64 20 80*\n\n↩️ Tapez *menu* pour revenir au menu principal`;
-    }
-
-    // On garde la session active pour questions suivantes
-    return reponse;
+  let reponse = "";
+  try {
+    reponse = await askClaude(prompt);
+  } catch (err) {
+    reponse = `Je n'ai pas pu traiter votre question.\n\n📞 Contactez directement notre expert :\n*+225 01 02 64 20 80*\n\n↩️ Tapez *menu* pour revenir au menu principal`;
   }
+  return reponse;
+}
   // ── TUNNEL CONSEILLER ──
   if (session?.step === "conseiller_motif") {
     const motifs = {
@@ -1288,6 +1323,31 @@ FIN OBLIGATOIRE :
 ⚡ *Pour une urgence appelez directement :*
 *+225 01 02 64 20 80*
 
+↩️ Tapez *menu* pour revenir au menu principal`;
+  }
+  // ── TUNNEL UPGRADE ──
+  if (msg === "upgrade") {
+    const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+    if (CONSEILLER_PHONE) {
+      await sendWhatsAppMessage(CONSEILLER_PHONE,
+        `⭐ *DEMANDE UPGRADE PREMIUM !*\n\n📱 Téléphone : +${from}\n\n🔥 CLIENT CHAUD — Contacter immédiatement !`
+      );
+    }
+    return `✅ *Demande reçue !*
+
+Un conseiller vous contactera dans les *2 heures* pour vous présenter nos offres :
+
+⭐ *Pro — 15 000 FCFA/mois*
+✓ Questions expert illimitées
+✓ Diagnostics illimités
+✓ Calendrier prophylaxie
+
+👑 *Premium — 25 000 FCFA/mois*
+✓ Tout Pro inclus
+✓ Coaching hebdomadaire
+✓ Visite terrain sur demande
+
+📞 Urgence : *+225 01 02 64 20 80*
 ↩️ Tapez *menu* pour revenir au menu principal`;
   }
   // ── CLAUDE AI pour toutes les autres questions ──
@@ -1580,7 +1640,28 @@ app.get("/test-claude", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+// Nouvelle route admin pour activer un abonnement
+app.post("/admin/activer-premium", async (req, res) => {
+  try {
+    const { phone, plan, dureeJours, name } = req.body;
+    if (!phone || !plan) return res.status(400).json({ error: "phone et plan requis" });
+    await activerAbonnement(phone, plan, dureeJours || 30, name || "");
+    // Notifier le client
+    await sendWhatsAppMessage(phone,
+      `🎉 *Votre abonnement ${plan.toUpperCase()} est activé !*
 
+✅ Accès illimité aux questions expert
+✅ Diagnostics illimités
+✅ Alertes prophylaxie automatiques
+📅 Valable *${dureeJours || 30} jours*
+
+Tapez *menu* pour profiter de tous vos avantages 🚀`
+    );
+    res.json({ success: true, message: `Abonnement ${plan} activé pour ${phone}` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 // ==============================
 // LANCEMENT SERVEUR
 // ==============================
