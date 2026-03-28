@@ -582,25 +582,25 @@ if ((msg === "9" || msg === "contact" || msg === "conseiller") && !session?.step
     const timers = [];
 
     const t1 = setTimeout(async () => {
-      console.log("⏰ Relance 10 min");
+      console.log("⏰ Relance 1h");
       await sendWhatsAppMessage(from,
         `👋 Juste pour savoir si vous avez pu avancer sur votre projet d'élevage 🙂\n\nNous pouvons vous guider étape par étape pour bien démarrer.\n\n👉 Tapez *menu* pour voir nos solutions`
       );
-    }, 600000);
+    }, 3600000);
 
     const t2 = setTimeout(async () => {
-      console.log("⏰ Relance 1h");
+      console.log("⏰ Relance 24h");
       await sendWhatsAppMessage(from,
         `👍 Beaucoup de nos clients étaient comme vous au début.\n\nAujourd'hui ils réussissent leur élevage grâce à un bon accompagnement.\n\n👉 Souhaitez-vous :\n1️⃣ Acheter des poussins\n2️⃣ Suivre la formation\n3️⃣ Avoir un devis`
       );
-    }, 3600000);
+    }, 86400000);
 
     const t3 = setTimeout(async () => {
-      console.log("⏰ Relance 24h");
+      console.log("⏰ Relance 72h");
       await sendWhatsAppMessage(from,
         `Vous pouvez commencer avec seulement 500 poussins.\n\nC'est la meilleure façon de tester et devenir rentable rapidement.\n\n👉 Voulez-vous un devis personnalisé ?`
       );
-    }, 86400000);
+    }, 259200000);
 
     timers.push(t1, t2, t3);
     relanceTimers[from] = timers;
