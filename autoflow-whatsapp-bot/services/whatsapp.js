@@ -17,7 +17,6 @@ const sendWhatsAppMessage = async (to, message) => {
   });
 
   const data = await response.json();
-
   console.log("📤 Envoi vers", to);
   console.log("📋 Réponse Meta :", JSON.stringify(data, null, 2));
 
@@ -50,7 +49,6 @@ const sendWhatsAppImage = async (to, imageUrl, caption = "") => {
   });
 
   const data = await response.json();
-
   console.log("🖼️ Image envoyée à", to);
   console.log("📋 Réponse Meta :", JSON.stringify(data, null, 2));
 
@@ -61,4 +59,78 @@ const sendWhatsAppImage = async (to, imageUrl, caption = "") => {
   return data;
 };
 
-module.exports = { sendWhatsAppMessage, sendWhatsAppImage };
+// ✅ NOUVELLE FONCTION - Envoi PDF via WhatsApp
+const sendWhatsAppPDF = async (to, pdfBuffer, filename = "devis.pdf", caption = "") => {
+  try {
+    const phoneNumberId = process.env.PHONE_NUMBER_ID;
+    const token = process.env.WHATSAPP_TOKEN;
+
+    // ÉTAPE 1 : Upload du PDF sur Meta
+    console.log("📄 Upload PDF en cours...");
+    const uploadUrl = `https://graph.facebook.com/v21.0/${phoneNumberId}/media`;
+
+    const formData = new FormData();
+    formData.append("messaging_product", "whatsapp");
+    formData.append("type", "application/pdf");
+    formData.append(
+      "file",
+      new Blob([pdfBuffer], { type: "application/pdf" }),
+      filename
+    );
+
+    const uploadResponse = await fetch(uploadUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const uploadData = await uploadResponse.json();
+    console.log("📤 Upload PDF résultat :", JSON.stringify(uploadData));
+
+    if (!uploadResponse.ok || !uploadData.id) {
+      throw new Error(`Erreur upload PDF : ${JSON.stringify(uploadData)}`);
+    }
+
+    const mediaId = uploadData.id;
+
+    // ÉTAPE 2 : Envoyer le document au client
+    const sendUrl = `https://graph.facebook.com/v21.0/${phoneNumberId}/messages`;
+
+    const sendResponse = await fetch(sendUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
+        to: to,
+        type: "document",
+        document: {
+          id: mediaId,
+          filename: filename,
+          caption: caption,
+        },
+      }),
+    });
+
+    const sendData = await sendResponse.json();
+    console.log("📄 PDF envoyé à", to);
+    console.log("📋 Réponse Meta :", JSON.stringify(sendData, null, 2));
+
+    if (!sendResponse.ok) {
+      throw new Error(`Erreur envoi PDF : ${JSON.stringify(sendData.error)}`);
+    }
+
+    return sendData;
+
+  } catch (err) {
+    console.error("❌ Erreur sendWhatsAppPDF :", err.message);
+    throw err;
+  }
+};
+
+module.exports = { sendWhatsAppMessage, sendWhatsAppImage, sendWhatsAppPDF };
