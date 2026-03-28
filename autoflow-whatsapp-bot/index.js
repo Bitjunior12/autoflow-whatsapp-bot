@@ -493,9 +493,27 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
   }
 
   // ── MENU PRINCIPAL ──
-  if (["bonjour", "bonsoir", "salut", "hi", "hello", "start", "0", "menu"].includes(msg)) {
-    return MENU_PRINCIPAL;
-  }
+if (["bonjour", "bonsoir", "salut", "hi", "hello", "start", "0", "menu"].includes(msg)) {
+    const dejaAccueilli = session?.accueilli;
+    if (!dejaAccueilli) {
+        await setSession(from, { accueilli: true });
+        return MENU_PRINCIPAL; // avec message de bienvenue complet
+    } else {
+        return `💡 *Que voulez-vous faire ?*
+
+1️⃣ Démarrer mon élevage (débutant)
+2️⃣ Suivre & améliorer mon élevage
+3️⃣ Acheter des poussins
+4️⃣ Voir les matériels disponibles
+5️⃣ Estimer mes coûts & bénéfices
+6️⃣ Accéder aux formations
+7️⃣ Rejoindre le programme premium
+8️⃣ Poser une question
+9️⃣ Parler à un conseiller
+
+↩️ Tapez le numéro de votre choix`;
+    }
+}
 
  if (msg === "1" && !session?.step) {
     await setSession(from, { step: "debutant_objectif" });
