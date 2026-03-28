@@ -1,7 +1,7 @@
 // services/prophylaxie.js
 const mongoose = require("mongoose");
 const { sendWhatsAppMessage } = require("./whatsapp");
-
+const SuiviBande = require("../models/SuiviBande");
 // Schéma bande d'élevage
 const bandeSchema = new mongoose.Schema({
   phone:        { type: String, required: true },
@@ -90,5 +90,64 @@ async function verifierEtEnvoyerAlertes() {
     }
   }
 }
+// Enregistre une saisie journalière
+async function enregistrerSuivi(phone, bandeNom, data) {
+  const { mortalite, aliment, poidsMoyen, dateMiseEnPlace } = data;
+  const jourBande = dateMiseEnPlace
+    ? Math.floor((new Date() - new Date(dateMiseEnPlace)) / (1000 * 60 * 60 * 24))
+    : null;
+  return await SuiviBande.create({
+    phone, bandeNom, mortalite, aliment, poidsMoyen, jourBande
+  });
+}
 
-module.exports = { enregistrerBande, getBandesActives, verifierEtEnvoyerAlertes, Bande };
+// Récupère le résumé des 7 derniers jours
+async function getResumeSuivi(phone, bandeNom) {
+  const sept = new Date();
+  sept.setDate(sept.getDate() - 7);
+  return await SuiviBande.find({
+    phone,
+    bandeNom,
+    createdAt: { $gte: sept }
+  }).sort({ createdAt: -1 });
+}
+
+// Résumé hebdomadaire automatique pour tous les abonnés pro/premium
+async function envoyerResumesHebdo() {
+  const Subscription = require("../models/Subscription");
+  const abonnes = await Subscription.find({
+    plan: { $in: ["pro", "premium"] },
+    statut: "actif"
+  });
+
+  for (const sub of abonnes) {
+    const bandes = await Bande.find({ phone: sub.phone, alertesActives: true });
+    for (const bande of bandes) {
+      const suivis = await getResumeSuivi(sub.phone, bande.nom);
+      if (suivis.length === 0) continue;
+
+      const totalMortalite = suivis.reduce((s, r) => s + r.mortalite, 0);
+      const moyAliment = (suivis.reduce((s, r) => s + r.aliment, 0) / suivis.length).toFixed(1);
+      const dernierPoids = suivis[0]?.poidsMoyen || 0;
+
+      await sendWhatsAppMessage(sub.phone,
+        `📊 *Résumé hebdomadaire — ${bande.nom}*\n\n` +
+        `🗓️ Semaine du ${new Date(suivis[suivis.length-1].createdAt).toLocaleDateString("fr-FR")} au ${new Date(suivis[0].createdAt).toLocaleDateString("fr-FR")}\n\n` +
+        `💀 Mortalité totale : *${totalMortalite} sujets*\n` +
+        `🍽️ Consommation moy/jour : *${moyAliment} kg*\n` +
+        `⚖️ Dernier poids moyen : *${dernierPoids} g*\n\n` +
+        `👉 Tapez *suivi* pour saisir vos données du jour\n` +
+        `↩️ Tapez *menu* pour voir nos services`
+      );
+    }
+  }
+}
+module.exports = { 
+  enregistrerBande, 
+  getBandesActives, 
+  verifierEtEnvoyerAlertes, 
+  Bande,
+  enregistrerSuivi,
+  getResumeSuivi,
+  envoyerResumesHebdo
+};

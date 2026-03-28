@@ -10,7 +10,7 @@ const Registration = require("./models/Registration");
 const { setSession, getSession, clearSession } = require("./services/session");
 const { askClaude } = require("./services/claude");
 const { peutPoserQuestion, peutFaireDiagnostic, messageUpgrade, activerAbonnement, getOrCreateSubscription, isPremium } = require("./services/premium");
-const { enregistrerBande, getBandesActives, verifierEtEnvoyerAlertes } = require("./services/prophylaxie");
+const { enregistrerBande, getBandesActives, verifierEtEnvoyerAlertes, enregistrerSuivi, getResumeSuivi, envoyerResumesHebdo } = require("./services/prophylaxie");
 const relanceTimers = {};
 const app = express();
 app.use(express.json());
@@ -27,6 +27,18 @@ setInterval(async () => {
     console.error("❌ Erreur cron prophylaxie :", err.message);
   }
 }, 60 * 60 * 1000); // toutes les heures
+// Résumé hebdomadaire — chaque lundi à 8h
+setInterval(async () => {
+  const now = new Date();
+  if (now.getDay() === 1 && now.getHours() === 8) {
+    try {
+      await envoyerResumesHebdo();
+      console.log("✅ Résumés hebdomadaires envoyés");
+    } catch (err) {
+      console.error("❌ Erreur résumés hebdo :", err.message);
+    }
+  }
+}, 60 * 60 * 1000);
 // ==============================
 // MESSAGES DU MENU
 // ==============================
@@ -427,6 +439,7 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "premium_taille", "premium_besoin", "premium_pitch","question_libre",
     "conseiller_motif", "conseiller_nom", "conseiller_message",
     "upgrade_plan", "upgrade_confirmation","prophet_type", "prophet_sujets", "prophet_race", "prophet_date", "prophet_nom",
+    "suivi_bande_choix", "suivi_bande_mortalite", "suivi_bande_aliment", "suivi_bande_poids",
   ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow && !session?.step) {
@@ -523,6 +536,7 @@ if (["bonjour", "bonsoir", "salut", "hi", "hello", "start", "0", "menu"].include
 8️⃣ Poser une question
 9️⃣ Parler à un conseiller
 🌱 Tapez *prophet* pour enregistrer une bande et recevoir vos alertes vaccins
+📊 Tapez *suivi* pour saisir vos données du jour
 ↩️ Tapez le numéro de votre choix`;
     }
 }
@@ -1326,6 +1340,147 @@ FIN OBLIGATOIRE :
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
   }
+  // ── TUNNEL SUIVI BANDE ACTIF ──
+if (msg === "suivi" && !session?.step) {
+  const premium = await isPremium(from);
+  if (!premium) {
+    return `⭐ *Fonctionnalité Premium*
+
+Le suivi de bande actif est réservé aux abonnés Pro et Premium.
+
+✅ *Avec ce service vous pouvez :*
+✓ Saisir mortalité, aliment et poids chaque jour
+✓ Recevoir un résumé hebdomadaire automatique
+✓ Suivre l'évolution de votre bande en temps réel
+
+💰 *Pro — 15 000 FCFA/mois seulement*
+
+👉 Tapez *upgrade* pour vous abonner
+↩️ Tapez *menu* pour revenir au menu principal`;
+  }
+
+  const bandes = await getBandesActives(from);
+  if (bandes.length === 0) {
+    return `❌ *Aucune bande enregistrée*
+
+Vous devez d'abord enregistrer une bande pour utiliser le suivi.
+
+🌱 Tapez *prophet* pour enregistrer votre bande
+↩️ Tapez *menu* pour revenir au menu principal`;
+  }
+
+  if (bandes.length === 1) {
+    await setSession(from, { step: "suivi_bande_mortalite", bandeNom: bandes[0].nom, dateMiseEnPlace: bandes[0].dateMiseEnPlace });
+    return `📊 *SAISIE JOURNALIÈRE — ${bandes[0].nom}*
+_Le Partenaire des Éleveurs_
+
+🗓️ Date : *${new Date().toLocaleDateString("fr-FR")}*
+
+💀 *Combien de sujets morts aujourd'hui ?*
+
+Exemple : 2 (tapez 0 si aucune mortalité)`;
+  }
+
+  // Plusieurs bandes — faire choisir
+  const liste = bandes.map((b, i) => `${i + 1}️⃣ ${b.nom}`).join("\n");
+  await setSession(from, { step: "suivi_bande_choix", bandes: bandes.map(b => ({ nom: b.nom, dateMiseEnPlace: b.dateMiseEnPlace })) });
+  return `📊 *SUIVI DE BANDE*
+
+Quelle bande voulez-vous mettre à jour ?
+
+${liste}
+
+Tapez le numéro de votre choix
+↩️ Tapez *menu* pour annuler`;
+}
+
+if (session?.step === "suivi_bande_choix") {
+  const index = parseInt(msg) - 1;
+  if (isNaN(index) || !session.bandes[index]) return `❓ Tapez un numéro valide.`;
+  const bande = session.bandes[index];
+  await setSession(from, { step: "suivi_bande_mortalite", bandeNom: bande.nom, dateMiseEnPlace: bande.dateMiseEnPlace });
+  return `📊 *SAISIE JOURNALIÈRE — ${bande.nom}*
+
+🗓️ Date : *${new Date().toLocaleDateString("fr-FR")}*
+
+💀 *Combien de sujets morts aujourd'hui ?*
+
+Exemple : 2 (tapez 0 si aucune mortalité)`;
+}
+
+if (session?.step === "suivi_bande_mortalite") {
+  const mortalite = parseInt(text.trim());
+  if (isNaN(mortalite) || mortalite < 0) return `❌ Entrez un nombre valide. Exemple : *2*`;
+  await setSession(from, { ...session, step: "suivi_bande_aliment", mortalite });
+  return `✅ Mortalité : *${mortalite} sujet(s)*
+
+🍽️ *Combien de kg d'aliment consommés aujourd'hui ?*
+
+Exemple : 25`;
+}
+
+if (session?.step === "suivi_bande_aliment") {
+  const aliment = parseFloat(text.trim().replace(",", "."));
+  if (isNaN(aliment) || aliment < 0) return `❌ Entrez un nombre valide. Exemple : *25*`;
+  await setSession(from, { ...session, step: "suivi_bande_poids", aliment });
+  return `✅ Aliment : *${aliment} kg*
+
+⚖️ *Quel est le poids moyen de vos sujets aujourd'hui ?* (en grammes)
+
+Exemple : 850
+Tapez *0* si vous n'avez pas pesé aujourd'hui`;
+}
+
+if (session?.step === "suivi_bande_poids") {
+  const poidsMoyen = parseInt(text.trim());
+  if (isNaN(poidsMoyen) || poidsMoyen < 0) return `❌ Entrez un nombre valide. Exemple : *850*`;
+  const { bandeNom, mortalite, aliment, dateMiseEnPlace } = session;
+
+  try {
+    await enregistrerSuivi(from, bandeNom, { mortalite, aliment, poidsMoyen, dateMiseEnPlace });
+  } catch (err) {
+    console.error("❌ Erreur enregistrement suivi :", err.message);
+  }
+
+  // Analyse IA rapide
+  const jourBande = dateMiseEnPlace
+    ? Math.floor((new Date() - new Date(dateMiseEnPlace)) / (1000 * 60 * 60 * 24))
+    : "?";
+
+  const prompt = `Tu es expert en aviculture en Côte d'Ivoire.
+Un éleveur saisit ses données du jour pour sa bande "${bandeNom}" :
+- Jour de la bande : J${jourBande}
+- Mortalité aujourd'hui : ${mortalite} sujets
+- Aliment consommé : ${aliment} kg
+- Poids moyen : ${poidsMoyen}g
+
+En 2-3 lignes maximum :
+1. Évalue si ces chiffres sont normaux pour ce stade
+2. Donne 1 conseil pratique immédiat si nécessaire
+3. Un mot d'encouragement si tout va bien
+
+Sois concis et pratique.`;
+
+  let analyse = "";
+  try {
+    analyse = await askClaude(prompt);
+  } catch (err) {
+    analyse = "✅ Données enregistrées avec succès.";
+  }
+
+  await clearSession(from);
+  return `✅ *Saisie enregistrée — ${new Date().toLocaleDateString("fr-FR")}*
+
+📋 *Bande : ${bandeNom}*
+💀 Mortalité : ${mortalite} sujet(s)
+🍽️ Aliment : ${aliment} kg
+⚖️ Poids moyen : ${poidsMoyen > 0 ? poidsMoyen + "g" : "Non pesé"}
+
+🤖 *Analyse IA :*
+${analyse}
+
+↩️ Tapez *menu* pour revenir au menu principal`;
+}
   // ── TUNNEL PROPHYLAXIE ──
 if (msg === "prophet" && !session?.step) {
   const premium = await isPremium(from);
