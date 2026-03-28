@@ -418,7 +418,7 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "conseiller_motif", "conseiller_nom", "conseiller_message"
   ].includes(session?.step);
 
-  if (isSmartQuestion(text) && !isInCriticalFlow) {
+  if (isSmartQuestion(text) && !isInCriticalFlow && !session?.step) {
     console.log(`🤖 Question détectée → Claude : "${text}"`);
     const reponseIA = await askClaude(text);
     if (reponseIA) return reponseIA;
