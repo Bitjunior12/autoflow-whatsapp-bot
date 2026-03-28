@@ -425,7 +425,8 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "estimation_type", "estimation_sujets", "estimation_budget",
     "formation_niveau", "formation_objectif", "formation_motivation",
     "premium_taille", "premium_besoin", "premium_pitch","question_libre",
-    "conseiller_motif", "conseiller_nom", "conseiller_message"
+    "conseiller_motif", "conseiller_nom", "conseiller_message",
+    "upgrade_plan", "upgrade_confirmation",
   ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow && !session?.step) {
@@ -1327,29 +1328,86 @@ FIN OBLIGATOIRE :
   }
   // ── TUNNEL UPGRADE ──
   if (msg === "upgrade") {
-    const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
-    if (CONSEILLER_PHONE) {
-      await sendWhatsAppMessage(CONSEILLER_PHONE,
-        `⭐ *DEMANDE UPGRADE PREMIUM !*\n\n📱 Téléphone : +${from}\n\n🔥 CLIENT CHAUD — Contacter immédiatement !`
-      );
-    }
-    return `✅ *Demande reçue !*
+  await setSession(from, { step: "upgrade_plan" });
+  return `⭐ *PASSER À L'ABONNEMENT*
+_Le Partenaire des Éleveurs_
 
-Un conseiller vous contactera dans les *2 heures* pour vous présenter nos offres :
+Choisissez votre formule :
 
-⭐ *Pro — 15 000 FCFA/mois*
+1️⃣ *Pro — 10 000 FCFA/mois*
 ✓ Questions expert illimitées
 ✓ Diagnostics illimités
-✓ Calendrier prophylaxie
+✓ Calendrier de prophylaxie
+✓ Suivi de bande actif
 
-👑 *Premium — 25 000 FCFA/mois*
+2️⃣ *Premium — 25 000 FCFA/mois*
 ✓ Tout Pro inclus
-✓ Coaching hebdomadaire
+✓ Coaching hebdomadaire expert
 ✓ Visite terrain sur demande
+✓ Rapport mensuel de performance
 
-📞 Urgence : *+225 01 02 64 20 80*
-↩️ Tapez *menu* pour revenir au menu principal`;
+Tapez *1* ou *2* pour choisir
+↩️ Tapez *menu* pour annuler`;
+}
+
+if (session?.step === "upgrade_plan") {
+  const plans = { "1": { nom: "Pro", prix: "15 000" }, "2": { nom: "Premium", prix: "35 000" } };
+  if (!plans[msg]) return `❓ Tapez *1* pour Pro ou *2* pour Premium.`;
+  
+  const plan = plans[msg];
+  await setSession(from, { step: "upgrade_confirmation", plan: plan.nom.toLowerCase(), prix: plan.prix });
+  
+  return `✅ *Plan ${plan.nom} sélectionné — ${plan.prix} FCFA/mois*
+
+📲 *Instructions de paiement :*
+
+Effectuez votre paiement via :
+
+🌊 *Wave*
+👉 Envoyez *${plan.prix} FCFA* au *+225 01 02 64 20 80*
+📝 Motif : *Abonnement ${plan.nom} - ${from}*
+
+🟠 *Orange Money*
+👉 Envoyez *${plan.prix} FCFA* au *+225 01 02 64 20 80*
+📝 Motif : *Abonnement ${plan.nom} - ${from}*
+
+✅ *Après le paiement :*
+Envoyez la capture d'écran de votre reçu à ce numéro :
+📱 *+225 01 02 64 20 80*
+
+⏳ Activation sous *2h* après réception du reçu.
+
+↩️ Tapez *menu* pour annuler`;
+}
+
+if (session?.step === "upgrade_confirmation") {
+  const { plan, prix } = session;
+  
+  // Notifier le conseiller
+  const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+  if (CONSEILLER_PHONE) {
+    await sendWhatsAppMessage(CONSEILLER_PHONE,
+      `💰 *PAIEMENT EN ATTENTE !*\n\n📱 Téléphone : +${from}\n⭐ Plan : ${plan.toUpperCase()}\n💵 Montant : ${prix} FCFA\n\n👉 Attendre reçu de paiement puis activer :\ncurl -X POST https://autoflow-whatsapp-bot.onrender.com/admin/activer-premium -H "Content-Type: application/json" -d '{"phone":"${from}","plan":"${plan}","dureeJours":30}'`
+    );
   }
+  
+  await clearSession(from);
+  return `🎉 *Parfait !*
+
+Notre équipe a été notifiée de votre demande.
+
+📋 *Récapitulatif :*
+⭐ Plan : ${plan.toUpperCase()}
+💰 Montant : ${prix} FCFA/mois
+📱 Votre numéro : +${from}
+
+✅ Dès réception de votre reçu, votre accès sera activé sous *2h*.
+
+📞 Une question ? Contactez-nous :
+*+225 01 02 64 20 80*
+
+↩️ Tapez *menu* pour revenir au menu principal`;
+}
   // ── CLAUDE AI pour toutes les autres questions ──
   console.log(`🤖 Question libre → Claude : "${text}"`);
   const reponseIA = await askClaude(text);
