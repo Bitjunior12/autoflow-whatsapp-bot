@@ -167,5 +167,67 @@ Termine toujours par UNE question d'engagement puis :
     return safeFallbackMessage;
   }
 };
+const askClaudeWithImage = async (question, imageBase64, mimeType = "image/jpeg") => {
+  try {
+    if (!process.env.ANTHROPIC_API_KEY) return safeFallbackMessage;
+    const fetchFn = await getFetch();
 
-module.exports = { askClaude };
+    const response = await fetchFn("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 600,
+        system: `Tu es Dr. Avicole, expert vétérinaire en aviculture tropicale en Côte d'Ivoire avec 20 ans d'expérience.
+Un éleveur t'envoie une photo de son élevage pour diagnostic.
+
+INSTRUCTIONS :
+- Analyse l'image attentivement
+- Identifie les symptômes visibles
+- Donne un diagnostic probable
+- Recommande un traitement immédiat
+- Indique si une consultation urgente est nécessaire
+
+STYLE :
+- Maximum 6 lignes
+- Emojis pertinents
+- Ton expert et rassurant
+- Données pratiques et applicables en Côte d'Ivoire
+
+FIN OBLIGATOIRE :
+- "📞 Pour un suivi personnalisé : +225 01 53 21 74 42"
+- "↩️ Tapez *menu* pour voir nos services"`,
+        messages: [{
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: {
+                type: "base64",
+                media_type: mimeType,
+                data: imageBase64
+              }
+            },
+            {
+              type: "text",
+              text: question || "Analyse cette image et donne-moi un diagnostic vétérinaire."
+            }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    if (data?.content?.[0]?.text) return data.content[0].text;
+    return safeFallbackMessage;
+
+  } catch (err) {
+    console.error("❌ Erreur Claude image :", err.message);
+    return safeFallbackMessage;
+  }
+};
+module.exports = { askClaude, askClaudeWithImage };

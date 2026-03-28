@@ -132,5 +132,25 @@ const sendWhatsAppPDF = async (to, pdfBuffer, filename = "devis.pdf", caption = 
     throw err;
   }
 };
+// Télécharger une image depuis WhatsApp
+const downloadWhatsAppImage = async (mediaId) => {
+  const token = process.env.WHATSAPP_TOKEN;
 
-module.exports = { sendWhatsAppMessage, sendWhatsAppImage, sendWhatsAppPDF };
+  // Étape 1 : Récupérer l'URL de l'image
+  const urlRes = await fetch(`https://graph.facebook.com/v21.0/${mediaId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const urlData = await urlRes.json();
+  if (!urlData.url) throw new Error("URL image introuvable");
+
+  // Étape 2 : Télécharger l'image
+  const imgRes = await fetch(urlData.url, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const arrayBuffer = await imgRes.arrayBuffer();
+  const base64 = Buffer.from(arrayBuffer).toString("base64");
+  const mimeType = urlData.mime_type || "image/jpeg";
+
+  return { base64, mimeType };
+};
+module.exports = { sendWhatsAppMessage, sendWhatsAppImage, sendWhatsAppPDF, downloadWhatsAppImage };

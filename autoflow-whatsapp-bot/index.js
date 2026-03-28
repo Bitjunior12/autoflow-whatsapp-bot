@@ -2,13 +2,13 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const connectDB = require("./config/database");
-const { sendWhatsAppMessage, sendWhatsAppImage, sendWhatsAppPDF } = require("./services/whatsapp");
+const { sendWhatsAppMessage, sendWhatsAppImage, sendWhatsAppPDF, downloadWhatsAppImage } = require("./services/whatsapp");
 const { generateDevisPDF } = require("./services/pdf");
 const Contact = require("./models/Contact");
 const Order = require("./models/Order");
 const Registration = require("./models/Registration");
 const { setSession, getSession, clearSession } = require("./services/session");
-const { askClaude } = require("./services/claude");
+const { askClaude, askClaudeWithImage } = require("./services/claude");
 const { peutPoserQuestion, peutFaireDiagnostic, messageUpgrade, activerAbonnement, getOrCreateSubscription, isPremium } = require("./services/premium");
 const { enregistrerBande, getBandesActives, verifierEtEnvoyerAlertes, enregistrerSuivi, getResumeSuivi, envoyerResumesHebdo } = require("./services/prophylaxie");
 const relanceTimers = {};
@@ -429,7 +429,7 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "devis_ville", "devis_superficie", "devis_sujets",
     "formation_nom", "formation_ville", "formation_inscription",
     "debutant_objectif", "debutant_superficie", "debutant_budget",
-    "debutant_nom", "debutant_ville",
+    "debutant_nom", "debutant_ville","photo_symptome",
     "suivi_type", "suivi_sujets", "suivi_probleme",
     "choix_race", "commande_quantite", "commande_nom", "commande_ville",
     "estimation_race", "premium_nom", "premium_ville",
@@ -537,6 +537,7 @@ if (["bonjour", "bonsoir", "salut", "hi", "hello", "start", "0", "menu"].include
 9️⃣ Parler à un conseiller
 🌱 Tapez *prophet* pour enregistrer une bande et recevoir vos alertes vaccins
 📊 Tapez *suivi* pour saisir vos données du jour
+📸 Tapez *photo* pour envoyer une photo de diagnostic
 ↩️ Tapez le numéro de votre choix`;
     }
 }
@@ -1340,6 +1341,43 @@ FIN OBLIGATOIRE :
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
   }
+  // ── TUNNEL DIAGNOSTIC PHOTO ──
+if (msg === "photo" && !session?.step) {
+  const premium = await isPremium(from);
+  if (!premium) {
+    return `⭐ *Fonctionnalité Premium*
+
+Le diagnostic photo est réservé aux abonnés Pro et Premium.
+
+✅ *Avec ce service :*
+✓ Envoyez une photo de votre poulet malade
+✓ Recevez un diagnostic vétérinaire en 30 secondes
+✓ Traitement recommandé immédiatement
+
+💰 *Pro — 15 000 FCFA/mois seulement*
+
+👉 Tapez *upgrade* pour vous abonner
+↩️ Tapez *menu* pour revenir au menu principal`;
+  }
+  await setSession(from, { step: "photo_symptome" });
+  return `📸 *DIAGNOSTIC PHOTO*
+_Dr. Avicole — Le Partenaire des Éleveurs_
+
+Envoyez une photo claire de votre poulet ou de votre élevage.
+
+✅ *Conseils pour une bonne photo :*
+✓ Photo nette et bien éclairée
+✓ Montrez bien les symptômes visibles
+✓ Incluez plusieurs angles si possible
+
+💬 *Décrivez aussi brièvement le problème* dans votre message photo.
+
+Exemple : _"Mon poulet boite depuis 2 jours"_
+
+📷 *Envoyez votre photo maintenant...*
+
+↩️ Tapez *menu* pour annuler`;
+}
   // ── TUNNEL SUIVI BANDE ACTIF ──
 if (msg === "suivi" && !session?.step) {
   const premium = await isPremium(from);
@@ -1796,7 +1834,61 @@ app.post("/webhook", async (req, res) => {
     const message = value.messages[0];
     const from = message.from;
     const type = message.type;
-    if (type !== "text") return;
+    if (type !== "text" && type !== "image") return;
+
+// Traitement image
+if (type === "image") {
+  const session = await getSession(from);
+  if (session?.step === "photo_symptome") {
+    const mediaId = message.image.id;
+    const caption = message.image.caption || "";
+
+    await sendWhatsAppMessage(from,
+      `🔍 *Analyse de votre photo en cours...*\n\n⏳ Dr. Avicole examine votre image. Résultat dans quelques secondes...`
+    );
+
+    try {
+      const { base64, mimeType } = await downloadWhatsAppImage(mediaId);
+      const diagnostic = await askClaudeWithImage(
+        caption || "Analyse cette image de poulet et donne un diagnostic vétérinaire complet.",
+        base64,
+        mimeType
+      );
+
+      // Vérifier compteur diagnostic
+      const { peut } = await peutFaireDiagnostic(from);
+      if (!peut) {
+        await clearSession(from);
+        await sendWhatsAppMessage(from, messageUpgrade("diagnostic"));
+        return;
+      }
+
+      await clearSession(from);
+      await sendWhatsAppMessage(from,
+        `🩺 *Diagnostic Dr. Avicole*\n\n${diagnostic}`
+      );
+
+      // Notifier le conseiller
+      const CONSEILLER_PHONE = process.env.CONSEILLER_PHONE;
+      if (CONSEILLER_PHONE) {
+        await sendWhatsAppMessage(CONSEILLER_PHONE,
+          `📸 *DIAGNOSTIC PHOTO EFFECTUÉ*\n\n📱 Client : +${from}\n💬 Description : ${caption || "Aucune"}\n\n👉 Surveiller si le client a besoin d'un suivi`
+        );
+      }
+    } catch (err) {
+      console.error("❌ Erreur diagnostic photo :", err.message);
+      await sendWhatsAppMessage(from,
+        `❌ Impossible d'analyser la photo.\n\n📞 Contactez directement notre vétérinaire :\n*+225 01 53 21 74 42*\n\n↩️ Tapez *menu* pour revenir au menu principal`
+      );
+    }
+    return;
+  }
+  // Image reçue hors contexte
+  await sendWhatsAppMessage(from,
+    `📸 Photo reçue !\n\nPour un diagnostic vétérinaire, tapez d'abord *photo* puis envoyez votre image.\n\n↩️ Tapez *menu* pour voir nos services`
+  );
+  return;
+}
 
     const text = message.text.body;
     console.log(`📨 Message de ${from} : "${text}"`);
