@@ -11,7 +11,7 @@ const LIMITES = {
 
 const TARIFS = {
   pro:     "15 000 FCFA/mois",
-  premium: "35 000 FCFA/mois",
+  premium: "25 000 FCFA/mois",
 };
 
 // Récupère ou crée l'abonnement d'un utilisateur

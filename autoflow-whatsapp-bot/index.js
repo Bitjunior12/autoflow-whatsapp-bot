@@ -1334,7 +1334,7 @@ _Le Partenaire des Éleveurs_
 
 Choisissez votre formule :
 
-1️⃣ *Pro — 10 000 FCFA/mois*
+1️⃣ *Pro — 15 000 FCFA/mois*
 ✓ Questions expert illimitées
 ✓ Diagnostics illimités
 ✓ Calendrier de prophylaxie
