@@ -25,6 +25,7 @@ async function getOrCreateSubscription(phone) {
 
 // Vérifie si l'abonnement est encore valide
 async function isPremium(phone) {
+    if (ADMIN_PHONES.includes(phone)) return true;
   const sub = await getOrCreateSubscription(phone);
   if (sub.plan === "starter") return false;
   if (sub.statut !== "actif") return false;
