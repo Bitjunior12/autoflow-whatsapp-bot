@@ -1,4 +1,5 @@
 // services/premium.js
+const ADMIN_PHONES = ["2250102642080", "22502642080", "2250153217442", "22553217442"];
 const Subscription = require("../models/Subscription");
 const { sendWhatsAppMessage } = require("./whatsapp");
 
