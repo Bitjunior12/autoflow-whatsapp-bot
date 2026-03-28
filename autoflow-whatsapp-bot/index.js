@@ -429,7 +429,7 @@ Nous améliorons actuellement nos services pour mieux vous servir 🙏
     "devis_ville", "devis_superficie", "devis_sujets",
     "formation_nom", "formation_ville", "formation_inscription",
     "debutant_objectif", "debutant_superficie", "debutant_budget",
-    "debutant_nom", "debutant_ville","photo_symptome",
+    "debutant_nom", "debutant_ville","photo_symptome","races_objectif", "races_budget", "races_experience",
     "suivi_type", "suivi_sujets", "suivi_probleme",
     "choix_race", "commande_quantite", "commande_nom", "commande_ville",
     "estimation_race", "premium_nom", "premium_ville",
@@ -538,6 +538,7 @@ if (["bonjour", "bonsoir", "salut", "hi", "hello", "start", "0", "menu"].include
 🌱 Tapez *prophet* pour enregistrer une bande et recevoir vos alertes vaccins
 📊 Tapez *suivi* pour saisir vos données du jour
 📸 Tapez *photo* pour envoyer une photo de diagnostic
+🐣 Tapez *races* pour choisir la race adaptée à votre projet
 ↩️ Tapez le numéro de votre choix`;
     }
 }
@@ -1341,6 +1342,112 @@ FIN OBLIGATOIRE :
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
   }
+  // ── COMPARATEUR DE RACES ──
+if (msg === "races" && !session?.step) {
+  await setSession(from, { step: "races_objectif" });
+  return `🐣 *COMPARATEUR DE RACES*
+_Le Partenaire des Éleveurs_
+
+Je vais vous recommander la race idéale pour votre projet 🎯
+
+*Quel est votre objectif principal ?*
+
+1️⃣ Vendre de la viande (chair)
+2️⃣ Vendre des œufs (ponte)
+3️⃣ Les deux à la fois
+4️⃣ Élevage familial (consommation)
+
+↩️ Tapez *menu* pour annuler`;
+}
+
+if (session?.step === "races_objectif") {
+  const objectifs = {
+    "1": "Vente de viande (chair)",
+    "2": "Vente d'œufs (ponte)",
+    "3": "Chair et ponte mixte",
+    "4": "Élevage familial"
+  };
+  if (!objectifs[msg]) return `❓ Tapez *1*, *2*, *3* ou *4* pour choisir.`;
+  await setSession(from, { ...session, step: "races_budget", objectif: objectifs[msg] });
+  return `✅ Objectif : *${objectifs[msg]}*
+
+💰 *Quel est votre budget pour les poussins ?*
+
+1️⃣ Moins de 200 000 FCFA
+2️⃣ 200 000 à 500 000 FCFA
+3️⃣ Plus de 500 000 FCFA
+
+↩️ Tapez *menu* pour annuler`;
+}
+
+if (session?.step === "races_budget") {
+  const budgets = {
+    "1": "Moins de 200 000 FCFA",
+    "2": "200 000 à 500 000 FCFA",
+    "3": "Plus de 500 000 FCFA"
+  };
+  if (!budgets[msg]) return `❓ Tapez *1*, *2* ou *3* pour choisir.`;
+  await setSession(from, { ...session, step: "races_experience", budget: budgets[msg] });
+  return `✅ Budget : *${budgets[msg]}*
+
+🧑‍🌾 *Quelle est votre expérience en élevage ?*
+
+1️⃣ Débutant complet
+2️⃣ Quelques expériences
+3️⃣ Éleveur expérimenté
+
+↩️ Tapez *menu* pour annuler`;
+}
+
+if (session?.step === "races_experience") {
+  const experiences = {
+    "1": "Débutant complet",
+    "2": "Quelques expériences",
+    "3": "Éleveur expérimenté"
+  };
+  if (!experiences[msg]) return `❓ Tapez *1*, *2* ou *3* pour choisir.`;
+
+  const { objectif, budget } = session;
+  const experience = experiences[msg];
+
+  const prompt = `Tu es expert en sélection de races avicoles en Côte d'Ivoire pour "Le Partenaire des Éleveurs".
+
+Un éleveur cherche la race idéale avec ce profil :
+- Objectif : ${objectif}
+- Budget poussins : ${budget}
+- Expérience : ${experience}
+
+Nos races disponibles et prix :
+- Chairs Blanc : 650 FCFA/unité — croissance rapide, 45 jours, idéal débutant
+- Chairs Roux : 600 FCFA/unité — rustique, résistant, bon pour chaleur ivoirienne
+- Hybrides : 450 FCFA/unité — économique, polyvalent
+- Pintadeaux Galor : 1100 FCFA/unité — viande premium, marché haut de gamme
+- Pontes ISA Brown : 1150 FCFA/unité — 300 œufs/an, meilleure pondeuse
+- Bleu Hollande : 400 FCFA/unité — très rustique, peu exigeant
+- Coquelet Blanc : 150 FCFA/unité — très économique, marché local
+- Pintadeaux Hybrides : 900 FCFA/unité — viande savoureuse, résistant
+
+Génère une recommandation personnalisée en 5-6 lignes :
+1. 🥇 Race recommandée N°1 avec justification précise
+2. 🥈 Race alternative N°2
+3. 💰 Estimation du nombre de sujets possibles avec ce budget
+4. ⚠️ Un conseil clé pour ce profil d'éleveur
+5. Invite à commander
+
+Termine par :
+"👉 Tapez *3* pour commander vos poussins"
+"↩️ Tapez *menu* pour voir nos services"`;
+
+  let recommandation = "";
+  try {
+    recommandation = await askClaude(prompt);
+  } catch (err) {
+    recommandation = `Pour votre profil, nous recommandons les Chairs Blanc à 650 FCFA/unité.\n\n👉 Tapez *3* pour commander\n↩️ Tapez *menu* pour voir nos services`;
+  }
+
+  await clearSession(from);
+  return `🐣 *Recommandation personnalisée*\n\n${recommandation}`;
+}
   // ── TUNNEL DIAGNOSTIC PHOTO ──
 if (msg === "photo" && !session?.step) {
   const premium = await isPremium(from);
