@@ -597,7 +597,6 @@ if (msg === "retour" || msg === "back" || msg === "precedent") {
   "choix_race", "commande_quantite", "commande_nom", "commande_ville",
   "estimation_race", "premium_nom", "premium_ville",
   "materiel_choix", "materiel_sujets", "materiel_action", "materiel_nom", "materiel_ville",
-
   "estimation_type", "estimation_sujets", "estimation_budget",
   "formation_niveau", "formation_objectif", "formation_motivation",
   "premium_taille", "premium_besoin", "premium_pitch", "question_libre",
@@ -605,7 +604,7 @@ if (msg === "retour" || msg === "back" || msg === "precedent") {
   "upgrade_plan", "upgrade_confirmation", "prophet_type", "prophet_sujets", "prophet_race", "prophet_date", "prophet_nom",
   "suivi_bande_choix", "suivi_bande_mortalite", "suivi_bande_aliment", "suivi_bande_poids",
 
-  ...marcheHandler.MARCHE_STEPS,
+  ...(Array.isArray(marcheHandler.MARCHE_STEPS) ? marcheHandler.MARCHE_STEPS : []),
 ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow && !session?.step
