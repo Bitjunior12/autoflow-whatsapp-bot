@@ -596,8 +596,6 @@ if (msg === "retour" || msg === "back" || msg === "precedent") {
   "suivi_type", "suivi_sujets", "suivi_probleme",
   "choix_race", "commande_quantite", "commande_nom", "commande_ville",
   "estimation_race", "premium_nom", "premium_ville",
-
-  // 🔥 CORRECTION ICI (virgules OK)
   "materiel_choix", "materiel_sujets", "materiel_action", "materiel_nom", "materiel_ville",
 
   "estimation_type", "estimation_sujets", "estimation_budget",
@@ -608,7 +606,6 @@ if (msg === "retour" || msg === "back" || msg === "precedent") {
   "suivi_bande_choix", "suivi_bande_mortalite", "suivi_bande_aliment", "suivi_bande_poids",
 
   ...marcheHandler.MARCHE_STEPS,
-  ...emploiHandler.EMPLOI_STEPS
 ].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow && !session?.step
