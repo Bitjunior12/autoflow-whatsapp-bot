@@ -57,7 +57,7 @@ const verifierAdmin = (req, res, next) => {
 
     app.use('/webhook', limiterWebhook);
     app.use('/api', limiterGlobal);
-
+    const PORT = process.env.PORT || 3000;
 connectDB();
 
 setInterval(async () => {
@@ -2887,13 +2887,6 @@ app.get("/api/eleveur/:phone/commandes", async (req, res) => {
 // ==============================
 // LANCEMENT SERVEUR
 // ==============================
-const PORT = process.env.PORT || 3000;
-
-app.get("/", (req, res) => {
-  res.send("Serveur OK 🚀");
-});
-
-connectDB();
 
 app.listen(PORT, async () => {
   console.log(`🚀 Serveur lancé sur le port ${PORT}`);
