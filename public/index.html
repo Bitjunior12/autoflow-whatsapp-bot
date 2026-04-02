@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Partenaire des Éleveurs — Bot WhatsApp IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --vert: #1a4a2e;
+    --vert-clair: #2d7a4f;
+    --vert-pale: #e8f5ee;
+    --or: #c9a84c;
+    --or-clair: #f0d080;
+    --blanc: #fafaf7;
+    --gris: #6b7280;
+    --noir: #0f1a14;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--blanc);
+    color: var(--noir);
+    overflow-x: hidden;
+  }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.2rem 5%;
+    background: rgba(26,74,46,0.97);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(201,168,76,0.3);
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem; color: var(--or);
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .nav-logo span { color: var(--blanc); font-weight: 300; }
+  .nav-cta {
+    background: var(--or); color: var(--vert);
+    padding: 0.6rem 1.4rem; border-radius: 50px;
+    font-weight: 600; font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.3s;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .nav-cta:hover { background: var(--or-clair); transform: translateY(-1px); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--vert) 0%, #0f2d1e 60%, #1a3d28 100%);
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    text-align: center;
+    padding: 8rem 5% 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a84c' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .hero-badge {
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--or-clair);
+    padding: 0.4rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 2rem;
+    display: inline-block;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    color: var(--blanc);
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    animation: fadeDown 0.8s ease 0.1s both;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--or);
+    display: block;
+  }
+
+  .hero p {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: rgba(255,255,255,0.75);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 3rem;
+    font-weight: 300;
+    animation: fadeDown 0.8s ease 0.2s both;
+  }
+
+  .hero-btns {
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeDown 0.8s ease 0.3s both;
+  }
+
+  .btn-primary {
+    background: var(--or);
+    color: var(--vert);
+    padding: 1rem 2.2rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    display: flex; align-items: center; gap: 0.5rem;
+    transition: all 0.3s;
+    box-shadow: 0 4px 20px rgba(201,168,76,0.4);
+  }
+  .btn-primary:hover { background: var(--or-clair); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(201,168,76,0.5); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--blanc);
+    padding: 1rem 2.2rem;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 1rem;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.3);
+    transition: all 0.3s;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.6); }
+
+  .hero-stats {
+    display: flex; gap: 3rem; margin-top: 5rem;
+    animation: fadeUp 0.8s ease 0.5s both;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem; color: var(--or);
+    display: block; line-height: 1;
+  }
+  .stat-label { color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-top: 0.3rem; }
+
+  /* ── FEATURES ── */
+  .section { padding: 6rem 5%; }
+
+  .section-tag {
+    color: var(--vert-clair);
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--vert);
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+
+  .section-sub {
+    color: var(--gris);
+    font-size: 1.1rem;
+    max-width: 550px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3.5rem;
+  }
+
+  .feature-card {
+    background: var(--blanc);
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    padding: 2rem;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 4px; height: 0;
+    background: var(--or);
+    transition: height 0.3s;
+  }
+
+  .feature-card:hover { border-color: var(--or); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(26,74,46,0.1); }
+  .feature-card:hover::before { height: 100%; }
+
+  .feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1.2rem;
+    display: block;
+  }
+
+  .feature-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--vert);
+    margin-bottom: 0.6rem;
+  }
+
+  .feature-card p {
+    color: var(--gris);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* ── COMMANDES ── */
+  .commandes {
+    background: var(--vert);
+    padding: 6rem 5%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .commandes::after {
+    content: '🐔';
+    position: absolute; right: 5%; top: 50%;
+    font-size: 15rem;
+    opacity: 0.05;
+    transform: translateY(-50%);
+  }
+
+  .commandes .section-title { color: var(--blanc); }
+  .commandes .section-tag { color: var(--or-clair); }
+  .commandes .section-sub { color: rgba(255,255,255,0.6); }
+
+  .cmd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 3rem;
+  }
+
+  .cmd-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s;
+  }
+
+  .cmd-card:hover { background: rgba(201,168,76,0.1); border-color: var(--or); }
+
+  .cmd-tag {
+    background: rgba(201,168,76,0.2);
+    color: var(--or-clair);
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: monospace;
+    display: inline-block;
+    margin-bottom: 0.8rem;
+  }
+
+  .cmd-card p { color: rgba(255,255,255,0.7); font-size: 0.9rem; line-height: 1.5; font-weight: 300; }
+
+  /* ── PRICING ── */
+  .pricing { background: var(--vert-pale); padding: 6rem 5%; }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3.5rem;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .plan-card {
+    background: var(--blanc);
+    border: 2px solid #e5e7eb;
+    border-radius: 24px;
+    padding: 2.5rem;
+    position: relative;
+    transition: all 0.3s;
+  }
+
+  .plan-card.featured {
+    border-color: var(--vert);
+    transform: scale(1.03);
+    box-shadow: 0 20px 60px rgba(26,74,46,0.15);
+  }
+
+  .plan-badge {
+    position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+    background: var(--vert);
+    color: var(--or);
+    padding: 0.3rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .plan-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--vert);
+    margin-bottom: 0.5rem;
+  }
+
+  .plan-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: var(--noir);
+    margin: 1rem 0;
+  }
+
+  .plan-price span { font-size: 1rem; color: var(--gris); font-family: 'DM Sans', sans-serif; }
+
+  .plan-features {
+    list-style: none;
+    margin: 1.5rem 0 2rem;
+  }
+
+  .plan-features li {
+    padding: 0.5rem 0;
+    color: var(--gris);
+    font-size: 0.95rem;
+    display: flex; align-items: center; gap: 0.6rem;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .plan-features li::before { content: '✓'; color: var(--vert-clair); font-weight: 700; }
+
+  .plan-cta {
+    display: block;
+    text-align: center;
+    padding: 0.9rem;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-size: 0.95rem;
+  }
+
+  .plan-cta.outline {
+    border: 2px solid var(--vert);
+    color: var(--vert);
+  }
+  .plan-cta.outline:hover { background: var(--vert); color: var(--blanc); }
+
+  .plan-cta.filled {
+    background: var(--vert);
+    color: var(--blanc);
+    box-shadow: 0 4px 20px rgba(26,74,46,0.3);
+  }
+  .plan-cta.filled:hover { background: var(--vert-clair); transform: translateY(-2px); }
+
+  /* ── TESTIMONIAL ── */
+  .temoignages { padding: 6rem 5%; text-align: center; }
+
+  .temoignages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3.5rem;
+  }
+
+  .temoignage {
+    background: var(--blanc);
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: left;
+    transition: all 0.3s;
+  }
+
+  .temoignage:hover { border-color: var(--or); box-shadow: 0 8px 30px rgba(201,168,76,0.15); }
+
+  .stars { color: var(--or); font-size: 1.1rem; margin-bottom: 1rem; }
+
+  .temoignage p {
+    color: var(--gris);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    font-style: italic;
+    font-weight: 300;
+    margin-bottom: 1.2rem;
+  }
+
+  .temoignage-auteur {
+    font-weight: 600;
+    color: var(--vert);
+    font-size: 0.9rem;
+  }
+
+  .temoignage-lieu {
+    color: var(--gris);
+    font-size: 0.82rem;
+  }
+
+  /* ── CTA FINAL ── */
+  .cta-final {
+    background: linear-gradient(135deg, var(--vert) 0%, #0f2d1e 100%);
+    padding: 7rem 5%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-final::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.15) 0%, transparent 70%);
+  }
+
+  .cta-final h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    color: var(--blanc);
+    margin-bottom: 1rem;
+    position: relative;
+  }
+
+  .cta-final p {
+    color: rgba(255,255,255,0.7);
+    font-size: 1.1rem;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+    position: relative;
+  }
+
+  .whatsapp-btn {
+    display: inline-flex; align-items: center; gap: 0.7rem;
+    background: #25D366;
+    color: var(--blanc);
+    padding: 1.1rem 2.5rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: all 0.3s;
+    box-shadow: 0 4px 30px rgba(37,211,102,0.4);
+    position: relative;
+  }
+
+  .whatsapp-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 40px rgba(37,211,102,0.5); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--noir);
+    padding: 2.5rem 5%;
+    text-align: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.85rem;
+  }
+
+  footer a { color: var(--or); text-decoration: none; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .hero-stats { gap: 1.5rem; }
+    .plan-card.featured { transform: scale(1); }
+    .hero-btns { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo">
+    🐔 Le Partenaire <span>des Éleveurs</span>
+  </div>
+  <a href="https://wa.me/2250507293031?text=Bonjour%2C%20je%20voudrais%20en%20savoir%20plus%20sur%20vos%20services" class="nav-cta" target="_blank">
+    💬 Démarrer sur WhatsApp
+  </a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🤖 Bot WhatsApp IA disponible 24h/24</div>
+  <h1>
+    Élevez mieux,<br>
+    <em>gagnez plus.</em>
+  </h1>
+  <p>Le premier assistant IA WhatsApp dédié aux éleveurs de volailles en Côte d'Ivoire. Conseils, suivi, alertes vaccins — tout en un seul message.</p>
+  <div class="hero-btns">
+    <a href="https://wa.me/2250507293031?text=menu" class="btn-primary" target="_blank">
+      📱 Essayer gratuitement
+    </a>
+    <a href="#offres" class="btn-secondary">Voir les offres</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">24/7</span>
+      <div class="stat-label">Disponibilité</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num">9</span>
+      <div class="stat-label">Services disponibles</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num">IA</span>
+      <div class="stat-label">Powered by Claude</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section reveal">
+  <div class="section-tag">Pourquoi nous choisir</div>
+  <div class="section-title">Tout ce dont<br>tu as besoin</div>
+  <p class="section-sub">Un outil pensé pour les réalités des éleveurs ivoiriens, directement sur WhatsApp.</p>
+
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <span class="feature-icon">💉</span>
+      <h3>Prophylaxie automatique</h3>
+      <p>Alertes vaccins J1 à J35 envoyées automatiquement sur WhatsApp. Ne rate plus jamais une vaccination.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">📊</span>
+      <h3>Suivi de bande IA</h3>
+      <p>Saisie journalière de mortalité, poids et aliment. Graphiques et analyses intelligentes de tes performances.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🔬</span>
+      <h3>Diagnostic vétérinaire</h3>
+      <p>Envoie une photo de tes poulets et reçois un diagnostic IA instantané avec recommandations de traitement.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🐥</span>
+      <h3>Commande de poussins</h3>
+      <p>Commande tes poussins et reçois une facture proforma PDF automatique directement sur WhatsApp.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">💰</span>
+      <h3>Simulation financière</h3>
+      <p>Estime tes coûts et bénéfices avant de démarrer une bande. Prends de meilleures décisions business.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">📈</span>
+      <h3>Prix du marché</h3>
+      <p>Consulte les prix des poussins et du marché de la volaille en temps réel pour optimiser tes ventes.</p>
+    </div>
+  </div>
+</section>
+
+<!-- COMMANDES -->
+<section class="commandes">
+  <div class="section-tag">Commandes rapides</div>
+  <div class="section-title">Simple comme un message</div>
+  <p class="section-sub">Tape une commande sur WhatsApp et le bot fait le reste. Aussi simple que ça.</p>
+
+  <div class="cmd-grid">
+    <div class="cmd-card reveal">
+      <span class="cmd-tag">prophet</span>
+      <p>Enregistrer une nouvelle bande et activer les alertes vaccins automatiques</p>
+    </div>
+    <div class="cmd-card reveal">
+      <span class="cmd-tag">suivi</span>
+      <p>Saisir les données journalières : mortalité, aliment consommé, poids moyen</p>
+    </div>
+    <div class="cmd-card reveal">
+      <span class="cmd-tag">photo</span>
+      <p>Envoyer une photo pour diagnostic vétérinaire instantané par IA</p>
+    </div>
+    <div class="cmd-card reveal">
+      <span class="cmd-tag">prix</span>
+      <p>Consulter les prix des poussins et cours du marché volaille du jour</p>
+    </div>
+    <div class="cmd-card reveal">
+      <span class="cmd-tag">races</span>
+      <p>Comparer les races de poulets et recevoir une recommandation personnalisée</p>
+    </div>
+    <div class="cmd-card reveal">
+      <span class="cmd-tag">menu</span>
+      <p>Accéder à tous les services disponibles et choisir ce dont tu as besoin</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="offres">
+  <div style="text-align:center">
+    <div class="section-tag">Nos offres</div>
+    <div class="section-title">Choisis ton plan</div>
+    <p class="section-sub" style="margin:0 auto">Commence gratuitement, évolue quand tu es prêt.</p>
+  </div>
+
+  <div class="pricing-grid">
+
+    <div class="plan-card reveal">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">Gratuit <span>/ mois</span></div>
+      <ul class="plan-features">
+        <li>20 questions expert/mois</li>
+        <li>5 diagnostics IA/mois</li>
+        <li>Commande poussins</li>
+        <li>Prix du marché</li>
+        <li>Simulation financière</li>
+      </ul>
+      <a href="https://wa.me/2250507293031?text=menu" class="plan-cta outline" target="_blank">Démarrer gratuitement</a>
+    </div>
+
+    <div class="plan-card featured reveal">
+      <div class="plan-badge">⭐ Le plus populaire</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">15 000 <span>FCFA / mois</span></div>
+      <ul class="plan-features">
+        <li>Questions illimitées</li>
+        <li>Diagnostics illimités</li>
+        <li>Prophylaxie automatique</li>
+        <li>Suivi bande journalier</li>
+        <li>Espace client éleveur</li>
+        <li>Prix marché en temps réel</li>
+      </ul>
+      <a href="https://wa.me/2250507293031?text=upgrade" class="plan-cta filled" target="_blank">S'abonner en Pro</a>
+    </div>
+
+    <div class="plan-card reveal">
+      <div class="plan-name">Premium</div>
+      <div class="plan-price">25 000 <span>FCFA / mois</span></div>
+      <ul class="plan-features">
+        <li>Tout le plan Pro</li>
+        <li>Coaching personnalisé IA</li>
+        <li>Résumés hebdomadaires</li>
+        <li>Alertes renouvellement</li>
+        <li>Support prioritaire</li>
+        <li>Accès formation réduit</li>
+      </ul>
+      <a href="https://wa.me/2250507293031?text=upgrade" class="plan-cta outline" target="_blank">S'abonner en Premium</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- TÉMOIGNAGES -->
+<section class="temoignages reveal">
+  <div class="section-tag">Ils nous font confiance</div>
+  <div class="section-title">Ce que disent nos éleveurs</div>
+
+  <div class="temoignages-grid">
+    <div class="temoignage reveal">
+      <div class="stars">★★★★★</div>
+      <p>"Depuis que j'utilise le bot, je ne rate plus jamais un vaccin. Mes poulets sont en meilleure santé et mes pertes ont diminué de moitié."</p>
+      <div class="temoignage-auteur">Kouamé A.</div>
+      <div class="temoignage-lieu">Éleveur, Abidjan</div>
+    </div>
+    <div class="temoignage reveal">
+      <div class="stars">★★★★★</div>
+      <p>"Le diagnostic photo m'a sauvé une bande entière. J'ai envoyé une photo et le bot m'a dit exactement quoi faire. Incroyable !"</p>
+      <div class="temoignage-auteur">Diallo M.</div>
+      <div class="temoignage-lieu">Éleveur, Bouaké</div>
+    </div>
+    <div class="temoignage reveal">
+      <div class="stars">★★★★★</div>
+      <p>"La simulation financière m'aide à planifier chaque bande. Je sais à l'avance ce que je vais gagner avant même de commencer."</p>
+      <div class="temoignage-auteur">Bamba S.</div>
+      <div class="temoignage-lieu">Éleveur, Yamoussoukro</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <h2>Prêt à élever<br>ton élevage ?</h2>
+  <p>Rejoins des centaines d'éleveurs qui font confiance à notre bot IA. Commence gratuitement dès aujourd'hui.</p>
+  <a href="https://wa.me/2250507293031?text=menu" class="whatsapp-btn" target="_blank">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+    Démarrer sur WhatsApp — C'est gratuit
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 Le Partenaire des Éleveurs · Abidjan, Côte d'Ivoire</p>
+  <p style="margin-top:0.5rem">Développé avec ❤️ pour les éleveurs ivoiriens · 
+    <a href="https://wa.me/2250507293031">Contact WhatsApp</a>
+  </p>
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

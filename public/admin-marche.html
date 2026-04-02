@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Admin — Le Partenaire des Éleveurs</title>
+<style>
+:root{
+  --vert:#1a6b3a;--vert-l:#e6f5ec;--vert-m:#228B47;
+  --bleu:#1e40af;--bleu-l:#dbeafe;--bleu-m:#1e3a8a;
+  --or:#d97706;--or-l:#fef3c7;--or-m:#b45309;--or-xl:#fffbeb;
+  --rouge:#c0392b;--rouge-l:#fdecea;
+  --violet:#7c3aed;--violet-l:#ede9fe;
+  --cyan:#0891b2;--cyan-l:#cffafe;
+  --gris:#374151;--gris-m:#6b7280;--gris-l:#f3f4f6;--gris-xl:#f9fafb;
+  --blanc:#fff;--border:#e5e7eb;
+  --shadow:0 2px 12px rgba(0,0,0,.07);
+  --r:12px;--rsm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--gris-xl);color:var(--gris)}
+
+/* LOGIN */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#111827}
+.login-box{background:#1f2937;border-radius:16px;padding:2.5rem;width:100%;max-width:380px;text-align:center}
+.login-box .icon{font-size:3rem;margin-bottom:.75rem}
+.login-box h2{color:#fff;font-size:1.2rem;margin-bottom:.35rem}
+.login-box p{color:#9ca3af;font-size:.85rem;margin-bottom:1.5rem}
+.login-box input{width:100%;padding:.82rem 1rem;border-radius:var(--rsm);border:1px solid #374151;background:#374151;color:#fff;font-size:.95rem;margin-bottom:.75rem}
+.login-box input:focus{outline:none;border-color:var(--bleu)}
+.btn-login{width:100%;padding:.88rem;background:var(--bleu);color:#fff;font-weight:700;border:none;border-radius:var(--rsm);cursor:pointer;font-size:.95rem}
+.btn-login:hover{background:var(--bleu-m)}
+.login-err{color:#ef4444;font-size:.82rem;margin-top:.65rem}
+
+/* LAYOUT */
+.main-layout{display:none}
+header{background:#111827;height:60px;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;position:fixed;top:0;left:0;right:0;z-index:100}
+.logo{color:#fff;font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:8px}
+.admin-badge{background:#ef4444;color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:8px;text-transform:uppercase}
+.btn-logout{background:none;border:1px solid #4b5563;color:#9ca3af;padding:.38rem .85rem;border-radius:var(--rsm);cursor:pointer;font-size:.78rem}
+.btn-logout:hover{border-color:#6b7280;color:#fff}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:#1f2937;position:fixed;top:60px;left:0;bottom:0;overflow-y:auto;padding:.75rem 0}
+.nav-section{padding:.5rem 1rem .25rem;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#4b5563}
+.nav-item{display:flex;align-items:center;gap:10px;padding:.68rem 1.2rem;color:#9ca3af;cursor:pointer;font-size:.85rem;font-weight:500;transition:all .15s;border-left:3px solid transparent}
+.nav-item:hover{background:#374151;color:#fff}
+.nav-item.active{background:rgba(30,64,175,.3);color:#93c5fd;border-left-color:var(--bleu)}
+.nav-icon{font-size:1rem;width:18px;text-align:center;flex-shrink:0}
+.nav-badge{background:#ef4444;color:#fff;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:8px;margin-left:auto}
+
+/* CONTENT */
+.content{margin-left:220px;margin-top:60px;padding:1.5rem;min-height:calc(100vh - 60px)}
+.page{display:none}.page.active{display:block}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem}
+.page-title{font-size:1.15rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.search-input{padding:.45rem .85rem;border:1.5px solid var(--border);border-radius:var(--rsm);font-size:.83rem;width:220px;background:var(--blanc)}
+.search-input:focus{outline:none;border-color:var(--bleu)}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem}
+.stat-card{background:var(--blanc);border-radius:var(--r);padding:1.1rem;border:1px solid var(--border);box-shadow:var(--shadow);cursor:pointer;transition:transform .15s}
+.stat-card:hover{transform:translateY(-2px)}
+.stat-number{font-size:1.9rem;font-weight:800;margin-bottom:.22rem}
+.stat-label{font-size:.78rem;color:var(--gris-m)}
+.c-blue{color:var(--bleu)}.c-green{color:var(--vert)}.c-orange{color:var(--or)}.c-red{color:var(--rouge)}.c-violet{color:var(--violet)}.c-cyan{color:var(--cyan)}
+
+/* TABLES */
+.table-card{background:var(--blanc);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden}
+.table-card-head{padding:.85rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+.table-card-head h3{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gris)}
+table{width:100%;border-collapse:collapse}
+th{padding:.62rem 1rem;text-align:left;font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;background:var(--gris-l);color:var(--gris-m);white-space:nowrap}
+td{padding:.72rem 1rem;border-bottom:1px solid var(--gris-l);font-size:.82rem;vertical-align:middle;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--gris-xl)}
+.table-wrap{overflow-x:auto}
+
+/* BADGES */
+.badge{font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px;text-transform:uppercase;display:inline-block}
+.b-green{background:var(--vert-l);color:#065f46}
+.b-blue{background:var(--bleu-l);color:var(--bleu)}
+.b-orange{background:var(--or-l);color:var(--or-m)}
+.b-red{background:var(--rouge-l);color:var(--rouge)}
+.b-violet{background:var(--violet-l);color:var(--violet)}
+.b-gray{background:var(--gris-l);color:var(--gris-m)}
+.b-cyan{background:var(--cyan-l);color:var(--cyan)}
+
+/* BUTTONS */
+.btn{padding:.4rem .82rem;border-radius:var(--rsm);font-size:.76rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-green{background:var(--vert-l);color:var(--vert)}.btn-green:hover{background:var(--vert);color:#fff}
+.btn-blue{background:var(--bleu-l);color:var(--bleu)}.btn-blue:hover{background:var(--bleu);color:#fff}
+.btn-orange{background:var(--or-l);color:var(--or-m)}.btn-orange:hover{background:var(--or);color:#fff}
+.btn-red{background:var(--rouge-l);color:var(--rouge)}.btn-red:hover{background:var(--rouge);color:#fff}
+.btn-violet{background:var(--violet-l);color:var(--violet)}.btn-violet:hover{background:var(--violet);color:#fff}
+.btn-primary{background:var(--bleu);color:#fff}.btn-primary:hover{background:var(--bleu-m)}
+.actions{display:flex;gap:5px;flex-wrap:wrap}
+.thumb{width:40px;height:40px;border-radius:var(--rsm);object-fit:cover;border:1px solid var(--border)}
+.thumb-ph{width:40px;height:40px;border-radius:var(--rsm);background:var(--gris-l);display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:1rem}
+.modal-bg.open{display:flex}
+.modal{background:var(--blanc);border-radius:16px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;max-height:90vh;overflow-y:auto}
+.modal-head{padding:1.1rem 1.4rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--gris-l)}
+.modal-head h3{font-size:.95rem;font-weight:700}
+.btn-close{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:var(--blanc);cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center}
+.modal-body{padding:1.3rem 1.4rem}
+.form-group{margin-bottom:.9rem}
+.form-group label{display:block;font-size:.75rem;font-weight:600;color:var(--gris-m);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem}
+.form-group select,.form-group input{width:100%;padding:.58rem .85rem;border:1.5px solid var(--border);border-radius:var(--rsm);font-size:.88rem;color:var(--gris);background:var(--blanc)}
+.form-group select:focus,.form-group input:focus{outline:none;border-color:var(--bleu)}
+.btn-full{width:100%;padding:.82rem;border:none;border-radius:var(--rsm);font-weight:700;font-size:.92rem;cursor:pointer}
+.btn-full-green{background:var(--vert);color:#fff}.btn-full-green:hover{background:var(--vert-m)}
+.btn-full-blue{background:var(--bleu);color:#fff}.btn-full-blue:hover{background:var(--bleu-m)}
+.btn-full-red{background:var(--rouge);color:#fff}
+.btn-full-orange{background:var(--or);color:#fff}.btn-full-orange:hover{background:var(--or-m)}
+.modal-actions{display:flex;gap:.75rem;margin-top:.5rem}
+.modal-actions .btn-full{margin-top:0}
+
+/* BOOST OPTIONS */
+.boost-opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.boost-opt{border:2px solid var(--border);border-radius:var(--rsm);padding:.72rem 1rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all .15s}
+.boost-opt:hover,.boost-opt.sel{border-color:var(--or);background:var(--or-xl)}
+.boost-opt-label{font-size:.85rem;font-weight:600}
+.boost-opt-price{font-size:.9rem;font-weight:800;color:var(--or-m)}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(16px);background:#111;color:#fff;padding:.65rem 1.3rem;border-radius:30px;font-size:.85rem;font-weight:500;opacity:0;transition:all .3s;z-index:500}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* EMPTY */
+.empty{text-align:center;padding:2.5rem;color:var(--gris-m)}
+.empty-icon{font-size:2rem;margin-bottom:.5rem}
+
+/* FORM INLINE */
+.form-inline{background:var(--blanc);border-radius:var(--r);padding:1.1rem;margin-bottom:1rem;border:1px solid var(--border);box-shadow:var(--shadow)}
+.form-inline-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem;margin-bottom:.9rem}
+
+@media(max-width:900px){
+  .sidebar{width:100%;height:auto;position:relative;top:0;display:flex;overflow-x:auto;padding:.5rem 0}
+  .nav-section{display:none}
+  .nav-item{padding:.6rem 1rem;white-space:nowrap;border-left:none;border-bottom:3px solid transparent}
+  .nav-item.active{border-bottom-color:var(--bleu);border-left:none}
+  .content{margin-left:0;margin-top:120px}
+  .stats-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .page-header{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+    <!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="icon">🐔</div>
+    <h2>Le Partenaire des Éleveurs</h2>
+    <p>Dashboard Admin — Accès sécurisé</p>
+    <input type="password" id="admin-pwd" placeholder="Mot de passe admin" onkeypress="if(event.key==='Enter')login()">
+    <button class="btn-login" onclick="login()">Se connecter</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-layout" id="main-layout">
+  <header>
+    <div class="logo">🐔 Le Partenaire des Éleveurs <span class="admin-badge">Admin</span></div>
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <span id="last-update" style="font-size:.75rem;color:#6b7280"></span>
+      <button class="btn-logout" onclick="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <div class="sidebar">
+    <div class="nav-section">Général</div>
+    <div class="nav-item active" onclick="showPage('stats',this)"><span class="nav-icon">📊</span> Statistiques</div>
+    <div class="nav-item" onclick="showPage('contacts',this)"><span class="nav-icon">👥</span> Contacts</div>
+
+    <div class="nav-section">Marché & Emploi</div>
+    <div class="nav-item" onclick="showPage('annonces',this)"><span class="nav-icon">🛒</span> Marché Volailles</div>
+    <div class="nav-item" onclick="showPage('techniciens',this)"><span class="nav-icon">👷</span> Techniciens</div>
+    <div class="nav-item" onclick="showPage('offres-emploi',this)"><span class="nav-icon">📋</span> Offres d'emploi</div>
+
+    <div class="nav-section">Commandes & Services</div>
+    <div class="nav-item" onclick="showPage('commandes',this)"><span class="nav-icon">📦</span> Commandes Poussins</div>
+    <div class="nav-item" onclick="showPage('inscriptions',this)"><span class="nav-icon">🎓</span> Inscriptions</div>
+    <div class="nav-item" onclick="showPage('devis',this)"><span class="nav-icon">📄</span> Devis</div>
+
+    <div class="nav-section">Premium & Prix</div>
+    <div class="nav-item" onclick="showPage('abonnements',this)"><span class="nav-icon">⭐</span> Abonnements</div>
+    <div class="nav-item" onclick="showPage('prix',this)"><span class="nav-icon">📈</span> Prix du Marché</div>
+  </div>
+
+  <div class="content">
+
+    <!-- PAGE STATS -->
+    <div class="page active" id="page-stats">
+      <div class="page-header"><div class="page-title">📊 Tableau de bord global</div></div>
+      <div class="stats-grid">
+        <div class="stat-card" onclick="showPage('contacts',document.querySelectorAll('.nav-item')[1])">
+          <div class="stat-number c-blue" id="st-contacts">—</div>
+          <div class="stat-label">👥 Contacts WhatsApp</div>
+        </div>
+        <div class="stat-card" onclick="showPage('commandes',document.querySelectorAll('.nav-item')[6])">
+          <div class="stat-number c-green" id="st-commandes">—</div>
+          <div class="stat-label">📦 Commandes Poussins</div>
+        </div>
+        <div class="stat-card" onclick="showPage('inscriptions',document.querySelectorAll('.nav-item')[7])">
+          <div class="stat-number c-violet" id="st-inscriptions">—</div>
+          <div class="stat-label">🎓 Inscriptions</div>
+        </div>
+        <div class="stat-card" onclick="showPage('devis',document.querySelectorAll('.nav-item')[8])">
+          <div class="stat-number c-cyan" id="st-devis">—</div>
+          <div class="stat-label">📄 Devis</div>
+        </div>
+        <div class="stat-card" onclick="showPage('abonnements',document.querySelectorAll('.nav-item')[9])">
+          <div class="stat-number c-orange" id="st-abonnes">—</div>
+          <div class="stat-label">⭐ Abonnés actifs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number c-green" id="st-ca">—</div>
+          <div class="stat-label">💰 CA Total (FCFA)</div>
+        </div>
+        <div class="stat-card" onclick="showPage('annonces',document.querySelectorAll('.nav-item')[2])">
+          <div class="stat-number c-blue" id="st-annonces">—</div>
+          <div class="stat-label">🛒 Annonces Volailles</div>
+        </div>
+        <div class="stat-card" onclick="showPage('techniciens',document.querySelectorAll('.nav-item')[3])">
+          <div class="stat-number c-green" id="st-tech">—</div>
+          <div class="stat-label">👷 Techniciens</div>
+        </div>
+        <div class="stat-card" onclick="showPage('offres-emploi',document.querySelectorAll('.nav-item')[4])">
+          <div class="stat-number c-violet" id="st-offres-emploi">—</div>
+          <div class="stat-label">📋 Offres d'emploi</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number c-orange" id="st-boost-ann">—</div>
+          <div class="stat-label">⚡ Annonces boostées</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number c-orange" id="st-lpe">—</div>
+          <div class="stat-label">🏅 Certifiés LPE</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number c-red" id="st-attente">—</div>
+          <div class="stat-label">⏳ En attente</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE CONTACTS -->
+    <div class="page" id="page-contacts">
+      <div class="page-header">
+        <div class="page-title">👥 Contacts WhatsApp</div>
+        <input class="search-input" placeholder="🔍 Rechercher…" oninput="filterTable('tbl-contacts',this.value)">
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table id="tbl-contacts">
+            <thead><tr>
+              <th>Téléphone</th><th>Nom</th><th>Dernier message</th>
+              <th>Intérêt</th><th>Nb msgs</th><th>Dernier contact</th><th>Espace éleveur</th><th>Action</th>
+            </tr></thead>
+            <tbody id="tbody-contacts"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE ANNONCES -->
+    <div class="page" id="page-annonces">
+      <div class="page-header">
+        <div class="page-title">🛒 Marché des Volailles</div>
+        <input class="search-input" placeholder="🔍 Rechercher…" oninput="filterTable('tbl-annonces',this.value)">
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table id="tbl-annonces">
+            <thead><tr>
+              <th>Photo</th><th>Éleveur</th><th>Type</th><th>Région</th>
+              <th>Quantité</th><th>Prix</th><th>Statut</th><th>Date</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="tbody-annonces"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE TECHNICIENS -->
+    <div class="page" id="page-techniciens">
+      <div class="page-header">
+        <div class="page-title">👷 Profils Techniciens</div>
+        <input class="search-input" placeholder="🔍 Rechercher…" oninput="filterTable('tbl-tech',this.value)">
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table id="tbl-tech">
+            <thead><tr>
+              <th>Photo</th><th>Nom</th><th>Spécialité</th><th>Région</th>
+              <th>Expérience</th><th>Disponibilité</th><th>Statut</th><th>Date</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="tbody-tech"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE OFFRES EMPLOI -->
+    <div class="page" id="page-offres-emploi">
+      <div class="page-header">
+        <div class="page-title">📋 Offres d'Emploi</div>
+        <input class="search-input" placeholder="🔍 Rechercher…" oninput="filterTable('tbl-offres-emploi',this.value)">
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table id="tbl-offres-emploi">
+            <thead><tr>
+              <th>Photo</th><th>Ferme</th><th>Poste</th><th>Région</th>
+              <th>Contrat</th><th>Salaire</th><th>Statut</th><th>Date</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="tbody-offres-emploi"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE COMMANDES -->
+    <div class="page" id="page-commandes">
+      <div class="page-header">
+        <div class="page-title">📦 Commandes Poussins</div>
+        <input class="search-input" placeholder="🔍 Rechercher…" oninput="filterTable('tbl-commandes',this.value)">
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table id="tbl-commandes">
+            <thead><tr>
+              <th>Date</th><th>Nom</th><th>Téléphone</th><th>Race</th>
+              <th>Quantité</th><th>Total</th><th>Ville</th><th>Statut</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="tbody-commandes"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE INSCRIPTIONS -->
+    <div class="page" id="page-inscriptions">
+      <div class="page-header">
+        <div class="page-title">🎓 Inscriptions Formation</div>
+        <input class="search-input" placeholder="🔍 Rechercher…" oninput="filterTable('tbl-inscriptions',this.value)">
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table id="tbl-inscriptions">
+            <thead><tr>
+              <th>Date</th><th>Nom</th><th>Téléphone</th><th>Programme</th>
+              <th>Ville</th><th>Profil</th><th>Statut</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="tbody-inscriptions"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE DEVIS -->
+    <div class="page" id="page-devis">
+      <div class="page-header">
+        <div class="page-title">📄 Demandes de Devis</div>
+        <input class="search-input" placeholder="🔍 Rechercher…" oninput="filterTable('tbl-devis',this.value)">
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table id="tbl-devis">
+            <thead><tr>
+              <th>Date</th><th>Nom</th><th>Téléphone</th><th>Type</th>
+              <th>Ville</th><th>Superficie</th><th>Sujets</th><th>Statut</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="tbody-devis"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE ABONNEMENTS -->
+    <div class="page" id="page-abonnements">
+      <div class="page-header"><div class="page-title">⭐ Abonnements Premium</div></div>
+
+      <!-- Demandes en attente -->
+      <div class="table-card" style="margin-bottom:1.25rem">
+        <div class="table-card-head"><h3>🔔 Demandes en attente</h3></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Date</th><th>Téléphone</th><th>Plan</th><th>Montant</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="tbody-upgrade"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Abonnés actifs -->
+      <div class="table-card">
+        <div class="table-card-head"><h3>✅ Abonnés actifs</h3></div>
+        <div class="table-wrap">
+          <table id="tbl-abonnements">
+            <thead><tr>
+              <th>Téléphone</th><th>Nom</th><th>Plan</th><th>Statut</th>
+              <th>Début</th><th>Expiration</th><th>Questions</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="tbody-abonnements"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE PRIX MARCHÉ -->
+    <div class="page" id="page-prix">
+      <div class="page-header">
+        <div class="page-title">📈 Prix du Marché</div>
+        <button class="btn btn-primary" onclick="toggleFormPrix()">+ Ajouter un prix</button>
+      </div>
+
+      <div class="form-inline" id="form-prix" style="display:none">
+        <div class="form-inline-grid">
+          <div class="form-group">
+            <label>Produit</label>
+            <select id="px-produit">
+              <option>Poulet chair vif</option>
+              <option>Poule pondeuse réformée</option>
+              <option>Œuf plateau (30)</option>
+              <option>Pintade vivante</option>
+              <option>Poulet chair abattu</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Prix</label>
+            <input type="number" id="px-prix" placeholder="Ex: 2500">
+          </div>
+          <div class="form-group">
+            <label>Unité</label>
+            <select id="px-unite">
+              <option>FCFA/kg</option>
+              <option>FCFA/unité</option>
+              <option>FCFA/plateau</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Ville</label>
+            <select id="px-ville">
+              <option>Abidjan</option><option>Bouaké</option>
+              <option>Yamoussoukro</option><option>San-Pédro</option><option>Daloa</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:.75rem">
+          <button class="btn btn-green" onclick="sauvegarderPrix()">✅ Sauvegarder</button>
+          <button class="btn btn-red" onclick="toggleFormPrix()">Annuler</button>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-wrap">
+          <table id="tbl-prix">
+            <thead><tr>
+              <th>Produit</th><th>Prix</th><th>Unité</th><th>Ville</th><th>Mis à jour</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="tbody-prix"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL BOOST -->
+<div class="modal-bg" id="m-boost" onclick="if(event.target===this)closeM('m-boost')">
+  <div class="modal">
+    <div class="modal-head"><h3>⚡ Activer un Boost</h3><button class="btn-close" onclick="closeM('m-boost')">✕</button></div>
+    <div class="modal-body">
+      <div class="boost-opts">
+        <div class="boost-opt sel" onclick="selBoost('b7',this)"><span class="boost-opt-label">🚀 Boost Standard — 7 jours</span><span class="boost-opt-price">1 500 F</span></div>
+        <div class="boost-opt" onclick="selBoost('b14',this)"><span class="boost-opt-label">⭐ Boost Premium — 14 jours</span><span class="boost-opt-price">3 000 F</span></div>
+        <div class="boost-opt" onclick="selBoost('b48',this)"><span class="boost-opt-label">🔔 Boost Express — 48h</span><span class="boost-opt-price">2 000 F</span></div>
+      </div>
+      <button class="btn-full btn-full-orange" onclick="confirmerBoost()">⚡ Activer le boost</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ACTIVER ABONNEMENT -->
+<div class="modal-bg" id="m-abo" onclick="if(event.target===this)closeM('m-abo')">
+  <div class="modal">
+    <div class="modal-head"><h3>⭐ Activer un abonnement</h3><button class="btn-close" onclick="closeM('m-abo')">✕</button></div>
+    <div class="modal-body">
+      <div id="m-abo-phone" style="font-size:.85rem;color:var(--gris-m);margin-bottom:1rem"></div>
+      <div class="form-group">
+        <label>Plan</label>
+        <select id="abo-plan">
+          <option value="pro">Pro — 15 000 FCFA/mois</option>
+          <option value="premium">Premium — 25 000 FCFA/mois</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Durée (jours)</label>
+        <input type="number" id="abo-duree" value="30" min="1" max="365">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-full" style="background:var(--gris-l);color:var(--gris)" onclick="closeM('m-abo')">Annuler</button>
+        <button class="btn-full btn-full-green" onclick="confirmerActivation()">✅ Activer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SUPPRIMER -->
+<div class="modal-bg" id="m-delete" onclick="if(event.target===this)closeM('m-delete')">
+  <div class="modal">
+    <div class="modal-head"><h3>🗑️ Confirmer la suppression</h3><button class="btn-close" onclick="closeM('m-delete')">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:.88rem;color:var(--gris-m);margin-bottom:1.2rem;line-height:1.55">Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est <strong>irréversible</strong>.</p>
+      <div class="modal-actions">
+        <button class="btn-full" style="background:var(--gris-l);color:var(--gris)" onclick="closeM('m-delete')">Annuler</button>
+        <button class="btn-full btn-full-red" onclick="confirmerSuppression()">🗑️ Supprimer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CERTIFIER LPE -->
+<div class="modal-bg" id="m-lpe" onclick="if(event.target===this)closeM('m-lpe')">
+  <div class="modal">
+    <div class="modal-head"><h3>🏅 Certification LPE</h3><button class="btn-close" onclick="closeM('m-lpe')">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:.88rem;color:var(--gris-m);margin-bottom:1.2rem;line-height:1.55">Confirmer la certification <strong>Certifié LPE</strong> pour ce technicien ?</p>
+      <button class="btn-full btn-full-green" onclick="confirmerLPE()">🏅 Certifier</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="tk"></div>
+<script>
+const ADMIN_TOKEN = '#Lep@tener_2026&!*';
+const DASHBOARD_PWD = 'eleveur2026';
+let TOKEN = '';
+let boostTarget = null, boostType = null, boostFormule = 'b7';
+let deleteTarget = null, deleteType = null;
+let lpeTarget = null;
+let aboPhone = null;
+let upgradeRequests = JSON.parse(localStorage.getItem('upgradeRequests') || '[]');
+
+// ── AUTH ──────────────────────────────────────────────────────────
+function login() {
+  const pwd = document.getElementById('admin-pwd').value;
+  if (!pwd) return;
+  if (pwd === DASHBOARD_PWD) {
+    TOKEN = pwd;
+    localStorage.setItem('dashboard_token', pwd);
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-layout').style.display = 'block';
+    loadAll();
+  } else {
+    document.getElementById('login-err').textContent = '❌ Mot de passe incorrect';
+  }
+}
+function logout() {
+  TOKEN = '';
+  localStorage.removeItem('dashboard_token');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('main-layout').style.display = 'none';
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────
+function fd(d) {
+  return new Date(d).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+}
+function fn(n) { return (n || 0).toLocaleString('fr-FR'); }
+function timeAgo(d) {
+  const h = Math.floor((Date.now() - new Date(d)) / 3600000);
+  if (h < 1)  return "À l'instant";
+  if (h < 24) return `Il y a ${h}h`;
+  const j = Math.floor(h / 24);
+  if (j < 7)  return `Il y a ${j}j`;
+  return `Il y a ${Math.floor(j/7)} sem`;
+}
+function joursRestants(dateFin) {
+  if (!dateFin) return '—';
+  const diff = new Date(dateFin) - new Date();
+  const j = Math.ceil(diff / 86400000);
+  if (j < 0)  return `<span style="color:var(--rouge)">Expiré</span>`;
+  if (j <= 5) return `<span style="color:var(--or)">${j}j</span>`;
+  return `<span style="color:var(--vert)">${j}j</span>`;
+}
+function ini(n) { return (n||'??').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+function openM(id) { document.getElementById(id).classList.add('open'); }
+function closeM(id) { document.getElementById(id).classList.remove('open'); }
+function toast(msg) {
+  const t = document.getElementById('tk');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+function filterTable(tableId, val) {
+  const q = val.toLowerCase();
+  document.querySelectorAll(`#${tableId} tbody tr`).forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+// ── LOAD ALL ──────────────────────────────────────────────────────
+async function loadAll() {
+  await Promise.all([
+    loadContacts(),
+    loadAnnonces(),
+    loadTech(),
+    loadOffresEmploi(),
+    loadCommandes(),
+    loadInscriptions(),
+    loadDevis(),
+    loadAbonnements(),
+    loadPrix(),
+  ]);
+  document.getElementById('last-update').textContent =
+    'Mise à jour : ' + new Date().toLocaleTimeString('fr-FR');
+}
+
+// ── CONTACTS ──────────────────────────────────────────────────────
+async function loadContacts() {
+  const r = await fetch('/contacts');
+  const j = await r.json();
+  document.getElementById('st-contacts').textContent = j.total || 0;
+  const tbody = document.getElementById('tbody-contacts');
+  if (!j.contacts?.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">👥</div>Aucun contact</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = j.contacts.map(c => `
+    <tr>
+      <td>+${c.phone}</td>
+      <td>${c.name || '—'}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis">${c.lastMessage || '—'}</td>
+      <td>${c.lastChoice || '—'}</td>
+      <td>${c.messageCount || 0}</td>
+      <td>${fd(c.lastSeen)}</td>
+      <td><a href="/eleveur/${c.phone}" target="_blank" class="btn btn-blue">👨‍🌾 Voir</a></td>
+      <td><button class="btn btn-red" onclick="supprimerElement('${c._id}','contact')">🗑️</button></td>
+    </tr>
+  `).join('');
+}
+
+// ── ANNONCES MARCHÉ ───────────────────────────────────────────────
+async function loadAnnonces() {
+  const r = await fetch('/marche/api/annonces');
+  const j = await r.json();
+  if (!j.success) return;
+  const data = j.data;
+  document.getElementById('st-annonces').textContent = data.length;
+  document.getElementById('st-boost-ann').textContent = data.filter(a => a.boosted).length;
+  const tbody = document.getElementById('tbody-annonces');
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">🛒</div>Aucune annonce</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(a => `
+    <tr>
+      <td>${a.mediaUrl ? `<img class="thumb" src="${a.mediaUrl}">` : `<div class="thumb-ph">🐔</div>`}</td>
+      <td><strong>${a.nom}</strong><br><span style="color:var(--gris-m);font-size:.73rem">${a.telephone}</span></td>
+      <td>${a.type}</td>
+      <td>📍 ${a.region}</td>
+      <td>${fn(a.quantite)} sujets</td>
+      <td><strong>${fn(a.prix)} F</strong></td>
+      <td>${a.boosted ? `<span class="badge b-orange">${a.boostLabel||'Boosté'}</span>` : `<span class="badge b-gray">Normal</span>`}</td>
+      <td style="font-size:.73rem;color:var(--gris-m)">${timeAgo(a.createdAt)}</td>
+      <td><div class="actions">
+        <button class="btn btn-orange" onclick="ouvrirBoost('${a._id}','annonce')">⚡</button>
+        <button class="btn btn-red" onclick="ouvrirDelete('${a._id}','annonce')">🗑️</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+
+// ── TECHNICIENS ───────────────────────────────────────────────────
+async function loadTech() {
+  const r = await fetch('/emploi/api/profils');
+  const j = await r.json();
+  if (!j.success) return;
+  const data = j.data;
+  document.getElementById('st-tech').textContent = data.length;
+  document.getElementById('st-lpe').textContent = data.filter(t => t.certifieLPE).length;
+  const tbody = document.getElementById('tbody-tech');
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">👷</div>Aucun technicien</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(t => `
+    <tr>
+      <td>${t.photoUrl ? `<img class="thumb" src="${t.photoUrl}">` : `<div class="thumb-ph">👷</div>`}</td>
+      <td><strong>${t.nom}</strong><br><span style="color:var(--gris-m);font-size:.73rem">${t.telephone}</span></td>
+      <td>${t.specialite}</td>
+      <td>📍 ${t.region}</td>
+      <td>${t.experience}</td>
+      <td>${t.disponibilite === 'Immédiatement' ? '🟢 Immédiat' : t.disponibilite}</td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+        ${t.boosted ? `<span class="badge b-orange">${t.boostLabel||'Boosté'}</span>` : `<span class="badge b-gray">Normal</span>`}
+        ${t.certifieLPE ? `<span class="badge b-green">🏅 LPE</span>` : ''}
+      </div></td>
+      <td style="font-size:.73rem;color:var(--gris-m)">${timeAgo(t.createdAt)}</td>
+      <td><div class="actions">
+        <button class="btn btn-orange" onclick="ouvrirBoost('${t._id}','profil')">⚡</button>
+        ${!t.certifieLPE ? `<button class="btn btn-green" onclick="ouvrirLPE('${t._id}')">🏅</button>` : ''}
+        <button class="btn btn-red" onclick="ouvrirDelete('${t._id}','profil')">🗑️</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+
+// ── OFFRES EMPLOI ─────────────────────────────────────────────────
+async function loadOffresEmploi() {
+  const r = await fetch('/emploi/api/offres');
+  const j = await r.json();
+  if (!j.success) return;
+  const data = j.data;
+  document.getElementById('st-offres-emploi').textContent = data.length;
+  const tbody = document.getElementById('tbody-offres-emploi');
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">📋</div>Aucune offre</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(o => `
+    <tr>
+      <td>${o.photoUrl ? `<img class="thumb" src="${o.photoUrl}">` : `<div class="thumb-ph">🏗️</div>`}</td>
+      <td><strong>${o.ferme}</strong><br><span style="color:var(--gris-m);font-size:.73rem">${o.telephone}</span></td>
+      <td>${o.poste}</td>
+      <td>📍 ${o.region}</td>
+      <td>${o.contrat}</td>
+      <td>${o.salaire}</td>
+      <td>${o.boosted ? `<span class="badge b-orange">${o.boostLabel||'Boosté'}</span>` : `<span class="badge b-gray">Normal</span>`}</td>
+      <td style="font-size:.73rem;color:var(--gris-m)">${timeAgo(o.createdAt)}</td>
+      <td><div class="actions">
+        <button class="btn btn-orange" onclick="ouvrirBoost('${o._id}','offre')">⚡</button>
+        <button class="btn btn-red" onclick="ouvrirDelete('${o._id}','offre')">🗑️</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+
+// ── COMMANDES ─────────────────────────────────────────────────────
+async function loadCommandes() {
+  const r = await fetch('/orders');
+  const j = await r.json();
+  document.getElementById('st-commandes').textContent = j.total || 0;
+  const ca = (j.orders || []).reduce((s, o) => s + (o.totalPrice || 0), 0);
+  document.getElementById('st-ca').textContent = fn(ca);
+  const attenteC = (j.orders || []).filter(o => o.status === 'en_attente').length;
+  const tbody = document.getElementById('tbody-commandes');
+  if (!j.orders?.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">📦</div>Aucune commande</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = j.orders.map(o => `
+    <tr>
+      <td style="font-size:.75rem">${fd(o.createdAt)}</td>
+      <td><strong>${o.name}</strong></td>
+      <td>+${o.phone}</td>
+      <td>${o.race}</td>
+      <td>${fn(o.quantity)}</td>
+      <td><strong>${fn(o.totalPrice)} F</strong></td>
+      <td>${o.ville || '—'}</td>
+      <td><span class="badge ${o.status==='en_attente'?'b-orange':o.status==='confirmée'?'b-green':'b-red'}">${o.status}</span></td>
+      <td><div class="actions">
+        ${o.status === 'en_attente' ? `
+          <button class="btn btn-green" onclick="updateStatus('${o._id}','confirmée','order')">✅</button>
+          <button class="btn btn-red" onclick="updateStatus('${o._id}','annulée','order')">❌</button>
+        ` : ''}
+        <button class="btn btn-red" onclick="supprimerElement('${o._id}','commande')">🗑️</button>
+      </div></td>
+    </tr>
+  `).join('');
+  // Mettre à jour total attente
+  updateAttente();
+}
+
+// ── INSCRIPTIONS ──────────────────────────────────────────────────
+async function loadInscriptions() {
+  const r = await fetch('/registrations');
+  const j = await r.json();
+  document.getElementById('st-inscriptions').textContent = j.total || 0;
+  const tbody = document.getElementById('tbody-inscriptions');
+  if (!j.registrations?.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">🎓</div>Aucune inscription</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = j.registrations.map(r => `
+    <tr>
+      <td style="font-size:.75rem">${fd(r.createdAt)}</td>
+      <td><strong>${r.name}</strong></td>
+      <td>+${r.phone}</td>
+      <td><span class="badge b-blue">🎓 Formation</span></td>
+      <td>${r.ville || '—'}</td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis">${r.profil || '—'}</td>
+      <td><span class="badge ${r.status==='en_attente'?'b-orange':r.status==='confirmée'?'b-green':'b-red'}">${r.status}</span></td>
+      <td><div class="actions">
+        ${r.status === 'en_attente' ? `
+          <button class="btn btn-green" onclick="updateStatus('${r._id}','confirmée','registration')">✅</button>
+          <button class="btn btn-red" onclick="updateStatus('${r._id}','annulée','registration')">❌</button>
+        ` : ''}
+        <button class="btn btn-red" onclick="supprimerElement('${r._id}','inscription')">🗑️</button>
+      </div></td>
+    </tr>
+  `).join('');
+  updateAttente();
+}
+
+// ── DEVIS ─────────────────────────────────────────────────────────
+async function loadDevis() {
+  const r = await fetch('/devis');
+  const j = await r.json();
+  document.getElementById('st-devis').textContent = j.total || 0;
+  const tbody = document.getElementById('tbody-devis');
+  if (!j.devis?.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">📄</div>Aucun devis</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = j.devis.map(d => `
+    <tr>
+      <td style="font-size:.75rem">${fd(d.createdAt)}</td>
+      <td><strong>${d.name}</strong></td>
+      <td>+${d.phone}</td>
+      <td>${d.profil || '—'}</td>
+      <td>${d.ville || '—'}</td>
+      <td>${d.superficie || '—'}</td>
+      <td>${fn(d.sujets)}</td>
+      <td><span class="badge ${d.status==='en_attente'?'b-orange':d.status==='confirmée'?'b-green':'b-red'}">${d.status}</span></td>
+      <td><div class="actions">
+        ${d.status === 'en_attente' ? `
+          <button class="btn btn-green" onclick="updateStatus('${d._id}','confirmée','registration')">✅</button>
+          <button class="btn btn-red" onclick="updateStatus('${d._id}','annulée','registration')">❌</button>
+        ` : ''}
+        <button class="btn btn-red" onclick="supprimerElement('${d._id}','devis')">🗑️</button>
+      </div></td>
+    </tr>
+  `).join('');
+  updateAttente();
+}
+
+// ── ABONNEMENTS ───────────────────────────────────────────────────
+async function loadAbonnements() {
+  const r = await fetch('/admin/subscriptions', { headers: { 'x-admin-token': ADMIN_TOKEN } });
+  const j = await r.json().catch(() => ({ subscriptions: [] }));
+  const subs = j.subscriptions || [];
+  const actifs = subs.filter(s => s.plan !== 'starter' && s.statut === 'actif').length;
+  document.getElementById('st-abonnes').textContent = actifs;
+
+  // Demandes en attente
+  const upgBody = document.getElementById('tbody-upgrade');
+  if (!upgradeRequests.length) {
+    upgBody.innerHTML = `<tr><td colspan="5"><div class="empty">Aucune demande en attente</div></td></tr>`;
+  } else {
+    upgBody.innerHTML = upgradeRequests.map(req => `
+      <tr>
+        <td style="font-size:.75rem">${fd(req.date)}</td>
+        <td>+${req.phone}</td>
+        <td><span class="badge ${req.plan==='pro'?'b-orange':'b-violet'}">${req.plan.toUpperCase()}</span></td>
+        <td>${req.plan === 'pro' ? '15 000' : '25 000'} FCFA</td>
+        <td><div class="actions">
+          <button class="btn btn-green" onclick="ouvrirAbo('${req.phone}','${req.plan}')">⭐ Activer</button>
+          <button class="btn btn-red" onclick="supprimerDemande('${req.phone}')">🗑️</button>
+        </div></td>
+      </tr>
+    `).join('');
+  }
+
+  // Abonnés actifs
+  const aboBody = document.getElementById('tbody-abonnements');
+  if (!subs.length) {
+    aboBody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">⭐</div>Aucun abonné</div></td></tr>`;
+    return;
+  }
+  aboBody.innerHTML = subs.map(s => `
+    <tr>
+      <td>+${s.phone}</td>
+      <td>${s.name || '—'}</td>
+      <td><span class="badge ${s.plan==='pro'?'b-orange':s.plan==='premium'?'b-violet':'b-gray'}">${s.plan.toUpperCase()}</span></td>
+      <td><span class="badge ${s.statut==='actif'?'b-green':'b-red'}">${s.statut}</span></td>
+      <td style="font-size:.75rem">${s.dateDebut ? fd(s.dateDebut) : '—'}</td>
+      <td>${joursRestants(s.dateFin)}</td>
+      <td>${s.questionCount || 0} / ${s.plan === 'starter' ? '20' : '∞'}</td>
+      <td><div class="actions">
+        <button class="btn btn-orange" onclick="ouvrirAbo('${s.phone}','${s.plan}')">🔄</button>
+        ${s.plan !== 'starter' ? `<button class="btn btn-red" onclick="revoquerAbo('${s.phone}')">❌</button>` : ''}
+        <button class="btn btn-red" onclick="supprimerElement('${s._id}','abonnement')">🗑️</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+
+// ── PRIX MARCHÉ ───────────────────────────────────────────────────
+async function loadPrix() {
+  const r = await fetch('/admin/prix-marche', { headers: { 'x-admin-token': ADMIN_TOKEN } });
+  const j = await r.json().catch(() => ({ prix: [] }));
+  const tbody = document.getElementById('tbody-prix');
+  if (!j.prix?.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">📈</div>Aucun prix enregistré</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = j.prix.map(p => `
+    <tr>
+      <td><strong>${p.produit}</strong></td>
+      <td><strong>${fn(p.prix)}</strong></td>
+      <td>${p.unite}</td>
+      <td>${p.ville}</td>
+      <td style="font-size:.75rem">${fd(p.updatedAt)}</td>
+      <td><button class="btn btn-red" onclick="supprimerPrix('${p._id}')">🗑️</button></td>
+    </tr>
+  `).join('');
+}
+
+// ── UPDATE STATUS ─────────────────────────────────────────────────
+async function updateStatus(id, status, type) {
+  const url = type === 'registration' ? `/registrations/${id}/status` : `/orders/${id}/status`;
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status })
+  });
+  const j = await r.json();
+  if (j.success) { toast(`✅ ${status} avec succès !`); loadAll(); }
+  else toast('❌ Erreur : ' + j.error);
+}
+
+// ── BOOST ─────────────────────────────────────────────────────────
+function ouvrirBoost(id, type) {
+  boostTarget = id; boostType = type; boostFormule = 'b7';
+  document.querySelectorAll('.boost-opt').forEach((el,i) => el.classList.toggle('sel', i===0));
+  openM('m-boost');
+}
+function selBoost(f, el) {
+  boostFormule = f;
+  document.querySelectorAll('.boost-opt').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+}
+async function confirmerBoost() {
+  let url = '';
+  if (boostType === 'annonce') url = `/marche/api/boost/${boostTarget}`;
+  if (boostType === 'profil')  url = `/emploi/api/boost/profil/${boostTarget}`;
+  if (boostType === 'offre')   url = `/emploi/api/boost/offre/${boostTarget}`;
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-token': ADMIN_TOKEN },
+    body: JSON.stringify({ formule: boostFormule })
+  });
+  const j = await r.json();
+  closeM('m-boost');
+  if (j.success) { toast('✅ Boost activé !'); loadAll(); }
+  else toast('❌ Erreur : ' + j.error);
+}
+
+// ── SUPPRIMER ─────────────────────────────────────────────────────
+function ouvrirDelete(id, type) {
+  deleteTarget = id; deleteType = type;
+  openM('m-delete');
+}
+async function confirmerSuppression() {
+  let url = '';
+  if (deleteType === 'annonce') url = `/marche/api/annonces/${deleteTarget}`;
+  if (deleteType === 'profil')  url = `/emploi/api/profils/${deleteTarget}`;
+  if (deleteType === 'offre')   url = `/emploi/api/offres/${deleteTarget}`;
+  const r = await fetch(url, { method: 'DELETE', headers: { 'x-admin-token': ADMIN_TOKEN } });
+  const j = await r.json();
+  closeM('m-delete');
+  if (j.success) { toast('✅ Supprimé !'); loadAll(); }
+  else toast('❌ Erreur suppression');
+}
+
+// ── CERTIFIER LPE ─────────────────────────────────────────────────
+function ouvrirLPE(id) { lpeTarget = id; openM('m-lpe'); }
+async function confirmerLPE() {
+  const r = await fetch(`/emploi/api/profils/certifier/${lpeTarget}`, {
+    method: 'POST',
+    headers: { 'x-admin-token': ADMIN_TOKEN }
+  });
+  const j = await r.json();
+  closeM('m-lpe');
+  if (j.success) { toast('🏅 Technicien certifié LPE !'); loadTech(); }
+  else toast('❌ Erreur certification');
+}
+
+// ── ABONNEMENTS ───────────────────────────────────────────────────
+function ouvrirAbo(phone, plan) {
+  aboPhone = phone;
+  document.getElementById('m-abo-phone').textContent = '📱 Client : +' + phone;
+  document.getElementById('abo-plan').value = plan;
+  openM('m-abo');
+}
+async function confirmerActivation() {
+  const plan = document.getElementById('abo-plan').value;
+  const dureeJours = parseInt(document.getElementById('abo-duree').value);
+  const r = await fetch('/admin/activer-premium', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-token': ADMIN_TOKEN },
+    body: JSON.stringify({ phone: aboPhone, plan, dureeJours })
+  });
+  const j = await r.json();
+  closeM('m-abo');
+  if (j.success) {
+    upgradeRequests = upgradeRequests.filter(req => req.phone !== aboPhone);
+    localStorage.setItem('upgradeRequests', JSON.stringify(upgradeRequests));
+    toast(`✅ Abonnement ${plan.toUpperCase()} activé !`);
+    loadAbonnements();
+  } else toast('❌ Erreur : ' + (j.error || 'Inconnue'));
+}
+async function revoquerAbo(phone) {
+  const r = await fetch('/admin/revoquer-premium', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-token': ADMIN_TOKEN },
+    body: JSON.stringify({ phone })
+  });
+  const j = await r.json();
+  if (j.success) { toast('✅ Abonnement révoqué'); loadAbonnements(); }
+  else toast('❌ Erreur révocation');
+}
+// ── SUPPRIMER UN ÉLÉMENT ──────────────────────────────────────────
+async function supprimerElement(id, type) {
+  if (!confirm(`Confirmer la suppression ?`)) return;
+
+  let url = '';
+  if (type === 'contact')     url = `/contacts/${id}`;
+  if (type === 'commande')    url = `/orders/${id}`;
+  if (type === 'inscription') url = `/registrations/${id}`;
+  if (type === 'abonnement')  url = `/admin/subscriptions/${id}`;
+if (type === 'devis')       url = `/registrations/${id}`;
+  try {
+    const r = await fetch(url, {
+      method: 'DELETE',
+      headers: { 'x-admin-token': ADMIN_TOKEN }
+    });
+    const j = await r.json();
+    if (j.success) {
+      toast('✅ Supprimé avec succès !');
+      loadAll();
+    } else {
+      toast('❌ Erreur : ' + (j.error || 'Inconnue'));
+    }
+  } catch (err) {
+    toast('❌ Erreur réseau');
+  }
+}
+
+// ── PRIX ──────────────────────────────────────────────────────────
+function toggleFormPrix() {
+  const f = document.getElementById('form-prix');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+async function sauvegarderPrix() {
+  const produit = document.getElementById('px-produit').value;
+  const prix    = document.getElementById('px-prix').value;
+  const unite   = document.getElementById('px-unite').value;
+  const ville   = document.getElementById('px-ville').value;
+  if (!prix) { toast('❌ Entrez un prix'); return; }
+  const r = await fetch('/admin/prix-marche', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-token': ADMIN_TOKEN },
+    body: JSON.stringify({ produit, prix: Number(prix), unite, ville })
+  });
+  const j = await r.json();
+  if (j.success) {
+    toast('✅ Prix sauvegardé !');
+    document.getElementById('px-prix').value = '';
+    toggleFormPrix();
+    loadPrix();
+  } else toast('❌ Erreur');
+}
+async function supprimerPrix(id) {
+  const r = await fetch(`/admin/prix-marche/${id}`, {
+    method: 'DELETE',
+    headers: { 'x-admin-token': ADMIN_TOKEN }
+  });
+  const j = await r.json();
+  if (j.success) { toast('✅ Prix supprimé'); loadPrix(); }
+}
+
+// ── TOTAL ATTENTE ─────────────────────────────────────────────────
+async function updateAttente() {
+  const [oR, rR, dR] = await Promise.all([
+    fetch('/orders').then(r=>r.json()),
+    fetch('/registrations').then(r=>r.json()),
+    fetch('/devis').then(r=>r.json()),
+  ]);
+  const total =
+    (oR.orders||[]).filter(o=>o.status==='en_attente').length +
+    (rR.registrations||[]).filter(r=>r.status==='en_attente').length +
+    (dR.devis||[]).filter(d=>d.status==='en_attente').length;
+  document.getElementById('st-attente').textContent = total;
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+const savedToken = localStorage.getItem('dashboard_token');
+if (savedToken === DASHBOARD_PWD) {
+  TOKEN = savedToken;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-layout').style.display = 'block';
+  loadAll();
+}
+
+// Actualisation automatique toutes les 30 secondes
+setInterval(() => { if (TOKEN) loadAll(); }, 30000);
+</script>
+</body>
+</html>

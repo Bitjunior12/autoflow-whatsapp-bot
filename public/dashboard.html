@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — Le Partenaire des Éleveurs</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f0f2f5; color: #333; }
+    header {
+      background: #25D366;
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    header h1 { font-size: 16px; }
+    header span { font-size: 12px; opacity: 0.85; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      padding: 16px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    .stat-card .number { font-size: 28px; font-weight: bold; color: #25D366; }
+    .stat-card .number.gold { color: #f0a500; }
+    .stat-card .label { font-size: 12px; color: #666; margin-top: 4px; }
+ 
+    .section { padding: 0 16px 20px; }
+    .section h2 { font-size: 16px; margin-bottom: 10px; color: #444; }
+ 
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      min-width: 600px;
+    }
+    th { padding: 10px 12px; text-align: left; font-size: 13px; white-space: nowrap; }
+    td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f9fffe; }
+ 
+    .badge {
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    .badge.attente   { background: #fff3cd; color: #856404; }
+    .badge.confirmee { background: #d1e7dd; color: #0f5132; }
+    .badge.annulee   { background: #f8d7da; color: #842029; }
+    .badge.formation { background: #cfe2ff; color: #084298; }
+    .badge.starter   { background: #e2e3e5; color: #41464b; }
+    .badge.pro       { background: #fff3cd; color: #856404; }
+    .badge.premium   { background: #e8d5f5; color: #6f42c1; }
+    .badge.actif     { background: #d1e7dd; color: #0f5132; }
+    .badge.expire    { background: #f8d7da; color: #842029; }
+ 
+    .btn-confirm { background: #25D366; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-right: 4px; white-space: nowrap; }
+    .btn-cancel  { background: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap; }
+    .btn-purple  { background: #6f42c1; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-right: 4px; white-space: nowrap; }
+    .btn-gold    { background: #f0a500; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-right: 4px; white-space: nowrap; }
+    .btn-danger  { background: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap; }
+ 
+    .th-green  { background: #25D366; color: white; }
+    .th-yellow { background: #f0a500; color: white; }
+    .th-blue   { background: #0d6efd; color: white; }
+    .th-purple { background: #6f42c1; color: white; }
+    .th-gold   { background: #c07800; color: white; }
+ 
+    .refresh { font-size: 11px; color: #999; text-align: right; padding: 0 16px 8px; }
+    .empty { text-align: center; padding: 24px; color: #999; font-size: 13px; }
+ 
+    /* MODAL ACTIVATION */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .modal h3 { color: #f0a500; margin-bottom: 16px; font-size: 16px; }
+    .modal label { font-size: 13px; color: #555; display: block; margin-bottom: 4px; margin-top: 12px; }
+    .modal select, .modal input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .modal-actions { display: flex; gap: 8px; margin-top: 20px; }
+    .modal-actions button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; }
+    .btn-activate { background: #25D366; color: white; }
+    .btn-close-modal { background: #f0f2f5; color: #333; }
+ 
+    /* LOGIN */
+    #login {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f0f2f5;
+      padding: 16px;
+    }
+    .login-box {
+      background: white;
+      padding: 32px 24px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 360px;
+    }
+    .login-box h2 { color: #25D366; margin-bottom: 8px; font-size: 20px; }
+    .login-box p { color: #999; font-size: 14px; margin-bottom: 24px; }
+    .login-box input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 12px; }
+    .login-box button { width: 100%; padding: 14px; background: #25D366; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; }
+    .login-box button:hover { background: #1ebe5d; }
+    .error { color: red; font-size: 13px; margin-top: 8px; }
+    #main { display: none; }
+ 
+    @media (max-width: 600px) {
+      header h1 { font-size: 14px; }
+      .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; }
+      .stat-card { padding: 12px 8px; }
+      .stat-card .number { font-size: 22px; }
+      .stat-card .label { font-size: 10px; }
+      .section { padding: 0 12px 16px; }
+      .section h2 { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+ 
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-box">
+    <h2>🐔 Le Partenaire des Éleveurs</h2>
+    <p>Tableau de bord — Accès sécurisé</p>
+    <input type="password" id="pwd" placeholder="Mot de passe" onkeydown="if(event.key==='Enter') checkLogin()" />
+    <button onclick="checkLogin()">Connexion</button>
+    <div class="error" id="err"></div>
+  </div>
+</div>
+ 
+<!-- MODAL ACTIVATION ABONNEMENT -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>⭐ Activer un abonnement</h3>
+    <input type="hidden" id="modalPhone" />
+    <div id="modalPhoneDisplay" style="font-size:13px;color:#555;margin-bottom:8px;"></div>
+ 
+    <label>Plan</label>
+    <select id="modalPlan">
+      <option value="pro">Pro — 15 000 FCFA/mois</option>
+      <option value="premium">Premium — 25 000 FCFA/mois</option>
+    </select>
+ 
+    <label>Durée (jours)</label>
+    <input type="number" id="modalDuree" value="30" min="1" max="365" />
+ 
+    <div class="modal-actions">
+      <button class="btn-close-modal" onclick="closeModal()">Annuler</button>
+      <button class="btn-activate" onclick="confirmerActivation()">✅ Activer</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- DASHBOARD -->
+<div id="main">
+  <header>
+    <h1>🐔 Le Partenaire des Éleveurs — Dashboard</h1>
+    <span id="lastUpdate">Chargement...</span>
+  </header>
+ 
+  <div class="stats">
+    <div class="stat-card" onclick="scrollToSection('section-contacts')">
+      <div class="number" id="totalContacts">—</div>
+      <div class="label">👥 Contacts</div>
+    </div>
+    <div class="stat-card" onclick="scrollToSection('section-commandes')">
+      <div class="number" id="totalOrders">—</div>
+      <div class="label">🛒 Commandes</div>
+    </div>
+    <div class="stat-card" onclick="scrollToSection('section-inscriptions')">
+      <div class="number" id="totalRegistrations">—</div>
+      <div class="label">📝 Inscriptions</div>
+    </div>
+    <div class="stat-card" onclick="scrollToSection('section-devis')">
+      <div class="number" id="totalDevis">—</div>
+      <div class="label">📋 Devis</div>
+    </div>
+    <div class="stat-card" onclick="scrollToSection('💰 CA (FCFA)')">
+      <div class="number" id="totalCA">—</div>
+      <div class="label">💰 CA (FCFA)</div>
+    </div>
+    <div class="stat-card" onclick="scrollToSection('⏳ En attente')">
+      <div class="number" id="totalAttente">—</div>
+      <div class="label">⏳ En attente</div>
+    </div>
+     <div class="stat-card" onclick="scrollToSection('⭐ Abonnés actifs')">
+      <div class="number gold" id="totalAbonnes">—</div>
+      <div class="label">⭐ Abonnés actifs</div>
+    </div>
+    <div class="stat-card" onclick="scrollToSection('Upgrades en attente')">
+      <div class="number gold" id="totalUpgrade">—</div>
+      <div class="label">🔔 Upgrades en attente</div>
+    </div>
+  </div>
+ 
+  <div class="refresh">Actualisation auto toutes les 30s</div>
+ 
+  <!-- ABONNEMENTS EN ATTENTE -->
+  <div class="section" id="section-Abonnement en attente">
+    <h2>🔔 Demandes d'abonnement en attente</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="th-gold">Date</th>
+            <th class="th-gold">Téléphone</th>
+            <th class="th-gold">Plan demandé</th>
+            <th class="th-gold">Montant</th>
+            <th class="th-gold">Action</th>
+          </tr>
+        </thead>
+        <tbody id="upgradeBody">
+          <tr><td colspan="5" class="empty">Aucune demande en attente</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+ 
+  <!-- ABONNÉS ACTIFS -->
+  <div class="section" id="section-Abonnés actifs">
+    <h2>⭐ Abonnés actifs</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="th-gold">Téléphone</th>
+            <th class="th-gold">Nom</th>
+            <th class="th-gold">Plan</th>
+            <th class="th-gold">Statut</th>
+            <th class="th-gold">Début</th>
+            <th class="th-gold">Expiration</th>
+            <th class="th-gold">Questions</th>
+            <th class="th-gold">Action</th>
+          </tr>
+        </thead>
+        <tbody id="subscriptionsBody">
+          <tr><td colspan="8" class="empty">Chargement...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+ <!-- PRIX DU MARCHÉ -->
+<div class="section" id="section-prix">
+  <h2>📈 Prix du marché
+    <button class="btn-confirm" onclick="afficherFormPrix()" style="margin-left:12px;font-size:12px">
+      + Ajouter / Modifier
+    </button>
+  </h2>
+
+  <!-- Formulaire ajout prix -->
+  <div id="formPrix" style="display:none;background:white;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px">
+      <div>
+        <label style="font-size:12px;color:#555">Produit</label>
+        <select id="prixProduit" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px">
+          <option>Poulet chair vif</option>
+          <option>Poule pondeuse réformée</option>
+          <option>Œuf plateau (30)</option>
+          <option>Pintade vivante</option>
+          <option>Poulet chair abattu</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:12px;color:#555">Prix</label>
+        <input type="number" id="prixValeur" placeholder="Ex: 2500" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px"/>
+      </div>
+      <div>
+        <label style="font-size:12px;color:#555">Unité</label>
+        <select id="prixUnite" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px">
+          <option>FCFA/kg</option>
+          <option>FCFA/unité</option>
+          <option>FCFA/plateau</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:12px;color:#555">Ville</label>
+        <select id="prixVille" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px">
+          <option>Abidjan</option>
+          <option>Bouaké</option>
+          <option>Yamoussoukro</option>
+          <option>San-Pédro</option>
+          <option>Daloa</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-confirm" onclick="sauvegarderPrix()">✅ Sauvegarder</button>
+    <button class="btn-cancel" onclick="document.getElementById('formPrix').style.display='none'" style="margin-left:8px">Annuler</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="th-green">Produit</th>
+          <th class="th-green">Prix</th>
+          <th class="th-green">Unité</th>
+          <th class="th-green">Ville</th>
+          <th class="th-green">Mis à jour</th>
+          <th class="th-green">Action</th>
+        </tr>
+      </thead>
+      <tbody id="prixBody">
+        <tr><td colspan="6" class="empty">Aucun prix enregistré</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+  <!-- COMMANDES -->
+  <div class="section" id="section-commandes">
+    <h2>🛒 Commandes récentes</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="th-green">Date</th>
+            <th class="th-green">Nom</th>
+            <th class="th-green">Téléphone</th>
+            <th class="th-green">Race</th>
+            <th class="th-green">Qté</th>
+            <th class="th-green">Total</th>
+            <th class="th-green">Statut</th>
+            <th class="th-green">Action</th>
+          </tr>
+        </thead>
+        <tbody id="ordersBody">
+          <tr><td colspan="8" class="empty">Chargement...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+ 
+  <!-- INSCRIPTIONS -->
+  <div class="section" id="section-inscriptions">
+    <h2>📝 Inscriptions récentes</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="th-yellow">Date</th>
+            <th class="th-yellow">Nom</th>
+            <th class="th-yellow">Téléphone</th>
+            <th class="th-yellow">Programme</th>
+            <th class="th-yellow">Ville</th>
+            <th class="th-yellow">Profil</th>
+            <th class="th-yellow">Statut</th>
+            <th class="th-yellow">Action</th>
+          </tr>
+        </thead>
+        <tbody id="registrationsBody">
+          <tr><td colspan="8" class="empty">Chargement...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+ 
+  <!-- DEVIS -->
+  <div class="section" id="section-devis">
+    <h2>📋 Demandes de devis</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="th-purple">Date</th>
+            <th class="th-purple">Nom</th>
+            <th class="th-purple">Téléphone</th>
+            <th class="th-purple">Type</th>
+            <th class="th-purple">Ville</th>
+            <th class="th-purple">Superficie</th>
+            <th class="th-purple">Sujets</th>
+            <th class="th-purple">Statut</th>
+            <th class="th-purple">Action</th>
+          </tr>
+        </thead>
+        <tbody id="devisBody">
+          <tr><td colspan="9" class="empty">Chargement...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+ 
+  <!-- CONTACTS -->
+  <div class="section" id="section-contacts">
+    <h2>👥 Contacts récents</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="th-blue">Téléphone</th>
+            <th class="th-blue">Nom</th>
+            <th class="th-blue">Dernier msg</th>
+            <th class="th-blue">Intérêt</th>
+            <th class="th-blue">Nb msgs</th>
+            <th class="th-blue">Dernier contact</th>
+          </tr>
+        </thead>
+        <tbody id="contactsBody">
+          <tr><td colspan="6" class="empty">Chargement...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+ 
+<script>
+  const DASHBOARD_PWD = "eleveur2026";
+  let token = localStorage.getItem("dashboard_token");
+ 
+  // ── DEMANDES UPGRADE (simulé depuis localStorage en attendant une route dédiée) ──
+  let upgradeRequests = JSON.parse(localStorage.getItem("upgradeRequests") || "[]");
+ 
+  function checkLogin() {
+    const pwd = document.getElementById("pwd").value;
+    if (pwd === DASHBOARD_PWD) {
+      localStorage.setItem("dashboard_token", pwd);
+      showDashboard();
+    } else {
+      document.getElementById("err").textContent = "❌ Mot de passe incorrect";
+    }
+  }
+ 
+  function showDashboard() {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("main").style.display = "block";
+    loadData();
+  }
+ 
+  function formatDate(d) {
+    return new Date(d).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
+  }
+ 
+  function formatNumber(n) {
+    return n?.toLocaleString("fr-FR") || "0";
+  }
+ 
+  function joursRestants(dateFin) {
+    if (!dateFin) return "—";
+    const diff = new Date(dateFin) - new Date();
+    const jours = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    if (jours < 0) return `<span style="color:red">Expiré</span>`;
+    if (jours <= 5) return `<span style="color:orange">${jours}j</span>`;
+    return `<span style="color:green">${jours}j</span>`;
+  }
+ 
+  // ── MODAL ACTIVATION ──
+  function ouvrirModal(phone, planSuggere = "pro") {
+    document.getElementById("modalPhone").value = phone;
+    document.getElementById("modalPhoneDisplay").textContent = "📱 Client : +" + phone;
+    document.getElementById("modalPlan").value = planSuggere;
+    document.getElementById("modalDuree").value = 30;
+    document.getElementById("modalOverlay").classList.add("open");
+  }
+ 
+  function closeModal() {
+    document.getElementById("modalOverlay").classList.remove("open");
+  }
+ 
+  async function confirmerActivation() {
+    const phone = document.getElementById("modalPhone").value;
+    const plan = document.getElementById("modalPlan").value;
+    const dureeJours = parseInt(document.getElementById("modalDuree").value);
+ 
+    if (!phone || !plan || !dureeJours) {
+      alert("❌ Remplissez tous les champs");
+      return;
+    }
+ 
+    try {
+      const res = await fetch("/admin/activer-premium", {
+  method: "POST",
+  headers: { 
+    "Content-Type": "application/json",
+    "x-admin-token": "#Lep@tener_2026&!*"
+  },
+  body: JSON.stringify({ phone, plan, dureeJours })
+});
+      const data = await res.json();
+      if (data.success) {
+        alert(`✅ Abonnement ${plan.toUpperCase()} activé pour +${phone} !`);
+        // Supprimer de la liste des demandes en attente
+        upgradeRequests = upgradeRequests.filter(r => r.phone !== phone);
+        localStorage.setItem("upgradeRequests", JSON.stringify(upgradeRequests));
+        closeModal();
+        loadData();
+      } else {
+        alert("❌ Erreur : " + (data.error || "Inconnue"));
+      }
+    } catch (err) {
+      alert("❌ Erreur réseau");
+    }
+  }
+ 
+  async function revoquerAbonnement(phone) {
+    if (!confirm(`Révoquer l'abonnement de +${phone} ?`)) return;
+    try {
+      const res = await fetch("/admin/revoquer-premium", {
+  method: "POST",
+  headers: { 
+    "Content-Type": "application/json",
+    "x-admin-token": "#Lep@tener_2026&!*"
+  },
+  body: JSON.stringify({ phone })
+});
+      const data = await res.json();
+      if (data.success) {
+        alert("✅ Abonnement révoqué");
+        loadData();
+      } else {
+        alert("❌ Erreur : " + (data.error || "Inconnue"));
+      }
+    } catch (err) {
+      alert("❌ Erreur réseau");
+    }
+  }
+ 
+  async function updateStatus(id, status, type) {
+    const label = status === "confirmée" ? "confirmer" : "annuler";
+    if (!confirm(`Voulez-vous ${label} ?`)) return;
+    const url = type === "registration" ? `/registrations/${id}/status` : `/orders/${id}/status`;
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`✅ ${status} avec succès !`);
+        loadData();
+      } else {
+        alert("❌ Erreur : " + data.error);
+      }
+    } catch (err) {
+      alert("❌ Erreur réseau");
+    }
+  }
+ 
+  async function loadData() {
+    try {
+      const [contactsRes, ordersRes, registrationsRes, devisRes, subscriptionsRes, prixRes] = await Promise.all([
+        fetch("/contacts"),
+        fetch("/orders"),
+        fetch("/registrations"),
+        fetch("/devis"),
+        fetch("/admin/subscriptions", { headers: { "x-admin-token": "#Lep@tener_2026&!*" }}),
+        fetch("/admin/prix-marche", { headers: { "x-admin-token": "#Lep@tener_2026&!*" }}),
+      ]);
+ 
+      const contactsData       = await contactsRes.json();
+      const ordersData         = await ordersRes.json();
+      const registrationsData  = await registrationsRes.json();
+      const devisData          = await devisRes.json();
+      const subscriptionsData  = await subscriptionsRes.json().catch(() => ({ subscriptions: [] }));
+      const prixData = await prixRes.json().catch(() => ({ prix: [] }));
+ 
+      // ── STATS ──
+      document.getElementById("totalContacts").textContent      = contactsData.total;
+      document.getElementById("totalOrders").textContent        = ordersData.total;
+      document.getElementById("totalRegistrations").textContent = registrationsData.total;
+      document.getElementById("totalDevis").textContent         = devisData.total;
+ 
+      const ca = ordersData.orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+      document.getElementById("totalCA").textContent = formatNumber(ca);
+ 
+      const attenteOrders = ordersData.orders.filter(o => o.status === "en_attente").length;
+      const attenteRegs   = registrationsData.registrations.filter(r => r.status === "en_attente").length;
+      const attenteDevis  = devisData.devis.filter(d => d.status === "en_attente").length;
+      document.getElementById("totalAttente").textContent = attenteOrders + attenteRegs + attenteDevis;
+ 
+      const subs = subscriptionsData.subscriptions || [];
+      const abonnesActifs = subs.filter(s => s.plan !== "starter" && s.statut === "actif").length;
+      document.getElementById("totalAbonnes").textContent = abonnesActifs;
+      document.getElementById("totalUpgrade").textContent = upgradeRequests.length;
+ 
+      // ── DEMANDES UPGRADE EN ATTENTE ──
+      const upgradeBody = document.getElementById("upgradeBody");
+      if (upgradeRequests.length === 0) {
+        upgradeBody.innerHTML = `<tr><td colspan="5" class="empty">Aucune demande en attente</td></tr>`;
+      } else {
+        upgradeBody.innerHTML = upgradeRequests.map(r => `
+          <tr>
+            <td>${formatDate(r.date)}</td>
+            <td>+${r.phone}</td>
+            <td><span class="badge ${r.plan}">${r.plan.toUpperCase()}</span></td>
+            <td>${r.plan === "pro" ? "15 000" : "25 000"} FCFA</td>
+            <td>
+              <button class="btn-gold" onclick="ouvrirModal('${r.phone}', '${r.plan}')">⭐ Activer</button>
+              <button class="btn-danger" onclick="supprimerDemande('${r.phone}')">🗑️ Ignorer</button>
+            </td>
+          </tr>
+        `).join("");
+      }
+ 
+      // ── ABONNÉS ──
+      const subBody = document.getElementById("subscriptionsBody");
+      if (subs.length === 0) {
+        subBody.innerHTML = `<tr><td colspan="8" class="empty">Aucun abonné</td></tr>`;
+      } else {
+        subBody.innerHTML = subs.map(s => `
+          <tr>
+            <td>+${s.phone}</td>
+            <td>${s.name || "—"}</td>
+            <td><span class="badge ${s.plan}">${s.plan.toUpperCase()}</span></td>
+            <td><span class="badge ${s.statut === "actif" ? "actif" : "expire"}">${s.statut}</span></td>
+            <td>${s.dateDebut ? formatDate(s.dateDebut) : "—"}</td>
+            <td>${joursRestants(s.dateFin)}</td>
+            <td>${s.questionCount || 0} / ${s.plan === "starter" ? "20" : "∞"}</td>
+            <td>
+              <button class="btn-gold" onclick="ouvrirModal('${s.phone}', '${s.plan}')">🔄 Renouveler</button>
+              ${s.plan !== "starter" ? `<button class="btn-danger" onclick="revoquerAbonnement('${s.phone}')">❌ Révoquer</button>` : ""}
+            </td>
+          </tr>
+        `).join("");
+      }
+ 
+      // ── COMMANDES ──
+      const tbody = document.getElementById("ordersBody");
+      if (ordersData.orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="empty">Aucune commande</td></tr>`;
+      } else {
+        tbody.innerHTML = ordersData.orders.map(o => `
+          <tr>
+            <td>${formatDate(o.createdAt)}</td>
+            <td>${o.name}</td>
+            <td>+${o.phone}</td>
+            <td>${o.race}</td>
+            <td>${formatNumber(o.quantity)}</td>
+            <td>${formatNumber(o.totalPrice)} FCFA</td>
+            <td><span class="badge ${o.status === 'en_attente' ? 'attente' : o.status === 'confirmée' ? 'confirmee' : 'annulee'}">${o.status}</span></td>
+            <td>
+              ${o.status === 'en_attente' ? `
+                <button class="btn-confirm" onclick="updateStatus('${o._id}', 'confirmée', 'order')">✅ Confirmer</button>
+                <button class="btn-cancel" onclick="updateStatus('${o._id}', 'annulée', 'order')">❌ Annuler</button>
+              ` : '—'}
+            </td>
+          </tr>
+        `).join("");
+      }
+ 
+      // ── INSCRIPTIONS ──
+      const rbody = document.getElementById("registrationsBody");
+      if (registrationsData.registrations.length === 0) {
+        rbody.innerHTML = `<tr><td colspan="8" class="empty">Aucune inscription</td></tr>`;
+      } else {
+        rbody.innerHTML = registrationsData.registrations.map(r => `
+          <tr>
+            <td>${formatDate(r.createdAt)}</td>
+            <td>${r.name}</td>
+            <td>+${r.phone}</td>
+            <td><span class="badge formation">🎓 Formation</span></td>
+            <td>${r.ville || '—'}</td>
+            <td>${r.profil || '—'}</td>
+            <td><span class="badge ${r.status === 'en_attente' ? 'attente' : r.status === 'confirmée' ? 'confirmee' : 'annulee'}">${r.status}</span></td>
+            <td>
+              ${r.status === 'en_attente' ? `
+                <button class="btn-confirm" onclick="updateStatus('${r._id}', 'confirmée', 'registration')">✅ Confirmer</button>
+                <button class="btn-cancel" onclick="updateStatus('${r._id}', 'annulée', 'registration')">❌ Annuler</button>
+              ` : '—'}
+            </td>
+          </tr>
+        `).join("");
+      }
+ 
+      // ── DEVIS ──
+      const dbody = document.getElementById("devisBody");
+      if (devisData.devis.length === 0) {
+        dbody.innerHTML = `<tr><td colspan="9" class="empty">Aucune demande de devis</td></tr>`;
+      } else {
+        dbody.innerHTML = devisData.devis.map(d => `
+          <tr>
+            <td>${formatDate(d.createdAt)}</td>
+            <td>${d.name}</td>
+            <td>+${d.phone}</td>
+            <td>${d.profil || '—'}</td>
+            <td>${d.ville || '—'}</td>
+            <td>${d.superficie || '—'}</td>
+            <td>${formatNumber(d.sujets)}</td>
+            <td><span class="badge ${d.status === 'en_attente' ? 'attente' : d.status === 'confirmée' ? 'confirmee' : 'annulee'}">${d.status}</span></td>
+            <td>
+              ${d.status === 'en_attente' ? `
+                <button class="btn-purple" onclick="updateStatus('${d._id}', 'confirmée', 'registration')">✅ Confirmer</button>
+                <button class="btn-cancel" onclick="updateStatus('${d._id}', 'annulée', 'registration')">❌ Annuler</button>
+              ` : '—'}
+            </td>
+          </tr>
+        `).join("");
+      }
+ // ── PRIX DU MARCHÉ ──
+const prixBody = document.getElementById("prixBody");
+if (!prixData.prix || prixData.prix.length === 0) {
+  prixBody.innerHTML = `<tr><td colspan="6" class="empty">Aucun prix enregistré</td></tr>`;
+} else {
+  prixBody.innerHTML = prixData.prix.map(p => `
+    <tr>
+      <td>${p.produit}</td>
+      <td><strong>${p.prix.toLocaleString("fr-FR")}</strong></td>
+      <td>${p.unite}</td>
+      <td>${p.ville}</td>
+      <td>${formatDate(p.updatedAt)}</td>
+      <td><button class="btn-cancel" onclick="supprimerPrix('${p._id}')">🗑️ Supprimer</button></td>
+    </tr>
+  `).join("");
+}
+      // ── CONTACTS ──
+      const cbody = document.getElementById("contactsBody");
+      if (contactsData.contacts.length === 0) {
+        cbody.innerHTML = `<tr><td colspan="6" class="empty">Aucun contact</td></tr>`;
+      } else {
+        cbody.innerHTML = contactsData.contacts.map(c => `
+          <tr>
+            <td>+${c.phone}</td>
+            <td>${c.name || "Inconnu"}</td>
+            <td>${c.lastMessage || "—"}</td>
+            <td>${c.lastChoice || "—"}</td>
+            <td>${c.messageCount}</td>
+            <td>${formatDate(c.lastSeen)}</td>
+          </tr>
+        `).join("");
+      }
+ 
+      document.getElementById("lastUpdate").textContent =
+        "Dernière mise à jour : " + new Date().toLocaleTimeString("fr-FR");
+ 
+    } catch (err) {
+      console.error("Erreur chargement données :", err);
+    }
+  }
+ 
+  function supprimerDemande(phone) {
+    upgradeRequests = upgradeRequests.filter(r => r.phone !== phone);
+    localStorage.setItem("upgradeRequests", JSON.stringify(upgradeRequests));
+    loadData();
+  }
+ function afficherFormPrix() {
+  const form = document.getElementById("formPrix");
+  form.style.display = form.style.display === "none" ? "block" : "none";
+}
+
+async function sauvegarderPrix() {
+  const produit = document.getElementById("prixProduit").value;
+  const prix = document.getElementById("prixValeur").value;
+  const unite = document.getElementById("prixUnite").value;
+  const ville = document.getElementById("prixVille").value;
+
+  if (!prix) { alert("❌ Entrez un prix"); return; }
+
+  try {
+    const res = await fetch("/admin/prix-marche", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ produit, prix: Number(prix), unite, ville })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert("✅ Prix sauvegardé !");
+      document.getElementById("formPrix").style.display = "none";
+      document.getElementById("prixValeur").value = "";
+      loadData();
+    }
+  } catch (err) {
+    alert("❌ Erreur réseau");
+  }
+}
+
+async function supprimerPrix(id) {
+  if (!confirm("Supprimer ce prix ?")) return;
+  try {
+    await fetch(`/admin/prix-marche/${id}`, { 
+  method: "DELETE",
+  headers: { "x-admin-token": "#Lep@tener_2026&!*" }
+});
+    loadData();
+  } catch (err) {
+    alert("❌ Erreur réseau");
+  }
+}
+  if (token === DASHBOARD_PWD) showDashboard();
+ 
+  setInterval(() => {
+    if (token === DASHBOARD_PWD) loadData();
+  }, 30000);
+  function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+</script>
+</body>
+</html>

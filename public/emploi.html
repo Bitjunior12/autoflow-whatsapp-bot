@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bourse de l'Emploi Avicole — Le Partenaire des Éleveurs</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bleu:#1e40af;--bleu-m:#1e3a8a;--bleu-l:#dbeafe;--bleu-xl:#eff6ff;
+  --vert:#1a6b3a;--vert-l:#e6f5ec;--vert-xl:#f0faf4;
+  --or:#d97706;--or-l:#fef3c7;--or-xl:#fffbeb;--or-m:#b45309;
+  --violet:#7c3aed;--violet-l:#ede9fe;
+  --cyan:#0891b2;--cyan-l:#cffafe;
+  --rouge:#c0392b;--rouge-l:#fdecea;
+  --gris:#374151;--gris-m:#6b7280;--gris-l:#f3f4f6;--gris-xl:#f9fafb;
+  --blanc:#fff;--border:#e5e7eb;
+  --shadow:0 2px 12px rgba(0,0,0,.07);
+  --shadow-h:0 8px 28px rgba(0,0,0,.13);
+  --r:12px;--rsm:8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--gris-xl);color:var(--gris);min-height:100vh}
+header{background:var(--bleu);position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(30,64,175,.35)}
+.hinner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem;color:#fff;text-decoration:none}
+.logo-icon{width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.logo em{opacity:.65;font-style:normal;font-weight:400}
+.hbadge{background:rgba(255,255,255,.15);color:#fff;font-size:.72rem;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.04em}
+.hero{background:linear-gradient(135deg,#1e40af 0%,#1e3a8a 100%);color:#fff;text-align:center;padding:3rem 2rem 2.5rem}
+.hero-tag{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:1rem}
+.hero h1{font-family:'Sora',sans-serif;font-size:1.9rem;font-weight:800;line-height:1.2;margin-bottom:.6rem}
+.hero p{font-size:.95rem;opacity:.8;max-width:520px;margin:0 auto 1.5rem}
+.hero-stats{display:flex;justify-content:center;gap:2.5rem}
+.hero-stat strong{display:block;font-family:'Sora',sans-serif;font-size:1.6rem;font-weight:800}
+.hero-stat small{font-size:.75rem;opacity:.7}
+.tabs-wrap{background:var(--blanc);border-bottom:1px solid var(--border);position:sticky;top:64px;z-index:90}
+.tabs{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;overflow-x:auto}
+.tab{padding:.85rem 1.1rem;font-size:.87rem;font-weight:500;cursor:pointer;border:none;background:none;color:var(--gris-m);border-bottom:3px solid transparent;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0}
+.tab.active{color:var(--bleu);border-bottom-color:var(--bleu);font-weight:600}
+.tab:hover:not(.active){color:var(--gris)}
+.tab-count{background:var(--gris-l);color:var(--gris-m);font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:10px}
+.tab.active .tab-count{background:var(--bleu-l);color:var(--bleu)}
+.main{max-width:1200px;margin:0 auto;padding:1.5rem 2rem 3rem;display:grid;grid-template-columns:268px 1fr;gap:1.5rem}
+.sidebar{display:flex;flex-direction:column;gap:1rem}
+.card{background:var(--blanc);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden}
+.card-head{padding:.85rem 1.1rem;border-bottom:1px solid var(--border);font-family:'Sora',sans-serif;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gris)}
+.card-body{padding:.95rem 1.1rem}
+.filter-group{margin-bottom:.95rem}
+.filter-label{font-size:.74rem;font-weight:600;color:var(--gris-m);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem;display:block}
+.filter-options{display:flex;flex-wrap:wrap;gap:5px}
+.chip{padding:4px 11px;border-radius:20px;font-size:.8rem;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:var(--blanc);color:var(--gris-m);transition:all .15s}
+.chip.active,.chip:hover{background:var(--bleu-l);border-color:var(--bleu);color:var(--bleu)}
+.chip.active{font-weight:600}
+select{width:100%;padding:.48rem .8rem;border:1.5px solid var(--border);border-radius:var(--rsm);font-family:'DM Sans',sans-serif;font-size:.87rem;color:var(--gris);background:var(--blanc);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .8rem center;cursor:pointer}
+.btn-publi{width:100%;padding:.82rem;background:var(--bleu);color:#fff;font-family:'Sora',sans-serif;font-size:.88rem;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;box-shadow:0 4px 14px rgba(30,64,175,.28)}
+.btn-publi:hover{background:var(--bleu-m);transform:translateY(-1px)}
+.plan-card{background:linear-gradient(135deg,#1e40af 0%,#1e3a8a 100%);color:#fff;border-radius:var(--r);padding:1.15rem;box-shadow:0 4px 16px rgba(30,64,175,.28)}
+.plan-card h3{font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700;margin-bottom:.35rem}
+.plan-card p{font-size:.77rem;opacity:.8;margin-bottom:.8rem;line-height:1.5}
+.plan-feat{display:flex;align-items:center;gap:7px;font-size:.77rem;margin-bottom:.32rem;opacity:.9}
+.plan-feat::before{content:'✓';font-weight:700;color:#93c5fd;flex-shrink:0}
+.plan-price{font-family:'Sora',sans-serif;font-size:1.2rem;font-weight:800;margin-top:.75rem}
+.plan-price small{font-size:.72rem;font-weight:400;opacity:.7}
+.btn-plan{width:100%;padding:.62rem;background:#fff;color:var(--bleu);font-family:'Sora',sans-serif;font-size:.83rem;font-weight:700;border:none;border-radius:var(--rsm);cursor:pointer;margin-top:.72rem;transition:all .2s}
+.btn-plan:hover{background:var(--bleu-l)}
+.cert-card{background:linear-gradient(135deg,#065f46 0%,#047857 100%);color:#fff;border-radius:var(--r);padding:1.15rem}
+.cert-card h3{font-family:'Sora',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.35rem}
+.cert-card p{font-size:.77rem;opacity:.8;margin-bottom:.75rem;line-height:1.5}
+.btn-cert{width:100%;padding:.62rem;background:#fff;color:#065f46;font-family:'Sora',sans-serif;font-size:.83rem;font-weight:700;border:none;border-radius:var(--rsm);cursor:pointer}
+.content{min-width:0}
+.search-bar{display:flex;gap:.7rem;margin-bottom:1rem;align-items:center}
+.search-wrap{flex:1;position:relative}
+.search-wrap input{width:100%;padding:.62rem 1rem .62rem 2.5rem;border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:.88rem;background:var(--blanc);color:var(--gris)}
+.search-wrap input:focus{outline:none;border-color:var(--bleu)}
+.search-icon{position:absolute;left:.82rem;top:50%;transform:translateY(-50%);color:var(--gris-m)}
+.sort-select{width:175px;padding:.62rem .8rem;border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:.87rem;color:var(--gris);background:var(--blanc);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .8rem center}
+.results-info{font-size:.83rem;color:var(--gris-m);margin-bottom:1rem}
+.results-info strong{color:var(--gris)}
+.grid-tech{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem}
+.grid-offres{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem}
+.tech-card{background:var(--blanc);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;transition:box-shadow .2s,transform .2s;display:flex;flex-direction:column}
+.tech-card:hover{box-shadow:var(--shadow-h);transform:translateY(-2px)}
+.tech-card.featured{border:2px solid var(--or)}
+.tech-top{padding:.85rem 1rem .6rem;display:flex;align-items:flex-start;gap:.85rem}
+.tech-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:800;color:#fff;flex-shrink:0}
+.tech-info{flex:1;min-width:0}
+.tech-name{font-family:'Sora',sans-serif;font-size:.95rem;font-weight:700;color:var(--gris);margin-bottom:.18rem}
+.tech-meta{font-size:.78rem;color:var(--gris-m);margin-bottom:.35rem}
+.badges-row{display:flex;flex-wrap:wrap;gap:4px}
+.badge{font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.03em}
+.badge-lpe{background:var(--vert-l);color:#065f46}
+.badge-dispo{background:#dcfce7;color:#166534}
+.badge-spec{background:var(--bleu-l);color:var(--bleu)}
+.badge-vet{background:var(--violet-l);color:var(--violet)}
+.badge-manager{background:var(--cyan-l);color:var(--cyan)}
+.badge-logis{background:#fce7f3;color:#9d174d}
+.tech-body{padding:.5rem 1rem .8rem;flex:1}
+.tech-stats{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.65rem}
+.tstat{background:var(--gris-l);border-radius:var(--rsm);padding:.45rem .65rem}
+.tstat-label{font-size:.68rem;color:var(--gris-m);text-transform:uppercase;letter-spacing:.03em;margin-bottom:.1rem}
+.tstat-val{font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700;color:var(--gris)}
+.tech-desc{font-size:.8rem;color:var(--gris-m);line-height:1.45;margin-bottom:.5rem}
+.tech-footer{padding:.65rem 1rem;border-top:1px solid var(--gris-l);display:flex;gap:.5rem}
+.btn-contact{flex:1;padding:.52rem;background:var(--bleu);color:#fff;font-family:'Sora',sans-serif;font-size:.78rem;font-weight:700;border:none;border-radius:var(--rsm);cursor:pointer;transition:background .15s}
+.btn-contact:hover{background:var(--bleu-m)}
+.btn-contact.locked{background:var(--gris-l);color:var(--gris-m);cursor:not-allowed}
+.btn-save{padding:.52rem .62rem;border:1.5px solid var(--border);border-radius:var(--rsm);background:var(--blanc);cursor:pointer;font-size:.88rem;transition:all .15s}
+.btn-save:hover{border-color:var(--rouge);background:var(--rouge-l)}
+.offre-card{background:var(--blanc);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;transition:box-shadow .2s,transform .2s;display:flex;flex-direction:column}
+.offre-card:hover{box-shadow:var(--shadow-h);transform:translateY(-2px)}
+.offre-top{padding:.85rem 1rem .6rem;border-bottom:1px solid var(--gris-l)}
+.offre-employer{display:flex;align-items:center;gap:.65rem;margin-bottom:.5rem}
+.offre-avatar{width:38px;height:38px;border-radius:var(--rsm);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:.85rem;font-weight:800;color:#fff;flex-shrink:0}
+.offre-title{font-family:'Sora',sans-serif;font-size:.95rem;font-weight:700;color:var(--gris);margin-bottom:.4rem}
+.offre-tags{display:flex;flex-wrap:wrap;gap:4px}
+.offre-tag{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:8px}
+.tag-cdi{background:#dcfce7;color:#166534}
+.tag-cdd{background:#fef9c3;color:#854d0e}
+.tag-journalier{background:#fce7f3;color:#9d174d}
+.tag-saisonnier{background:#e0f2fe;color:#0369a1}
+.offre-body{padding:.65rem 1rem .8rem;flex:1}
+.offre-details{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin-bottom:.6rem}
+.odet{background:var(--gris-l);border-radius:var(--rsm);padding:.4rem .6rem}
+.odet-label{font-size:.67rem;color:var(--gris-m);text-transform:uppercase;letter-spacing:.03em;margin-bottom:.08rem}
+.odet-val{font-size:.82rem;font-weight:600;color:var(--gris)}
+.offre-desc{font-size:.8rem;color:var(--gris-m);line-height:1.45;margin-bottom:.55rem}
+.offre-salary{font-family:'Sora',sans-serif;font-size:1rem;font-weight:800;color:var(--bleu)}
+.offre-footer{padding:.62rem 1rem;border-top:1px solid var(--gris-l);display:flex;gap:.5rem}
+.btn-postuler{flex:1;padding:.52rem;background:var(--bleu);color:#fff;font-family:'Sora',sans-serif;font-size:.78rem;font-weight:700;border:none;border-radius:var(--rsm);cursor:pointer;transition:background .15s}
+.btn-postuler:hover{background:var(--bleu-m)}
+.tab-content{display:none}.tab-content.active{display:block}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.form-group{margin-bottom:.82rem}
+.form-group label{display:block;font-size:.75rem;font-weight:600;color:var(--gris-m);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.36rem}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:.56rem .82rem;border:1.5px solid var(--border);border-radius:var(--rsm);font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--gris);background:var(--blanc)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--bleu)}
+.form-group textarea{resize:vertical;min-height:72px}
+.form-note{font-size:.77rem;color:var(--gris-m);background:var(--bleu-xl);border-left:3px solid var(--bleu);padding:.58rem .82rem;border-radius:0 var(--rsm) var(--rsm) 0;margin-bottom:.9rem;line-height:1.5}
+.btn-submit{width:100%;padding:.82rem;background:var(--bleu);color:#fff;font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;margin-top:.5rem}
+.btn-submit:hover{background:var(--bleu-m)}
+.btn-submit-vert{width:100%;padding:.82rem;background:var(--vert);color:#fff;font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;margin-top:.5rem}
+.modal-bg{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.48);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:1rem}
+.modal-bg.open{display:flex}
+.modal{background:var(--blanc);border-radius:16px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:popIn .25s ease;max-height:92vh;overflow-y:auto}
+@keyframes popIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-header{padding:1.2rem 1.5rem .9rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.modal-header h2{font-family:'Sora',sans-serif;font-size:1rem;font-weight:700}
+.btn-close{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--blanc);cursor:pointer;font-size:.9rem;color:var(--gris-m);display:flex;align-items:center;justify-content:center}
+.plan-modal-body{padding:1.4rem;text-align:center}
+.feats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin-bottom:1.1rem;text-align:left}
+.feat-item{display:flex;align-items:flex-start;gap:7px;background:var(--bleu-l);padding:.58rem .72rem;border-radius:var(--rsm);font-size:.79rem;color:var(--gris)}
+.feat-item span:first-child{color:var(--bleu);font-weight:700}
+.price-big{font-family:'Sora',sans-serif;font-size:1.9rem;font-weight:800;color:var(--bleu)}
+.price-big small{font-size:.85rem;font-weight:400;color:var(--gris-m)}
+.btn-cta{width:100%;padding:.85rem;background:var(--bleu);color:#fff;font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;margin-top:.55rem}
+.btn-later{width:100%;padding:.52rem;background:none;color:var(--gris-m);font-size:.82rem;border:none;cursor:pointer;margin-top:.38rem}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(16px);background:#111;color:#fff;padding:.7rem 1.4rem;border-radius:30px;font-size:.86rem;font-weight:500;opacity:0;transition:all .3s;z-index:500}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.stat-banner{background:var(--bleu-xl);border:1px solid var(--bleu-l);border-radius:var(--r);padding:.85rem 1.1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.stat-item{text-align:center}
+.stat-item strong{display:block;font-family:'Sora',sans-serif;font-size:1.2rem;font-weight:800;color:var(--bleu)}
+.stat-item small{font-size:.72rem;color:var(--gris-m)}
+@media(max-width:780px){
+  .main{grid-template-columns:1fr}
+  .sidebar{order:2}.content{order:1}
+  .hero h1{font-size:1.5rem}
+  .form-row{grid-template-columns:1fr}
+  .feats-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hinner">
+    <a href="#" class="logo">
+      <div class="logo-icon">👷</div>
+      Le Partenaire des Éleveurs <em>· Emploi</em>
+    </a>
+    <span class="hbadge">Bourse de l'Emploi Avicole</span>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-tag">💼 Emploi & Recrutement Avicole — Côte d'Ivoire</div>
+  <h1>Techniciens, trouvez<br>votre ferme idéale.</h1>
+  <p>Espace 100% gratuit. Publiez votre profil ou votre offre d'emploi.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><strong id="s-tech">0</strong><small>techniciens disponibles</small></div>
+    <div class="hero-stat"><strong id="s-offres">0</strong><small>offres d'emploi</small></div>
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('techniciens',this)">👷 Techniciens <span class="tab-count" id="tc-tech">0</span></button>
+    <button class="tab" onclick="switchTab('offres',this)">📋 Offres d'emploi <span class="tab-count" id="tc-off">0</span></button>
+    <button class="tab" onclick="switchTab('profil',this)">✍️ Publier mon profil</button>
+    <button class="tab" onclick="switchTab('recruter',this)">🏗️ Publier une offre</button>
+    <button class="tab" onclick="switchTab('plan',this)">💼 Plan Recruteur</button>
+  </div>
+</div>
+
+<div class="main">
+  <aside class="sidebar">
+    <button class="btn-publi" onclick="switchTab('profil',document.querySelectorAll('.tab')[2])">+ Publier mon profil — Gratuit</button>
+
+    <div class="card">
+      <div class="card-head">🔍 Filtres techniciens</div>
+      <div class="card-body">
+        <div class="filter-group">
+          <span class="filter-label">Spécialité</span>
+          <div class="filter-options">
+            <span class="chip active" onclick="setF(this,'spec','tous')">Tous</span>
+            <span class="chip" onclick="setF(this,'spec','Aviculture')">🐔 Aviculture</span>
+            <span class="chip" onclick="setF(this,'spec','Vétérinaire')">💉 Vétérinaire</span>
+            <span class="chip" onclick="setF(this,'spec','Manager')">📊 Manager</span>
+            <span class="chip" onclick="setF(this,'spec','Logistique')">🚛 Logistique</span>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Région</span>
+          <select onchange="setFv('region',this.value)">
+            <option value="tous">Toutes</option>
+            <option>Abidjan</option><option>Bouaké</option>
+            <option>Yamoussoukro</option><option>Korhogo</option>
+            <option>San-Pédro</option><option>Daloa</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Disponibilité</span>
+          <div class="filter-options">
+            <span class="chip active" onclick="setF(this,'dispo','tous')">Tous</span>
+            <span class="chip" onclick="setF(this,'dispo','Immédiatement')">🟢 Immédiat</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="plan-card">
+      <h3>💼 Plan Recruteur</h3>
+      <p>Accédez aux contacts directs des techniciens certifiés LPE.</p>
+      <div class="plan-feat">Contact WhatsApp direct</div>
+      <div class="plan-feat">Profils certifiés LPE</div>
+      <div class="plan-feat">Alertes nouveaux profils</div>
+      <div class="plan-feat">Offres illimitées</div>
+      <div class="plan-price">30 000 FCFA <small>/ mois</small></div>
+      <button class="btn-plan" onclick="openM('m-plan')">En savoir plus →</button>
+    </div>
+
+    <div class="cert-card">
+      <h3>🏅 Badge Certifié LPE</h3>
+      <p>Formé par Le Partenaire des Éleveurs ? Obtenez votre badge pour être vu en priorité.</p>
+      <button class="btn-cert" onclick="toast('📞 Contactez-nous au +225 01 02 64 20 80 !')">Demander ma certification</button>
+    </div>
+  </aside>
+
+  <div class="content">
+
+    <!-- TAB TECHNICIENS -->
+    <div id="tab-techniciens" class="tab-content active">
+      <div class="stat-banner">
+        <div class="stat-item"><strong id="sb-dispo">0</strong><small>disponibles maintenant</small></div>
+        <div class="stat-item"><strong id="sb-cert">0</strong><small>certifiés LPE</small></div>
+      </div>
+      <div class="search-bar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Rechercher un technicien…" oninput="searchTech(this.value)">
+        </div>
+      </div>
+      <div class="results-info">Affichage de <strong id="rc-tech">0</strong> techniciens</div>
+      <div class="grid-tech" id="grid-tech"></div>
+    </div>
+
+    <!-- TAB OFFRES -->
+    <div id="tab-offres" class="tab-content">
+      <div class="search-bar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Rechercher un poste, une région…" oninput="searchOffres(this.value)">
+        </div>
+      </div>
+      <div class="results-info">Affichage de <strong id="rc-off">0</strong> offres d'emploi</div>
+      <div class="grid-offres" id="grid-offres"></div>
+    </div>
+
+    <!-- TAB PROFIL -->
+    <div id="tab-profil" class="tab-content">
+      <div class="card" style="max-width:580px">
+        <div class="card-head">✍️ Publier mon profil technicien — Gratuit</div>
+        <div class="card-body">
+          <div class="form-note">✅ Profil <strong>gratuit</strong>. Les éleveurs verront votre profil. Seuls les abonnés Plan Recruteur peuvent vous contacter directement.</div>
+          <form onsubmit="publierProfil(event)">
+            <div class="form-row">
+              <div class="form-group"><label>Nom complet</label><input id="pf-nom" type="text" placeholder="Ex: Kouadio Emmanuel" required></div>
+              <div class="form-group"><label>Téléphone</label><input id="pf-tel" type="tel" placeholder="+225 07 00 00 00" required></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Spécialité</label>
+                <select id="pf-spec" required>
+                  <option value="">-- Choisir --</option>
+                  <option>Aviculture</option>
+                  <option>Vétérinaire / Para-vétérinaire</option>
+                  <option>Manager de ferme</option>
+                  <option>Logistique</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Région</label>
+                <select id="pf-region" required>
+                  <option value="">-- Choisir --</option>
+                  <option>Abidjan</option><option>Bouaké</option>
+                  <option>Yamoussoukro</option><option>Korhogo</option>
+                  <option>San-Pédro</option><option>Daloa</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Expérience</label>
+                <select id="pf-exp" required>
+                  <option value="">--</option>
+                  <option>Moins d'1 an</option><option>1 à 2 ans</option>
+                  <option>3 à 5 ans</option><option>Plus de 5 ans</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Disponibilité</label>
+                <select id="pf-dispo" required>
+                  <option value="">--</option>
+                  <option>Immédiatement</option>
+                  <option>Dans 1 mois</option>
+                  <option>À négocier</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Contrat recherché</label>
+                <select id="pf-contrat">
+                  <option>CDI</option><option>CDD</option>
+                  <option>Saisonnier</option><option>Journalier</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Prétention salariale (FCFA)</label><input id="pf-salaire" type="text" placeholder="Ex: 150000"></div>
+            </div>
+            <div class="form-group"><label>Description / expériences</label><textarea id="pf-desc" placeholder="Décrivez votre parcours…"></textarea></div>
+            <button type="submit" class="btn-submit-vert">✅ Publier mon profil gratuitement</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB RECRUTER -->
+    <div id="tab-recruter" class="tab-content">
+      <div class="card" style="max-width:580px">
+        <div class="card-head">🏗️ Publier une offre d'emploi — Gratuit</div>
+        <div class="card-body">
+          <div class="form-note">✅ Publication <strong>gratuite</strong>. Les techniciens verront votre offre.</div>
+          <form onsubmit="publierOffre(event)">
+            <div class="form-row">
+              <div class="form-group"><label>Nom de la ferme</label><input id="of-ferme" type="text" placeholder="Ex: Ferme Bamba & Fils" required></div>
+              <div class="form-group"><label>Téléphone</label><input id="of-tel" type="tel" placeholder="+225 07 00 00 00" required></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Poste recherché</label>
+                <select id="of-poste" required>
+                  <option value="">-- Choisir --</option>
+                  <option>Technicien avicole</option>
+                  <option>Vétérinaire</option>
+                  <option>Responsable de ferme</option>
+                  <option>Agent logistique</option>
+                  <option>Autre</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Région</label>
+                <select id="of-region" required>
+                  <option value="">-- Choisir --</option>
+                  <option>Abidjan</option><option>Bouaké</option>
+                  <option>Yamoussoukro</option><option>Korhogo</option>
+                  <option>San-Pédro</option><option>Daloa</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Type de contrat</label>
+                <select id="of-contrat">
+                  <option>CDI</option><option>CDD</option>
+                  <option>Saisonnier</option><option>Journalier</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Salaire proposé (FCFA)</label><input id="of-salaire" type="text" placeholder="Ex: 120000"></div>
+            </div>
+            <div class="form-group"><label>Effectif à gérer</label><input id="of-effectif" type="text" placeholder="Ex: 5 000 poulets de chair"></div>
+            <div class="form-group"><label>Description du poste</label><textarea id="of-desc" placeholder="Missions, profil recherché…" required></textarea></div>
+            <button type="submit" class="btn-submit">📋 Publier l'offre gratuitement</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB PLAN -->
+    <div id="tab-plan" class="tab-content">
+      <div class="card" style="max-width:500px">
+        <div class="plan-modal-body">
+          <div style="font-size:2.8rem;margin-bottom:.6rem">💼</div>
+          <h2 style="font-family:'Sora',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:.4rem">Plan Recruteur</h2>
+          <p style="font-size:.87rem;color:var(--gris-m);margin-bottom:1.05rem;line-height:1.55">Recrutez les meilleurs techniciens certifiés LPE rapidement.</p>
+          <div class="feats-grid">
+            <div class="feat-item"><span>✓</span> Contact WhatsApp direct</div>
+            <div class="feat-item"><span>✓</span> Profils certifiés LPE</div>
+            <div class="feat-item"><span>✓</span> Alertes nouveaux profils</div>
+            <div class="feat-item"><span>✓</span> Offres illimitées</div>
+            <div class="feat-item"><span>✓</span> Support Le Partenaire</div>
+            <div class="feat-item"><span>✓</span> Sans engagement</div>
+          </div>
+          <div class="price-big">30 000 FCFA <small>/ mois</small></div>
+          <button class="btn-cta" onclick="toast('📞 Contactez-nous au +225 01 02 64 20 80 !')">S'abonner maintenant</button>
+          <button class="btn-later" onclick="switchTab('techniciens',document.querySelector('.tab'))">Continuer gratuitement</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- MODAL CONTACTER TECHNICIEN -->
+<div class="modal-bg" id="m-contact-tech" onclick="if(event.target===this)closeM('m-contact-tech')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>💬 Contacter le technicien</h2>
+      <button class="btn-close" onclick="closeM('m-contact-tech')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-note">📱 Laissez votre numéro WhatsApp. Le technicien recevra une notification immédiate.</div>
+      <div id="contact-tech-details" style="background:var(--gris-l);border-radius:var(--rsm);padding:.75rem;margin-bottom:.9rem;font-size:.83rem;color:var(--gris)"></div>
+      <div class="form-group">
+        <label>Votre numéro WhatsApp *</label>
+        <input id="contact-tech-tel" type="tel" placeholder="+225 07 00 00 00">
+      </div>
+      <div class="form-group">
+        <label>Votre message (optionnel)</label>
+        <textarea id="contact-tech-msg" placeholder="Ex: Nous cherchons un technicien pour 5000 pondeuses..." style="resize:vertical;min-height:72px;width:100%;padding:.56rem .82rem;border:1.5px solid var(--border);border-radius:var(--rsm);font-family:'DM Sans',sans-serif;font-size:.88rem"></textarea>
+      </div>
+      <button class="btn-submit" onclick="envoyerContactTech()">📱 Envoyer ma demande</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONTACTER RECRUTEUR -->
+<div class="modal-bg" id="m-contact-offre" onclick="if(event.target===this)closeM('m-contact-offre')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📩 Postuler à cette offre</h2>
+      <button class="btn-close" onclick="closeM('m-contact-offre')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-note">📱 Laissez votre numéro WhatsApp. Le recruteur recevra votre candidature immédiatement.</div>
+      <div id="contact-offre-details" style="background:var(--gris-l);border-radius:var(--rsm);padding:.75rem;margin-bottom:.9rem;font-size:.83rem;color:var(--gris)"></div>
+      <div class="form-group">
+        <label>Votre numéro WhatsApp *</label>
+        <input id="contact-offre-tel" type="tel" placeholder="+225 07 00 00 00">
+      </div>
+      <div class="form-group">
+        <label>Votre message (optionnel)</label>
+        <textarea id="contact-offre-msg" placeholder="Ex: J'ai 3 ans d'expérience en aviculture..." style="resize:vertical;min-height:72px;width:100%;padding:.56rem .82rem;border:1.5px solid var(--border);border-radius:var(--rsm);font-family:'DM Sans',sans-serif;font-size:.88rem"></textarea>
+      </div>
+      <button class="btn-submit" onclick="envoyerContactOffre()">📩 Envoyer ma candidature</button>
+    </div>
+  </div>
+</div>
+<!-- MODAL PLAN -->
+<div class="modal-bg" id="m-plan" onclick="if(event.target===this)closeM('m-plan')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>💼 Plan Recruteur</h2>
+      <button class="btn-close" onclick="closeM('m-plan')">✕</button>
+    </div>
+    <div class="plan-modal-body">
+      <div style="font-size:2.8rem;margin-bottom:.6rem">🤝</div>
+      <p style="font-size:.87rem;color:var(--gris-m);margin-bottom:1.05rem;line-height:1.55">Accédez directement aux contacts des techniciens certifiés LPE.</p>
+      <div class="feats-grid">
+        <div class="feat-item"><span>✓</span> Contact direct WhatsApp</div>
+        <div class="feat-item"><span>✓</span> Profils certifiés LPE</div>
+        <div class="feat-item"><span>✓</span> Alertes nouveaux profils</div>
+        <div class="feat-item"><span>✓</span> Offres illimitées</div>
+        <div class="feat-item"><span>✓</span> Support Le Partenaire</div>
+        <div class="feat-item"><span>✓</span> Sans engagement</div>
+      </div>
+      <div class="price-big">30 000 FCFA <small>/ mois</small></div>
+      <button class="btn-cta" onclick="closeM('m-plan');toast('📞 Contactez-nous au +225 01 02 64 20 80 !')">S'abonner maintenant</button>
+      <button class="btn-later" onclick="closeM('m-plan')">Continuer gratuitement</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="tk"></div>
+
+<script>
+const SPEC_BADGE={'Aviculture':'badge-spec','Vétérinaire / Para-vétérinaire':'badge-vet','Manager de ferme':'badge-manager','Logistique':'badge-logis'};
+const CONTRAT_TAG={'CDI':'tag-cdi','CDD':'tag-cdd','Saisonnier':'tag-saisonnier','Journalier':'tag-journalier'};
+const BGC={'Aviculture':'#1e40af','Vétérinaire / Para-vétérinaire':'#7c3aed','Manager de ferme':'#0891b2','Logistique':'#d97706'};
+let TECHS=[], OFFRES=[];
+let F={spec:'tous',region:'tous',dispo:'tous',search:''};
+
+function ini(n){return(n||'??').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
+
+function timeAgo(d){
+  const h=Math.floor((Date.now()-new Date(d))/3600000);
+  if(h<1)return"À l'instant";
+  if(h<24)return`Il y a ${h}h`;
+  const j=Math.floor(h/24);
+  if(j<7)return`Il y a ${j}j`;
+  return`Il y a ${Math.floor(j/7)} sem`;
+}
+
+function techCard(t){
+  TECH_MAP[t._id] = t;
+  const specB=SPEC_BADGE[t.specialite]||'badge-spec';
+  const bg=BGC[t.specialite]||'#1e40af';
+  const avatar=t.photoUrl
+    ?`<img src="${t.photoUrl}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;flex-shrink:0">`
+    :`<div class="tech-avatar" style="background:${bg}">${ini(t.nom)}</div>`;
+  return`<div class="tech-card${t.boosted?' featured':''}">
+    ${t.boosted?`<div style="background:linear-gradient(135deg,#d97706,#b45309);color:#fff;font-size:.65rem;font-weight:700;padding:4px 10px;border-bottom-right-radius:10px;text-transform:uppercase;letter-spacing:.03em;display:inline-flex;align-items:center;gap:4px">${t.boostLabel||'⚡ Boost'} · ${t.boostDays||0}j</div>`:''}
+    <div class="tech-top">
+      ${avatar}
+      <div class="tech-info">
+        <div class="tech-name">${t.nom}</div>
+        <div class="tech-meta">📍 ${t.region} · ${t.experience}</div>
+        <div class="badges-row">
+          <span class="badge ${specB}">${t.specialite}</span>
+          ${t.certifieLPE?'<span class="badge badge-lpe">🏅 Certifié LPE</span>':''}
+          ${t.disponibilite==='Immédiatement'?'<span class="badge badge-dispo">🟢 Dispo</span>':''}
+        </div>
+      </div>
+    </div>
+    <div class="tech-body">
+      <div class="tech-stats">
+        <div class="tstat"><div class="tstat-label">Contrat</div><div class="tstat-val">${t.contrat}</div></div>
+        <div class="tstat"><div class="tstat-label">Salaire</div><div class="tstat-val">${t.salaire}</div></div>
+        <div class="tstat"><div class="tstat-label">Disponibilité</div><div class="tstat-val">${t.disponibilite}</div></div>
+        <div class="tstat"><div class="tstat-label">Expérience</div><div class="tstat-val">${t.experience}</div></div>
+      </div>
+      ${t.description?`<div class="tech-desc">${t.description}</div>`:''}
+    </div>
+    <div class="tech-footer">
+      ${t.locked
+        ?`<button class="btn-contact locked" onclick="openM('m-plan')">🔒 Voir le contact</button>`
+        :`<button class="btn-contact" onclick="ouvrirContactTech('${t._id}')">💬 Contacter</button>`}
+      <button class="btn-save" onclick="toast('🔖 Profil sauvegardé !')">📌</button>
+    </div>
+  </div>`;
+}
+
+function offreCard(o){
+  OFFRE_MAP[o._id] = o;
+  const ct=CONTRAT_TAG[o.contrat]||'tag-cdi';
+  const photoFerme=o.photoUrl
+    ?`<div style="width:100%;height:160px;overflow:hidden;border-radius:var(--r) var(--r) 0 0"><img src="${o.photoUrl}" style="width:100%;height:100%;object-fit:cover"></div>`
+    :'';
+  return`<div class="offre-card${o.boosted?' featured':''}">
+    ${o.boosted?`<div style="background:linear-gradient(135deg,#d97706,#b45309);color:#fff;font-size:.65rem;font-weight:700;padding:4px 10px;border-bottom-right-radius:10px;text-transform:uppercase;letter-spacing:.03em;display:inline-flex;align-items:center;gap:4px">${o.boostLabel||'⚡ Boost'} · ${o.boostDays||0}j</div>`:''}
+    ${photoFerme}
+    <div class="offre-top">
+      <div class="offre-employer">
+        <div class="offre-avatar" style="background:#1e40af">${ini(o.ferme)}</div>
+        <div>
+          <div style="font-family:'Sora',sans-serif;font-size:.85rem;font-weight:700">${o.ferme}</div>
+          <div style="font-size:.75rem;color:var(--gris-m)">📍 ${o.region}</div>
+        </div>
+      </div>
+      <div class="offre-title">${o.poste}</div>
+      <div class="offre-tags"><span class="offre-tag ${ct}">${o.contrat}</span></div>
+    </div>
+    <div class="offre-body">
+      <div class="offre-details">
+        <div class="odet"><div class="odet-label">Effectif</div><div class="odet-val">${o.effectif||'N/A'}</div></div>
+        <div class="odet"><div class="odet-label">Publiée</div><div class="odet-val">${timeAgo(o.createdAt)}</div></div>
+      </div>
+      ${o.description?`<div class="offre-desc">${o.description}</div>`:''}
+      <div class="offre-salary">${o.salaire} <small>FCFA/mois</small></div>
+    </div>
+    <div class="offre-footer">
+      <button class="btn-postuler" onclick="ouvrirContactOffre('${o._id}')">📩 Postuler</button>
+    </div>
+  </div>`;
+}
+
+function filteredTech(){
+  let d=[...TECHS];
+  if(F.spec!=='tous')d=d.filter(t=>t.specialite===F.spec||t.specialite.includes(F.spec));
+  if(F.region!=='tous')d=d.filter(t=>t.region===F.region);
+  if(F.dispo==='Immédiatement')d=d.filter(t=>t.disponibilite==='Immédiatement');
+  if(F.search){const q=F.search.toLowerCase();d=d.filter(t=>t.nom?.toLowerCase().includes(q)||t.specialite?.toLowerCase().includes(q)||t.region?.toLowerCase().includes(q))}
+  return d;
+}
+
+function renderTech(){
+  const d=filteredTech();
+  const boosted=d.filter(t=>t.boosted);
+  const normal=d.filter(t=>!t.boosted);
+  let html='';
+  if(boosted.length){
+    html+=`<div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#b45309;margin-bottom:.65rem;display:flex;align-items:center;gap:7px">⚡ Profils boostés<span style="flex:1;height:1px;background:#fef3c7;display:block"></span></div>`;
+    html+=`<div class="grid-tech">${boosted.map(techCard).join('')}</div>`;
+    html+=`<div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;margin:1.2rem 0 .65rem;display:flex;align-items:center;gap:7px">👷 Tous les techniciens<span style="flex:1;height:1px;background:#e5e7eb;display:block"></span></div>`;
+  }
+  html+=`<div class="grid-tech">${normal.length?normal.map(techCard).join(''):`<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--gris-m)">🔍 Aucun technicien trouvé.</div>`}</div>`;
+  document.getElementById('grid-tech').innerHTML=html;
+  document.getElementById('rc-tech').textContent=d.length;
+  document.getElementById('tc-tech').textContent=TECHS.length;
+  document.getElementById('s-tech').textContent=TECHS.length;
+  document.getElementById('sb-dispo').textContent=TECHS.filter(t=>t.disponibilite==='Immédiatement').length;
+  document.getElementById('sb-cert').textContent=TECHS.filter(t=>t.certifieLPE).length;
+}
+
+function renderOffres(){
+  const boosted=OFFRES.filter(o=>o.boosted);
+  const normal=OFFRES.filter(o=>!o.boosted);
+  let html='';
+  if(boosted.length){
+    html+=`<div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#b45309;margin-bottom:.65rem;display:flex;align-items:center;gap:7px">⚡ Offres boostées<span style="flex:1;height:1px;background:#fef3c7;display:block"></span></div>`;
+    html+=`<div class="grid-offres">${boosted.map(offreCard).join('')}</div>`;
+    html+=`<div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;margin:1.2rem 0 .65rem;display:flex;align-items:center;gap:7px">📋 Toutes les offres<span style="flex:1;height:1px;background:#e5e7eb;display:block"></span></div>`;
+  }
+  html+=`<div class="grid-offres">${normal.length?normal.map(offreCard).join(''):`<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--gris-m)">🔍 Aucune offre trouvée.</div>`}</div>`;
+  document.getElementById('grid-offres').innerHTML=html;
+  document.getElementById('rc-off').textContent=OFFRES.length;
+  document.getElementById('tc-off').textContent=OFFRES.length;
+  document.getElementById('s-offres').textContent=OFFRES.length;
+}
+
+function setF(el,k,v){el.closest('.filter-options').querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');F[k]=v;renderTech()}
+function setFv(k,v){F[k]=v;renderTech()}
+function searchTech(v){F.search=v;renderTech()}
+function searchOffres(v){
+  const q=v.toLowerCase();
+  const d=q?OFFRES.filter(o=>o.ferme?.toLowerCase().includes(q)||o.poste?.toLowerCase().includes(q)||o.region?.toLowerCase().includes(q)):OFFRES;
+  document.getElementById('grid-offres').innerHTML=d.length?d.map(offreCard).join(''):`<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--gris-m)">🔍 Aucune offre trouvée.</div>`;
+}
+
+async function publierProfil(e){
+  e.preventDefault();
+  const body={
+    nom:          document.getElementById('pf-nom').value,
+    telephone:    document.getElementById('pf-tel').value,
+    specialite:   document.getElementById('pf-spec').value,
+    region:       document.getElementById('pf-region').value,
+    experience:   document.getElementById('pf-exp').value,
+    disponibilite:document.getElementById('pf-dispo').value,
+    contrat:      document.getElementById('pf-contrat').value,
+    salaire:      document.getElementById('pf-salaire').value||'À négocier',
+    description:  document.getElementById('pf-desc').value||'',
+  };
+  try{
+    const res=await fetch('/emploi/api/profils',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const json=await res.json();
+    if(json.success){
+      await loadData();
+      switchTab('techniciens',document.querySelector('.tab'));
+      e.target.reset();
+      toast('🎉 Profil publié avec succès !');
+    }
+  }catch(err){toast('❌ Erreur. Réessayez.')}
+}
+
+async function publierOffre(e){
+  e.preventDefault();
+  const body={
+    ferme:       document.getElementById('of-ferme').value,
+    telephone:   document.getElementById('of-tel').value,
+    poste:       document.getElementById('of-poste').value,
+    region:      document.getElementById('of-region').value,
+    contrat:     document.getElementById('of-contrat').value,
+    salaire:     document.getElementById('of-salaire').value||'À négocier',
+    effectif:    document.getElementById('of-effectif').value||'',
+    description: document.getElementById('of-desc').value||'',
+  };
+  try{
+    const res=await fetch('/emploi/api/offres',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const json=await res.json();
+    if(json.success){
+      await loadData();
+      switchTab('offres',document.querySelectorAll('.tab')[1]);
+      e.target.reset();
+      toast('🎉 Offre publiée avec succès !');
+    }
+  }catch(err){toast('❌ Erreur. Réessayez.')}
+}
+
+async function loadData(){
+  try{
+    const [rT,rO]=await Promise.all([
+      fetch('/emploi/api/profils'),
+      fetch('/emploi/api/offres')
+    ]);
+    const [jT,jO]=await Promise.all([rT.json(),rO.json()]);
+    if(jT.success)TECHS=jT.data;
+    if(jO.success)OFFRES=jO.data;
+    renderTech();
+    renderOffres();
+  }catch(e){console.error('Erreur chargement:',e)}
+}
+
+function openM(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden'}
+function closeM(id){document.getElementById(id).classList.remove('open');document.body.style.overflow=''}
+function switchTab(n,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.getElementById('tab-'+n).classList.add('active');
+}
+function toast(msg){
+  const t=document.getElementById('tk');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+// ── MODAL CONTACT TECHNICIEN ──────────────────────────────────────
+let contactTechCurrent = null;
+let contactOffreCurrent = null;
+const TECH_MAP = {};
+const OFFRE_MAP = {};
+
+function ouvrirContactTech(id) {
+  const t = TECH_MAP[id];
+  contactTechCurrent = t;
+  document.getElementById('contact-tech-details').innerHTML =
+    `👷 <strong>${t.nom}</strong><br>` +
+    `🔧 ${t.specialite} — 📍 ${t.region}<br>` +
+    `📅 ${t.experience} · ${t.disponibilite}`;
+  document.getElementById('contact-tech-tel').value = '';
+  document.getElementById('contact-tech-msg').value = '';
+  openM('m-contact-tech');
+}
+
+async function envoyerContactTech() {
+  const tel = document.getElementById('contact-tech-tel').value.trim();
+  const msg = document.getElementById('contact-tech-msg').value.trim();
+  if (!tel || tel.length < 8) {
+    toast('❌ Entrez votre numéro WhatsApp');
+    return;
+  }
+  try {
+    const res = await fetch('/api/notifier-contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        telephone:   contactTechCurrent.telephone,
+        acheteurTel: tel,
+        acheteurMsg: msg,
+        type:        'technicien',
+        details: {
+          specialite: contactTechCurrent.specialite,
+          region:     contactTechCurrent.region,
+        }
+      })
+    });
+    const json = await res.json();
+    if (json.success) {
+      closeM('m-contact-tech');
+      toast('✅ Demande envoyée ! Le technicien sera notifié sur WhatsApp.');
+    } else {
+      toast('❌ Erreur. Réessayez.');
+    }
+  } catch (err) {
+    toast('❌ Erreur réseau.');
+  }
+}
+
+// ── MODAL CONTACT OFFRE ───────────────────────────────────────────
+
+function ouvrirContactOffre(id) {
+  const o = OFFRE_MAP[id];
+  contactOffreCurrent = o;
+  document.getElementById('contact-offre-details').innerHTML =
+    `🏗️ <strong>${o.ferme}</strong><br>` +
+    `💼 ${o.poste} — 📍 ${o.region}<br>` +
+    `📄 ${o.contrat} · 💰 ${o.salaire}`;
+  document.getElementById('contact-offre-tel').value = '';
+  document.getElementById('contact-offre-msg').value = '';
+  openM('m-contact-offre');
+}
+
+async function envoyerContactOffre() {
+  const tel = document.getElementById('contact-offre-tel').value.trim();
+  const msg = document.getElementById('contact-offre-msg').value.trim();
+  if (!tel || tel.length < 8) {
+    toast('❌ Entrez votre numéro WhatsApp');
+    return;
+  }
+  try {
+    const res = await fetch('/api/notifier-contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        telephone:   contactOffreCurrent.telephone,
+        acheteurTel: tel,
+        acheteurMsg: msg,
+        type:        'offre',
+        details: {
+          poste:  contactOffreCurrent.poste,
+          region: contactOffreCurrent.region,
+        }
+      })
+    });
+    const json = await res.json();
+    if (json.success) {
+      closeM('m-contact-offre');
+      toast('✅ Candidature envoyée ! Le recruteur sera notifié sur WhatsApp.');
+    } else {
+      toast('❌ Erreur. Réessayez.');
+    }
+  } catch (err) {
+    toast('❌ Erreur réseau.');
+  }
+}
+// ── FONCTIONS CONTACT ─────────────────────────────────────────────
+function ouvrirContactTech(id) {
+  const t = TECH_MAP[id];
+  if (!t) { toast('❌ Erreur chargement profil'); return; }
+  contactTechCurrent = t;
+  document.getElementById('contact-tech-details').innerHTML =
+    `👷 <strong>${t.nom}</strong><br>` +
+    `🔧 ${t.specialite} — 📍 ${t.region}<br>` +
+    `📅 ${t.experience} · ${t.disponibilite}`;
+  document.getElementById('contact-tech-tel').value = '';
+  document.getElementById('contact-tech-msg').value = '';
+  openM('m-contact-tech');
+}
+
+function ouvrirContactOffre(id) {
+  const o = OFFRE_MAP[id];
+  if (!o) { toast('❌ Erreur chargement offre'); return; }
+  contactOffreCurrent = o;
+  document.getElementById('contact-offre-details').innerHTML =
+    `🏗️ <strong>${o.ferme}</strong><br>` +
+    `💼 ${o.poste} — 📍 ${o.region}<br>` +
+    `📄 ${o.contrat} · 💰 ${o.salaire}`;
+  document.getElementById('contact-offre-tel').value = '';
+  document.getElementById('contact-offre-msg').value = '';
+  openM('m-contact-offre');
+}
+loadData();
+setInterval(loadData,60000);
+</script>
+
+</body>
+</html>

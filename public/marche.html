@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marché des Volailles — Le Partenaire des Éleveurs</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --vert:#1a6b3a;--vert-m:#228B47;--vert-l:#e6f5ec;--vert-xl:#f0faf4;
+  --or:#d97706;--or-l:#fef3c7;--or-xl:#fffbeb;--or-m:#b45309;
+  --rouge:#c0392b;--rouge-l:#fdecea;
+  --gris:#374151;--gris-m:#6b7280;--gris-l:#f3f4f6;--gris-xl:#f9fafb;
+  --blanc:#fff;--border:#e5e7eb;
+  --shadow:0 2px 12px rgba(0,0,0,.07);
+  --shadow-h:0 8px 28px rgba(0,0,0,.13);
+  --r:12px;--rsm:8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--gris-xl);color:var(--gris);min-height:100vh}
+header{background:var(--vert);position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(26,107,58,.3)}
+.hinner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem;color:#fff;text-decoration:none}
+.logo-icon{width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.logo em{opacity:.65;font-style:normal;font-weight:400}
+.hbadge{background:rgba(255,255,255,.15);color:#fff;font-size:.72rem;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.04em}
+.hero{background:linear-gradient(135deg,var(--vert) 0%,#155e30 100%);color:#fff;text-align:center;padding:3rem 2rem 2.5rem}
+.hero-tag{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:1rem}
+.hero h1{font-family:'Sora',sans-serif;font-size:1.9rem;font-weight:800;line-height:1.2;margin-bottom:.6rem}
+.hero p{font-size:.95rem;opacity:.8;max-width:500px;margin:0 auto 1.5rem}
+.hero-stats{display:flex;justify-content:center;gap:2.5rem}
+.hero-stat strong{display:block;font-family:'Sora',sans-serif;font-size:1.6rem;font-weight:800}
+.hero-stat small{font-size:.75rem;opacity:.7}
+.tabs-wrap{background:var(--blanc);border-bottom:1px solid var(--border);position:sticky;top:64px;z-index:90}
+.tabs{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;overflow-x:auto}
+.tab{padding:.85rem 1.1rem;font-size:.87rem;font-weight:500;cursor:pointer;border:none;background:none;color:var(--gris-m);border-bottom:3px solid transparent;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0}
+.tab.active{color:var(--vert);border-bottom-color:var(--vert);font-weight:600}
+.tab:hover:not(.active){color:var(--gris)}
+.tab-count{background:var(--gris-l);color:var(--gris-m);font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:10px}
+.tab.active .tab-count{background:var(--vert-l);color:var(--vert)}
+.main{max-width:1200px;margin:0 auto;padding:1.5rem 2rem 3rem;display:grid;grid-template-columns:268px 1fr;gap:1.5rem}
+.sidebar{display:flex;flex-direction:column;gap:1rem}
+.card{background:var(--blanc);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden}
+.card-head{padding:.85rem 1.1rem;border-bottom:1px solid var(--border);font-family:'Sora',sans-serif;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gris)}
+.card-body{padding:.95rem 1.1rem}
+.filter-group{margin-bottom:.95rem}
+.filter-label{font-size:.74rem;font-weight:600;color:var(--gris-m);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem;display:block}
+.filter-options{display:flex;flex-wrap:wrap;gap:5px}
+.chip{padding:4px 11px;border-radius:20px;font-size:.8rem;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:var(--blanc);color:var(--gris-m);transition:all .15s}
+.chip.active,.chip:hover{background:var(--vert-l);border-color:var(--vert);color:var(--vert)}
+.chip.active{font-weight:600}
+select{width:100%;padding:.48rem .8rem;border:1.5px solid var(--border);border-radius:var(--rsm);font-family:'DM Sans',sans-serif;font-size:.87rem;color:var(--gris);background:var(--blanc);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .8rem center;cursor:pointer}
+select:focus{outline:none;border-color:var(--vert)}
+.range-val{font-size:.78rem;color:var(--vert);font-weight:600;text-align:right;display:block;margin-top:3px}
+input[type=range]{accent-color:var(--vert);width:100%}
+.btn-publish{width:100%;padding:.82rem;background:var(--vert);color:#fff;font-family:'Sora',sans-serif;font-size:.88rem;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;box-shadow:0 4px 14px rgba(26,107,58,.28)}
+.btn-publish:hover{background:var(--vert-m);transform:translateY(-1px)}
+.boost-sidebar{background:linear-gradient(135deg,#92400e 0%,#78350f 100%);color:#fff;border-radius:var(--r);padding:1.15rem;box-shadow:0 4px 16px rgba(146,64,14,.3)}
+.boost-sidebar h3{font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700;margin-bottom:.35rem}
+.boost-sidebar p{font-size:.77rem;opacity:.85;margin-bottom:.85rem;line-height:1.5}
+.boost-mini-cards{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.85rem}
+.bmc{background:rgba(255,255,255,.12);border-radius:var(--rsm);padding:.5rem .75rem;display:flex;justify-content:space-between;align-items:center;font-size:.78rem;border:1px solid rgba(255,255,255,.15)}
+.bmc-price{font-family:'Sora',sans-serif;font-weight:800;font-size:.9rem}
+.btn-boost-sb{width:100%;padding:.65rem;background:#fff;color:#92400e;font-family:'Sora',sans-serif;font-size:.83rem;font-weight:700;border:none;border-radius:var(--rsm);cursor:pointer;transition:all .2s}
+.btn-boost-sb:hover{background:var(--or-l)}
+.plan-card{background:linear-gradient(135deg,var(--vert) 0%,#155e30 100%);color:#fff;border-radius:var(--r);padding:1.15rem;box-shadow:0 4px 16px rgba(26,107,58,.25)}
+.plan-card h3{font-family:'Sora',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.35rem}
+.plan-card p{font-size:.77rem;opacity:.8;margin-bottom:.8rem;line-height:1.5}
+.plan-feat{display:flex;align-items:center;gap:7px;font-size:.77rem;margin-bottom:.32rem;opacity:.9}
+.plan-feat::before{content:'✓';font-weight:700;color:#6ee7a0;flex-shrink:0}
+.plan-price{font-family:'Sora',sans-serif;font-size:1.2rem;font-weight:800;margin-top:.75rem}
+.plan-price small{font-size:.72rem;font-weight:400;opacity:.7}
+.btn-plan{width:100%;padding:.62rem;background:#fff;color:var(--vert);font-family:'Sora',sans-serif;font-size:.83rem;font-weight:700;border:none;border-radius:var(--rsm);cursor:pointer;margin-top:.72rem;transition:all .2s}
+.btn-plan:hover{background:var(--vert-l)}
+.content{min-width:0}
+.boost-banner{background:linear-gradient(135deg,var(--or-xl) 0%,#fef9ee 100%);border:1.5px solid var(--or-l);border-radius:var(--r);padding:1rem 1.2rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem}
+.bb-icon{font-size:2rem;flex-shrink:0}
+.bb-text h4{font-family:'Sora',sans-serif;font-size:.9rem;font-weight:700;color:var(--or-m);margin-bottom:.25rem}
+.bb-text p{font-size:.8rem;color:var(--gris-m);line-height:1.45}
+.btn-boost-banner{flex-shrink:0;padding:.6rem 1.1rem;background:var(--or);color:#fff;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:700;border:none;border-radius:var(--rsm);cursor:pointer;white-space:nowrap;transition:background .2s}
+.btn-boost-banner:hover{background:var(--or-m)}
+.search-bar{display:flex;gap:.7rem;margin-bottom:1rem;align-items:center}
+.search-wrap{flex:1;position:relative}
+.search-wrap input{width:100%;padding:.62rem 1rem .62rem 2.5rem;border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:.88rem;background:var(--blanc);color:var(--gris);transition:border .2s}
+.search-wrap input:focus{outline:none;border-color:var(--vert)}
+.search-icon{position:absolute;left:.82rem;top:50%;transform:translateY(-50%);color:var(--gris-m);pointer-events:none}
+.sort-select{width:175px;padding:.62rem .8rem;border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:.87rem;color:var(--gris);background:var(--blanc);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .8rem center;cursor:pointer}
+.results-info{font-size:.83rem;color:var(--gris-m);margin-bottom:1rem}
+.results-info strong{color:var(--gris)}
+.section-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--or-m);margin-bottom:.65rem;display:flex;align-items:center;gap:7px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--or-l)}
+.section-label-normal{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gris-m);margin-bottom:.65rem;display:flex;align-items:center;gap:7px;margin-top:1.2rem}
+.section-label-normal::after{content:'';flex:1;height:1px;background:var(--border)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:1rem}
+.annonce{background:var(--blanc);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;transition:box-shadow .2s,transform .2s;display:flex;flex-direction:column;position:relative}
+.annonce:hover{box-shadow:var(--shadow-h);transform:translateY(-2px)}
+.annonce.boosted{border:2px solid var(--or);box-shadow:0 4px 20px rgba(217,119,6,.15)}
+.boost-ribbon{position:absolute;top:0;left:0;z-index:10;background:linear-gradient(135deg,var(--or) 0%,var(--or-m) 100%);color:#fff;font-family:'Sora',sans-serif;font-size:.65rem;font-weight:700;padding:4px 10px 4px 8px;border-bottom-right-radius:10px;display:flex;align-items:center;gap:4px;letter-spacing:.03em;text-transform:uppercase}
+.annonce-media{position:relative;width:100%;height:190px;overflow:hidden;cursor:pointer;flex-shrink:0}
+.annonce-media img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.annonce:hover .annonce-media img{transform:scale(1.05)}
+.annonce-media video{width:100%;height:100%;object-fit:cover;display:block}
+.media-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;color:rgba(255,255,255,.6);font-size:.82rem}
+.media-placeholder .phi{font-size:2.6rem}
+.media-badge{position:absolute;top:.65rem;left:.65rem;display:inline-flex;align-items:center;gap:4px;font-size:.68rem;font-weight:700;text-transform:uppercase;padding:3px 9px;border-radius:20px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.3)}
+.badge-chair{background:rgba(254,243,199,.9);color:#92400e}
+.badge-pondeuse{background:rgba(237,233,254,.9);color:#5b21b6}
+.badge-pintade{background:rgba(252,231,243,.9);color:#9d174d}
+.badge-dinde{background:rgba(224,242,254,.9);color:#075985}
+.badge-canard{background:rgba(209,250,229,.9);color:#065f46}
+.media-fresh{position:absolute;top:.65rem;right:.65rem;background:var(--vert);color:#fff;font-size:.66rem;font-weight:700;padding:3px 8px;border-radius:10px}
+.play-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.22);transition:background .2s}
+.play-overlay:hover{background:rgba(0,0,0,.38)}
+.play-btn{width:48px;height:48px;background:rgba(255,255,255,.92);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.vid-badge{position:absolute;bottom:.6rem;right:.6rem;background:rgba(0,0,0,.6);color:#fff;font-size:.68rem;font-weight:600;padding:3px 8px;border-radius:8px;backdrop-filter:blur(4px)}
+.annonce-header{padding:.68rem 1rem .4rem;display:flex;align-items:center;justify-content:space-between}
+.eleveur-tag{display:flex;align-items:center;gap:6px;font-size:.77rem;color:var(--gris-m);font-weight:500}
+.eleveur-avatar{width:23px;height:23px;border-radius:50%;background:var(--vert);color:#fff;font-size:.63rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.verified-badge{background:var(--vert-l);color:var(--vert);font-size:.66rem;font-weight:700;padding:2px 6px;border-radius:6px}
+.annonce-body{padding:.38rem 1rem .75rem;flex:1}
+.annonce-infos{display:flex;flex-direction:column;gap:.26rem;margin-bottom:.6rem}
+.annonce-info{display:flex;align-items:center;gap:7px;font-size:.8rem;color:var(--gris-m)}
+.ii{font-size:.85rem;flex-shrink:0}
+.annonce-price-row{display:flex;align-items:flex-end;justify-content:space-between;padding-top:.5rem;border-top:1px solid var(--gris-l)}
+.annonce-price{font-family:'Sora',sans-serif;font-size:1.08rem;font-weight:800;color:var(--vert)}
+.annonce-price small{font-size:.68rem;font-weight:400;color:var(--gris-m)}
+.annonce-qty{font-size:.76rem;color:var(--gris-m);font-weight:500;background:var(--gris-l);padding:3px 7px;border-radius:6px}
+.annonce-footer{padding:.62rem 1rem;border-top:1px solid var(--gris-l);display:flex;gap:.5rem}
+.btn-contact{flex:1;padding:.5rem;background:var(--vert);color:#fff;font-family:'Sora',sans-serif;font-size:.78rem;font-weight:700;border:none;border-radius:var(--rsm);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:background .15s}
+.btn-contact:hover{background:var(--vert-m)}
+.btn-contact.locked{background:var(--gris-l);color:var(--gris-m);cursor:not-allowed}
+.btn-contact.locked:hover{background:var(--gris-l)}
+.btn-boost-card{padding:.5rem .7rem;border:1.5px solid var(--or-l);border-radius:var(--rsm);background:var(--or-xl);cursor:pointer;font-size:.78rem;color:var(--or-m);font-weight:700;transition:all .15s;white-space:nowrap}
+.btn-boost-card:hover{background:var(--or-l);border-color:var(--or)}
+.btn-fav{padding:.5rem .62rem;border:1.5px solid var(--border);border-radius:var(--rsm);background:var(--blanc);cursor:pointer;font-size:.88rem;transition:all .15s}
+.btn-fav:hover,.btn-fav.liked{border-color:var(--rouge);background:var(--rouge-l)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.form-group{margin-bottom:.82rem}
+.form-group label{display:block;font-size:.75rem;font-weight:600;color:var(--gris-m);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.36rem}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:.56rem .82rem;border:1.5px solid var(--border);border-radius:var(--rsm);font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--gris);background:var(--blanc);transition:border .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--vert)}
+.form-group textarea{resize:vertical;min-height:68px}
+.form-note{font-size:.77rem;color:var(--gris-m);background:var(--vert-xl);border-left:3px solid var(--vert);padding:.58rem .82rem;border-radius:0 var(--rsm) var(--rsm) 0;margin-bottom:.9rem;line-height:1.5}
+.btn-submit{width:100%;padding:.82rem;background:var(--vert);color:#fff;font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s}
+.btn-submit:hover{background:var(--vert-m)}
+.upload-zone{border:2px dashed var(--border);border-radius:var(--r);padding:1.3rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--gris-l);position:relative}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--vert);background:var(--vert-l)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:1.8rem;margin-bottom:.35rem}
+.upload-text{font-size:.83rem;color:var(--gris-m);font-weight:500}
+.upload-text strong{color:var(--vert)}
+.upload-hint{font-size:.72rem;color:var(--gris-m);margin-top:.22rem}
+.preview-wrap{display:none;margin-top:.7rem;position:relative;border-radius:var(--rsm);overflow:hidden;background:#000;max-height:230px}
+.preview-wrap img,.preview-wrap video{width:100%;max-height:230px;object-fit:cover;display:block}
+.preview-remove{position:absolute;top:.4rem;right:.4rem;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:27px;height:27px;cursor:pointer;font-size:.82rem;display:flex;align-items:center;justify-content:center}
+.preview-remove:hover{background:var(--rouge)}
+.preview-pill{position:absolute;bottom:.45rem;left:.45rem;background:rgba(0,0,0,.6);color:#fff;font-size:.68rem;font-weight:600;padding:3px 9px;border-radius:8px;backdrop-filter:blur(4px)}
+.lightbox{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.93);align-items:center;justify-content:center;padding:1rem}
+.lightbox.open{display:flex}
+.lb-inner{position:relative;max-width:95vw;max-height:90vh;display:flex;align-items:center;justify-content:center}
+.lb-inner img{max-width:90vw;max-height:85vh;object-fit:contain;border-radius:var(--r)}
+.lb-inner video{max-width:90vw;max-height:85vh;border-radius:var(--r)}
+.lb-close{position:fixed;top:1.2rem;right:1.2rem;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;width:42px;height:42px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;z-index:401;transition:background .2s}
+.lb-close:hover{background:rgba(255,255,255,.22)}
+.modal-bg{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.48);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:1rem}
+.modal-bg.open{display:flex}
+.modal{background:var(--blanc);border-radius:16px;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:popIn .25s ease;max-height:92vh;overflow-y:auto}
+@keyframes popIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-header{padding:1.2rem 1.5rem .9rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.modal-header h2{font-family:'Sora',sans-serif;font-size:1rem;font-weight:700}
+.free-tag{background:var(--vert-l);color:var(--vert);font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:10px;text-transform:uppercase}
+.btn-close{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--blanc);cursor:pointer;font-size:.95rem;color:var(--gris-m);display:flex;align-items:center;justify-content:center}
+.btn-close:hover{background:var(--gris-l)}
+.modal-body{padding:1.2rem 1.5rem}
+.boost-intro{background:var(--or-xl);border:1px solid var(--or-l);border-radius:var(--rsm);padding:.85rem 1rem;margin-bottom:1.1rem;font-size:.82rem;color:var(--gris-m);line-height:1.55}
+.boost-intro strong{color:var(--or-m)}
+.boost-options{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.1rem}
+.boost-option{border:2px solid var(--border);border-radius:var(--r);padding:1rem 1.1rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.9rem;position:relative}
+.boost-option:hover{border-color:var(--or);background:var(--or-xl)}
+.boost-option.selected{border-color:var(--or);background:var(--or-xl)}
+.boost-option input[type=radio]{position:absolute;opacity:0}
+.bo-icon{font-size:1.6rem;flex-shrink:0}
+.bo-info{flex:1}
+.bo-title{font-family:'Sora',sans-serif;font-size:.9rem;font-weight:700;color:var(--gris);margin-bottom:.2rem}
+.bo-desc{font-size:.78rem;color:var(--gris-m);line-height:1.4}
+.bo-price{text-align:right;flex-shrink:0}
+.bo-amount{font-family:'Sora',sans-serif;font-size:1.05rem;font-weight:800;color:var(--or-m)}
+.bo-period{font-size:.72rem;color:var(--gris-m)}
+.boost-option.selected .bo-title{color:var(--or-m)}
+.boost-badge-preview{display:inline-flex;align-items:center;gap:4px;background:var(--or);color:#fff;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:8px;margin-top:.3rem;text-transform:uppercase}
+.payment-section{background:var(--gris-l);border-radius:var(--rsm);padding:.85rem 1rem;margin-bottom:1rem}
+.payment-section h4{font-size:.8rem;font-weight:700;color:var(--gris);margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.04em}
+.payment-methods{display:flex;gap:.5rem;flex-wrap:wrap}
+.pm{border:2px solid var(--border);border-radius:var(--rsm);padding:.45rem .75rem;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;background:var(--blanc);transition:all .15s;color:var(--gris)}
+.pm:hover,.pm.active{border-color:var(--vert);background:var(--vert-l);color:var(--vert)}
+.pm-icon{font-size:1rem}
+.btn-pay{width:100%;padding:.88rem;background:var(--or);color:#fff;font-family:'Sora',sans-serif;font-size:.95rem;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;margin-top:.5rem;box-shadow:0 4px 14px rgba(217,119,6,.3)}
+.btn-pay:hover{background:var(--or-m);transform:translateY(-1px)}
+.btn-pay:disabled{background:var(--gris-m);cursor:not-allowed;transform:none;box-shadow:none}
+.success-screen{text-align:center;padding:1rem 0}
+.success-icon{font-size:3.5rem;margin-bottom:.75rem}
+.success-screen h3{font-family:'Sora',sans-serif;font-size:1.15rem;font-weight:700;margin-bottom:.4rem;color:var(--or-m)}
+.success-screen p{font-size:.88rem;color:var(--gris-m);line-height:1.55;margin-bottom:1.2rem}
+.success-details{background:var(--or-xl);border:1px solid var(--or-l);border-radius:var(--rsm);padding:.85rem 1rem;font-size:.82rem;color:var(--gris);line-height:1.6;text-align:left;margin-bottom:1.2rem}
+.btn-ok{width:100%;padding:.82rem;background:var(--or);color:#fff;font-family:'Sora',sans-serif;font-size:.9rem;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;transition:background .2s}
+.btn-ok:hover{background:var(--or-m)}
+.plan-modal-body{padding:1.4rem;text-align:center}
+.plan-icon{font-size:2.8rem;margin-bottom:.6rem}
+.feats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin-bottom:1.1rem;text-align:left}
+.feat-item{display:flex;align-items:flex-start;gap:7px;background:var(--vert-l);padding:.58rem .72rem;border-radius:var(--rsm);font-size:.79rem;color:var(--gris)}
+.feat-item span:first-child{color:var(--vert);font-weight:700;flex-shrink:0}
+.price-big{font-family:'Sora',sans-serif;font-size:1.9rem;font-weight:800;color:var(--vert)}
+.price-big small{font-size:.85rem;font-weight:400;color:var(--gris-m)}
+.btn-cta{width:100%;padding:.85rem;background:var(--vert);color:#fff;font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;margin-top:.55rem;transition:background .2s}
+.btn-cta:hover{background:var(--vert-m)}
+.btn-later{width:100%;padding:.52rem;background:none;color:var(--gris-m);font-size:.82rem;border:none;cursor:pointer;margin-top:.38rem}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(16px);background:#111;color:#fff;padding:.7rem 1.4rem;border-radius:30px;font-size:.86rem;font-weight:500;opacity:0;transition:all .3s;z-index:500;display:flex;align-items:center;gap:7px}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:780px){
+  .main{grid-template-columns:1fr}
+  .sidebar{order:2}.content{order:1}
+  .hero h1{font-size:1.5rem}
+  .hero-stats{gap:1.5rem}
+  .form-row{grid-template-columns:1fr}
+  .feats-grid{grid-template-columns:1fr}
+  .boost-banner{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hinner">
+    <a href="#" class="logo">
+      <div class="logo-icon">🐔</div>
+      Le Partenaire des Éleveurs <em>· Marché</em>
+    </a>
+    <span class="hbadge">Espace public gratuit</span>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-tag">📢 Marché de la Volaille — Côte d'Ivoire</div>
+  <h1>Trouvez un acheteur.<br>Trouvez un éleveur.</h1>
+  <p>Espace 100% gratuit. Publiez avec vos photos et vidéos. Les acheteurs consultent et contactent.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><strong id="s-ann">0</strong><small>annonces actives</small></div>
+    <div class="hero-stat"><strong id="s-boost">0</strong><small>annonces boostées</small></div>
+    <div class="hero-stat"><strong>5</strong><small>régions couvertes</small></div>
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('marche',this)">🛒 Annonces <span class="tab-count" id="tc">0</span></button>
+    <button class="tab" onclick="switchTab('publier',this)">📸 Publier une annonce</button>
+    <button class="tab" onclick="switchTab('plan',this)">⭐ Plan Mise en Relation</button>
+  </div>
+</div>
+
+<div class="main">
+  <aside class="sidebar">
+    <button class="btn-publish" onclick="openM('m-pub')">+ Publier mon annonce</button>
+
+    <div class="boost-sidebar">
+      <h3>⚡ Boostez votre annonce</h3>
+      <p>Passez en tête de liste et vendez <strong>3× plus vite</strong>. Paiement par Orange Money ou Wave.</p>
+      <div class="boost-mini-cards">
+        <div class="bmc"><span>🚀 Boost 7 jours</span><span class="bmc-price">1 500 F</span></div>
+        <div class="bmc"><span>⭐ Boost 14 jours</span><span class="bmc-price">3 000 F</span></div>
+        <div class="bmc"><span>🔔 Express 48h</span><span class="bmc-price">2 000 F</span></div>
+      </div>
+      <button class="btn-boost-sb" onclick="openBoostModal(null)">Booster mon annonce →</button>
+    </div>
+
+    <div class="card">
+      <div class="card-head">🔍 Filtres</div>
+      <div class="card-body">
+        <div class="filter-group">
+          <span class="filter-label">Type de volaille</span>
+          <div class="filter-options">
+            <span class="chip active" onclick="setF(this,'type','tous')">Tous</span>
+            <span class="chip" onclick="setF(this,'type','Poulet de chair')">🍗 Chair</span>
+            <span class="chip" onclick="setF(this,'type','Pondeuse réformée')">🥚 Pondeuse</span>
+            <span class="chip" onclick="setF(this,'type','Pintade')">🦃 Pintade</span>
+            <span class="chip" onclick="setF(this,'type','Dinde')">🦅 Dinde</span>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Région</span>
+          <select onchange="setFv('region',this.value)">
+            <option value="tous">Toutes les régions</option>
+            <option>Abidjan</option><option>Bouaké</option>
+            <option>Yamoussoukro</option><option>San-Pédro</option>
+            <option>Korhogo</option><option>Jacqueville</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Afficher</span>
+          <div class="filter-options">
+            <span class="chip active" onclick="setF(this,'boost','tous')">Toutes</span>
+            <span class="chip" onclick="setF(this,'boost','boosted')">⚡ Boostées</span>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Prix max (FCFA)</span>
+          <input type="range" min="500" max="10000" step="500" value="10000" oninput="setPrix(this.value)">
+          <span class="range-val" id="pv">Tous les prix</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="plan-card">
+      <h3>⭐ Plan Mise en Relation</h3>
+      <p>Accédez aux contacts directs des éleveurs vérifiés.</p>
+      <div class="plan-feat">Contact WhatsApp direct</div>
+      <div class="plan-feat">Éleveurs vérifiés</div>
+      <div class="plan-feat">Alertes disponibilités</div>
+      <div class="plan-price">25 000 FCFA <small>/ mois</small></div>
+      <button class="btn-plan" onclick="openM('m-plan')">En savoir plus →</button>
+    </div>
+  </aside>
+
+  <div class="content">
+
+    <!-- TAB MARCHÉ -->
+    <div id="tab-marche" class="tab-content active">
+      <div class="boost-banner">
+        <div class="bb-icon">⚡</div>
+        <div class="bb-text">
+          <h4>Vendez 3× plus vite avec un Boost</h4>
+          <p>Votre annonce passe en tête de liste. Dès 1 500 FCFA · Orange Money / Wave.</p>
+        </div>
+        <button class="btn-boost-banner" onclick="openBoostModal(null)">Booster maintenant</button>
+      </div>
+      <div class="search-bar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Rechercher une volaille, une ville…" oninput="doSearch(this.value)">
+        </div>
+        <select class="sort-select" onchange="doSort(this.value)">
+          <option value="boost">⚡ Boostées en premier</option>
+          <option value="recent">Plus récentes</option>
+          <option value="pa">Prix croissant</option>
+          <option value="pd">Prix décroissant</option>
+          <option value="qte">Quantité</option>
+        </select>
+      </div>
+      <div class="results-info">
+        Affichage de <strong id="rc">0</strong> annonces · <strong id="rb">0</strong> boostées
+      </div>
+      <div class="section-label" id="sec-boost-label" style="display:none">⚡ Annonces boostées</div>
+      <div class="grid" id="grid-boosted"></div>
+      <div class="section-label-normal" id="sec-normal-label">📋 Toutes les annonces</div>
+      <div class="grid" id="grid-normal"></div>
+    </div>
+
+    <!-- TAB PUBLIER -->
+    <div id="tab-publier" class="tab-content">
+      <div class="card" style="max-width:570px">
+        <div class="card-head">📸 Publier avec photo ou vidéo — Gratuit</div>
+        <div class="card-body">
+          <div class="form-note">
+            ✅ Publication <strong>100% gratuite</strong>. Ajoutez une photo ou vidéo pour attirer plus d'acheteurs. Votre contact reste masqué pour les non-abonnés.
+          </div>
+          <form onsubmit="publier(event)">
+            <div class="form-group">
+              <label>📷 Photo ou 🎬 Vidéo de vos volailles</label>
+              <div class="upload-zone" id="uz" ondragover="dov(event,'uz')" ondragleave="dlv('uz')" ondrop="drp(event,'uz','pi','pv','pw','pp')">
+                <input type="file" id="fi" accept="image/*,video/*" onchange="hf(this,'pi','pv','pw','pp','uz',true)">
+                <div class="upload-icon">📸</div>
+                <div class="upload-text"><strong>Cliquez</strong> ou glissez ici</div>
+                <div class="upload-hint">JPG · PNG · WEBP · MP4 · MOV — Max 50 Mo</div>
+              </div>
+              <div id="pw" class="preview-wrap">
+                <img id="pi" style="display:none">
+                <video id="pv" controls style="display:none"></video>
+                <button type="button" class="preview-remove" onclick="rmMedia('pi','pv','pw','uz','fi',true)">✕</button>
+                <span class="preview-pill" id="pp"></span>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Votre nom</label><input id="fn" type="text" placeholder="Ex: Kouassi Ange" required></div>
+              <div class="form-group"><label>Téléphone</label><input id="ft" type="tel" placeholder="+225 07 00 00 00" required></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Type de volaille</label>
+                <select id="fty" required>
+                  <option value="">-- Choisir --</option>
+                  <option>Poulet de chair</option><option>Pondeuse réformée</option>
+                  <option>Pintade</option><option>Dinde</option><option>Canard</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Région</label>
+                <select id="fr" required>
+                  <option value="">-- Choisir --</option>
+                  <option>Abidjan</option><option>Bouaké</option>
+                  <option>Yamoussoukro</option><option>San-Pédro</option>
+                  <option>Korhogo</option><option>Jacqueville</option><option>Daloa</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Quantité</label><input id="fq" type="number" placeholder="Ex: 500" min="1" required></div>
+              <div class="form-group"><label>Prix / sujet (FCFA)</label><input id="fp" type="number" placeholder="Ex: 2500" min="1" required></div>
+            </div>
+            <div class="form-group"><label>Poids moyen — optionnel</label><input id="fw" type="text" placeholder="Ex: 1.8 kg"></div>
+            <div class="form-group"><label>Description</label><textarea id="fd" placeholder="Élevage en batterie, alimentation équilibrée…"></textarea></div>
+            <button type="submit" class="btn-submit">📢 Publier gratuitement</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB PLAN -->
+    <div id="tab-plan" class="tab-content">
+      <div class="card" style="max-width:500px">
+        <div class="plan-modal-body">
+          <div class="plan-icon">⭐</div>
+          <h2 style="font-family:'Sora',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:.4rem">Plan Mise en Relation</h2>
+          <p style="font-size:.87rem;color:var(--gris-m);margin-bottom:1.05rem;line-height:1.55">Pour les acheteurs sérieux qui veulent contacter directement les éleveurs vérifiés.</p>
+          <div class="feats-grid">
+            <div class="feat-item"><span>✓</span> Contact WhatsApp direct</div>
+            <div class="feat-item"><span>✓</span> Profils vérifiés par notre équipe</div>
+            <div class="feat-item"><span>✓</span> Alertes nouvelles annonces</div>
+            <div class="feat-item"><span>✓</span> Accès photos et vidéos</div>
+            <div class="feat-item"><span>✓</span> Support Le Partenaire</div>
+            <div class="feat-item"><span>✓</span> Sans engagement</div>
+          </div>
+          <div class="price-big">25 000 FCFA <small>/ mois</small></div>
+          <button class="btn-cta" onclick="toast('📞 Notre équipe vous contactera sous 24h !')">S'abonner maintenant</button>
+          <button class="btn-later" onclick="switchTab('marche',document.querySelector('.tab'))">Continuer sans abonnement</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL PUBLIER -->
+<div class="modal-bg" id="m-pub" onclick="if(event.target===this)closeM('m-pub')">
+  <div class="modal">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:8px">
+        <h2>📸 Publier une annonce</h2>
+        <span class="free-tag">Gratuit</span>
+      </div>
+      <button class="btn-close" onclick="closeM('m-pub')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-note">✅ Gratuit et instantané. Votre contact est visible uniquement aux abonnés Plan Mise en Relation.</div>
+      <form onsubmit="publierModal(event)">
+        <div class="form-group">
+          <label>📷 Photo ou 🎬 Vidéo</label>
+          <div class="upload-zone" id="uz2" ondragover="dov(event,'uz2')" ondragleave="dlv('uz2')" ondrop="drp(event,'uz2','pi2','pv2','pw2','pp2')">
+            <input type="file" id="fi2" accept="image/*,video/*" onchange="hf(this,'pi2','pv2','pw2','pp2','uz2',false)">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text"><strong>Cliquez</strong> ou glissez ici</div>
+            <div class="upload-hint">Images · Vidéos · Max 50 Mo</div>
+          </div>
+          <div id="pw2" class="preview-wrap">
+            <img id="pi2" style="display:none">
+            <video id="pv2" controls style="display:none"></video>
+            <button type="button" class="preview-remove" onclick="rmMedia('pi2','pv2','pw2','uz2','fi2',false)">✕</button>
+            <span class="preview-pill" id="pp2"></span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Nom</label><input type="text" placeholder="Ex: Kouassi Ange" required></div>
+          <div class="form-group"><label>Téléphone</label><input type="tel" placeholder="+225 07…" required></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Type</label>
+            <select required>
+              <option value="">--</option>
+              <option>Poulet de chair</option><option>Pondeuse réformée</option>
+              <option>Pintade</option><option>Dinde</option><option>Canard</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Région</label>
+            <select required>
+              <option value="">--</option>
+              <option>Abidjan</option><option>Bouaké</option>
+              <option>Yamoussoukro</option><option>San-Pédro</option><option>Korhogo</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Quantité</label><input type="number" placeholder="300" required></div>
+          <div class="form-group"><label>Prix (FCFA)</label><input type="number" placeholder="2500" required></div>
+        </div>
+        <div class="form-group"><label>Description</label><textarea placeholder="Informations complémentaires…"></textarea></div>
+        <button type="submit" class="btn-submit">📢 Publier gratuitement</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BOOST -->
+<div class="modal-bg" id="m-boost" onclick="if(event.target===this)closeM('m-boost')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>⚡ Booster une annonce</h2>
+      <button class="btn-close" onclick="closeM('m-boost')">✕</button>
+    </div>
+    <div class="modal-body" id="boost-modal-body"></div>
+  </div>
+</div>
+
+<!-- MODAL PLAN -->
+<div class="modal-bg" id="m-plan" onclick="if(event.target===this)closeM('m-plan')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>⭐ Plan Mise en Relation</h2>
+      <button class="btn-close" onclick="closeM('m-plan')">✕</button>
+    </div>
+    <div class="plan-modal-body">
+      <div class="plan-icon">🤝</div>
+      <h2 style="font-family:'Sora',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:.4rem">Contactez les éleveurs directement</h2>
+      <p style="font-size:.87rem;color:var(--gris-m);margin-bottom:1.05rem;line-height:1.55">Accédez aux contacts WhatsApp des éleveurs vérifiés et recevez des alertes en temps réel.</p>
+      <div class="feats-grid">
+        <div class="feat-item"><span>✓</span> Contact direct éleveur</div>
+        <div class="feat-item"><span>✓</span> Profils vérifiés</div>
+        <div class="feat-item"><span>✓</span> Alertes SMS/WhatsApp</div>
+        <div class="feat-item"><span>✓</span> Accès illimité</div>
+        <div class="feat-item"><span>✓</span> Support Le Partenaire</div>
+        <div class="feat-item"><span>✓</span> Sans engagement</div>
+      </div>
+      <div class="price-big">25 000 FCFA <small>/ mois</small></div>
+      <button class="btn-cta" onclick="closeM('m-plan');toast('📞 Notre équipe vous contactera sous 24h !')">S'abonner maintenant</button>
+      <button class="btn-later" onclick="closeM('m-plan')">Continuer gratuitement</button>
+    </div>
+  </div>
+</div>
+<!-- MODAL CONTACTER -->
+<div class="modal-bg" id="m-contact" onclick="if(event.target===this)closeM('m-contact')">
+  <div class="modal">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:8px">
+        <h2>💬 Contacter l'éleveur</h2>
+      </div>
+      <button class="btn-close" onclick="closeM('m-contact')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-note">
+        📱 Laissez votre numéro WhatsApp. L'éleveur recevra une notification immédiate.
+      </div>
+      <div id="contact-annonce-details" style="background:var(--gris-l);border-radius:var(--rsm);padding:.75rem;margin-bottom:.9rem;font-size:.83rem;color:var(--gris)"></div>
+      <div class="form-group">
+        <label>Votre numéro WhatsApp *</label>
+        <input id="contact-tel" type="tel" placeholder="+225 07 00 00 00">
+      </div>
+      <div class="form-group">
+        <label>Votre message (optionnel)</label>
+        <textarea id="contact-msg" placeholder="Ex: Je veux 200 sujets, disponible ce weekend..." style="resize:vertical;min-height:72px;width:100%;padding:.56rem .82rem;border:1.5px solid var(--border);border-radius:var(--rsm);font-family:'DM Sans',sans-serif;font-size:.88rem"></textarea>
+      </div>
+      <button class="btn-submit" onclick="envoyerContact()">
+        📱 Envoyer ma demande
+      </button>
+    </div>
+  </div>
+</div>
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lb" onclick="closeLB()">
+  <button class="lb-close" onclick="closeLB()">✕</button>
+  <div class="lb-inner" onclick="event.stopPropagation()">
+    <img id="lb-img" style="display:none">
+    <video id="lb-vid" controls style="display:none"></video>
+  </div>
+</div>
+
+<div class="toast" id="tk"><span id="tkm"></span></div>
+
+<script>
+const DATA=[];
+const BADGE={'Poulet de chair':'badge-chair','Pondeuse réformée':'badge-pondeuse','Pintade':'badge-pintade','Dinde':'badge-dinde','Canard':'badge-canard'};
+const EMO={'Poulet de chair':'🍗','Pondeuse réformée':'🥚','Pintade':'🦃','Dinde':'🦅','Canard':'🦆'};
+const BGC={'Poulet de chair':'#78350f','Pondeuse réformée':'#4c1d95','Pintade':'#831843','Dinde':'#0c4a6e','Canard':'#064e3b'};
+const BOOSTS=[
+  {id:'b7', icon:'🚀',title:'Boost Standard — 7 jours', desc:'En tête de page avec bordure orange.',price:1500,days:7, label:'🚀 Boost'},
+  {id:'b14',icon:'⭐',title:'Boost Premium — 14 jours',desc:'1ère position + badge En vedette.',    price:3000,days:14,label:'⭐ En vedette'},
+  {id:'b48',icon:'🔔',title:'Boost Express — 48h',     desc:'Notification à tous les acheteurs.',  price:2000,days:2, label:'🔔 Express'},
+];
+let F={type:'tous',region:'tous',boost:'tous',prixMax:10000,search:''};
+let liked=new Set();
+let mainURL=null,mainType=null;
+let selBoost='b7',selPM='orange',boostTargetId=null;
+
+function ini(n){return n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
+
+function mediaHtml(a){
+  const m=a.media;
+  const fresh=a.date&&(a.date.includes('instant')||a.date.includes('1h')||a.date.includes('2h')||a.date.includes('3h'));
+  const bk=`<span class="media-badge ${BADGE[a.type]||'badge-chair'}">${EMO[a.type]||'🐔'} ${a.type}</span>`;
+  const nw=fresh?`<span class="media-fresh">● Nouveau</span>`:'';
+  if(!m) return `<div class="annonce-media" style="background:${BGC[a.type]||'#374151'};cursor:default"><div class="media-placeholder"><div class="phi">${EMO[a.type]||'🐔'}</div><span>Pas de photo</span></div>${bk}${nw}</div>`;
+  if(m.t==='image') return `<div class="annonce-media" onclick="openLB('image','${m.url}')"><img src="${m.url}" alt="${a.type}" loading="lazy">${bk}${nw}</div>`;
+  return `<div class="annonce-media"><video src="${m.url}" preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block"></video><div class="play-overlay" onclick="openLB('video','${m.url}')"><div class="play-btn">▶</div></div>${bk}<span class="vid-badge">🎬 Vidéo</span>${nw}</div>`;
+}
+
+function cardHtml(a){
+  ANNONCE_MAP[a.id] = a;
+  const boostBtn=a.boosted
+    ?`<button class="btn-boost-card" onclick="openBoostModal('${a.id}')">⚡ Boosté</button>`
+    :`<button class="btn-boost-card" onclick="openBoostModal('${a.id}')">⚡ Booster</button>`;
+  return `<div class="annonce${a.boosted?' boosted':''}">
+    ${a.boosted?`<div class="boost-ribbon">${a.boostLabel||'⚡ Boost'} · J${a.boostDays||0}</div>`:''}
+    ${mediaHtml(a)}
+    <div class="annonce-header">
+      <div class="eleveur-tag">
+        <div class="eleveur-avatar">${ini(a.nom)}</div>
+        <span>${a.nom}</span>
+        ${a.verified?'<span class="verified-badge">✓ Vérifié</span>':''}
+      </div>
+      <span style="font-size:.7rem;color:var(--gris-m)">${a.date}</span>
+    </div>
+    <div class="annonce-body">
+      <div class="annonce-infos">
+        <div class="annonce-info"><span class="ii">📍</span>${a.region}</div>
+        <div class="annonce-info"><span class="ii">⚖️</span>Poids moyen : ${a.poids||'N/D'}</div>
+      </div>
+      <div class="annonce-price-row">
+        <div class="annonce-price">${Number(a.prix).toLocaleString('fr-FR')} FCFA <small>/ sujet</small></div>
+        <span class="annonce-qty">${a.qte} sujets</span>
+      </div>
+    </div>
+    <div class="annonce-footer">
+      ${a.locked
+        ?`<button class="btn-contact locked" onclick="openM('m-plan')">🔒 Contact</button>`
+        :`<button class="btn-contact" onclick="ouvrirContact('${a.id}')">💬 Contacter</button>`}
+      ${boostBtn}
+      <button class="btn-fav ${liked.has(a.id)?'liked':''}" onclick="toggleLike('${a.id}')">${liked.has(a.id)?'❤️':'🤍'}</button>
+    </div>
+  </div>`;
+}
+
+function renderGrid(d){
+  const boosted=d.filter(a=>a.boosted);
+  const normal=d.filter(a=>!a.boosted);
+  const nb=boosted.length;
+  document.getElementById('rc').textContent=d.length;
+  document.getElementById('rb').textContent=nb;
+  document.getElementById('s-ann').textContent=DATA.length;
+  document.getElementById('s-boost').textContent=DATA.filter(a=>a.boosted).length;
+  document.getElementById('tc').textContent=DATA.length;
+  document.getElementById('sec-boost-label').style.display=nb?'flex':'none';
+  document.getElementById('grid-boosted').innerHTML=boosted.map(cardHtml).join('');
+  document.getElementById('grid-normal').innerHTML=normal.length
+    ?normal.map(cardHtml).join('')
+    :`<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--gris-m)"><div style="font-size:2rem;margin-bottom:.6rem">🔍</div><p>Aucune annonce trouvée.</p></div>`;
+}
+
+function filtered(){
+  let d=[...DATA];
+  if(F.type!=='tous') d=d.filter(a=>a.type===F.type);
+  if(F.region!=='tous') d=d.filter(a=>a.region===F.region);
+  if(F.boost==='boosted') d=d.filter(a=>a.boosted);
+  d=d.filter(a=>Number(a.prix)<=F.prixMax);
+  if(F.search){const q=F.search.toLowerCase();d=d.filter(a=>a.nom.toLowerCase().includes(q)||a.region.toLowerCase().includes(q)||a.type.toLowerCase().includes(q))}
+  return d;
+}
+function applyF(data){if(data){DATA.length=0;data.forEach(d=>DATA.push(d));}renderGrid(filtered())}
+function setF(el,k,v){el.closest('.filter-options').querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');F[k]=v;applyF()}
+function setFv(k,v){F[k]=v;applyF()}
+function setPrix(v){F.prixMax=parseInt(v);document.getElementById('pv').textContent=v==10000?'Tous les prix':parseInt(v).toLocaleString('fr-FR')+' FCFA max';applyF()}
+function doSearch(v){F.search=v;applyF()}
+function doSort(v){const d=filtered();if(v==='pa')d.sort((a,b)=>a.prix-b.prix);if(v==='pd')d.sort((a,b)=>b.prix-a.prix);if(v==='qte')d.sort((a,b)=>b.qte-a.qte);renderGrid(d)}
+function toggleLike(id){if(liked.has(id))liked.delete(id);else{liked.add(id);toast('❤️ Ajouté aux favoris')}applyF()}
+
+// ── BOOST MODAL ──────────────────────────────────────────────────
+function openBoostModal(id){
+  boostTargetId=id;selBoost='b7';selPM='orange';
+  renderBoostForm();
+  openM('m-boost');
+}
+function renderBoostForm(){
+  document.getElementById('boost-modal-body').innerHTML=`
+    <div class="boost-intro"><strong>Passez en tête de liste</strong> et soyez vu en priorité par tous les acheteurs. Paiement simple par mobile money.</div>
+    <div class="boost-options">
+      ${BOOSTS.map(b=>`
+        <label class="boost-option${b.id===selBoost?' selected':''}" onclick="selBoostOpt('${b.id}')">
+          <input type="radio" name="boost" value="${b.id}" ${b.id===selBoost?'checked':''}>
+          <div class="bo-icon">${b.icon}</div>
+          <div class="bo-info">
+            <div class="bo-title">${b.title}</div>
+            <div class="bo-desc">${b.desc}</div>
+            <div class="boost-badge-preview">${b.label} · ${b.days}j</div>
+          </div>
+          <div class="bo-price"><div class="bo-amount">${b.price.toLocaleString('fr-FR')} F</div><div class="bo-period">${b.days} jours</div></div>
+        </label>`).join('')}
+    </div>
+    <div class="payment-section">
+      <h4>💳 Mode de paiement</h4>
+      <div class="payment-methods">
+        <div class="pm ${selPM==='orange'?'active':''}" onclick="selPMOpt('orange',this)"><span class="pm-icon">🟠</span>Orange Money</div>
+        <div class="pm ${selPM==='wave'?'active':''}" onclick="selPMOpt('wave',this)"><span class="pm-icon">🟡</span>Wave</div>
+        <div class="pm ${selPM==='mtn'?'active':''}" onclick="selPMOpt('mtn',this)"><span class="pm-icon">💛</span>MTN MoMo</div>
+      </div>
+    </div>
+    <button class="btn-pay" onclick="processPay()">
+      Payer <span id="pay-amt">${BOOSTS[0].price.toLocaleString('fr-FR')} FCFA</span> et booster →
+    </button>`;
+}
+function selBoostOpt(id){
+  selBoost=id;
+  const b=BOOSTS.find(x=>x.id===id);
+  document.querySelectorAll('.boost-option').forEach(el=>el.classList.remove('selected'));
+  document.querySelectorAll('.boost-option').forEach(el=>{if(el.querySelector(`input[value="${id}"]`))el.classList.add('selected')});
+  document.getElementById('pay-amt').textContent=b.price.toLocaleString('fr-FR')+' FCFA';
+}
+function selPMOpt(pm,el){selPM=pm;document.querySelectorAll('.pm').forEach(e=>e.classList.remove('active'));el.classList.add('active')}
+function processPay(){
+  const btn=document.querySelector('.btn-pay');
+  btn.disabled=true;btn.textContent='Traitement en cours…';
+  setTimeout(()=>{
+    const b=BOOSTS.find(x=>x.id===selBoost);
+    document.getElementById('boost-modal-body').innerHTML=`
+      <div class="success-screen">
+        <div class="success-icon">🎉</div>
+        <h3>Annonce boostée !</h3>
+        <p>Votre annonce est maintenant en tête de liste, visible en priorité par tous les acheteurs.</p>
+        <div class="success-details">
+          <strong>Récapitulatif :</strong><br>
+          Formule : ${b.icon} ${b.title}<br>
+          Durée : ${b.days} jours<br>
+          Montant : <strong>${b.price.toLocaleString('fr-FR')} FCFA</strong><br>
+          Paiement : ${selPM==='orange'?'🟠 Orange Money':selPM==='wave'?'🟡 Wave':'💛 MTN MoMo'}<br>
+          Statut : <span style="color:var(--vert);font-weight:700">✓ En attente de validation</span>
+        </div>
+        <button class="btn-ok" onclick="closeM('m-boost');toast('⚡ Boost en cours de validation par notre équipe !')">OK, j'ai compris</button>
+      </div>`;
+  },1800);
+}
+
+// ── UPLOAD ───────────────────────────────────────────────────────
+function hf(inp,piId,pvId,pwId,ppId,uzId,isMain){
+  const f=inp.files[0];if(!f)return;
+  const url=URL.createObjectURL(f);
+  const isV=f.type.startsWith('video');
+  if(isMain){mainURL=url;mainType=isV?'video':'image'}
+  const pw=document.getElementById(pwId),pi=document.getElementById(piId),pv=document.getElementById(pvId),pp=document.getElementById(ppId);
+  pw.style.display='block';document.getElementById(uzId).style.display='none';
+  if(isV){pi.style.display='none';pv.style.display='block';pv.src=url;pp.textContent='🎬 Vidéo'}
+  else{pv.style.display='none';pi.style.display='block';pi.src=url;pp.textContent='📷 Photo'}
+}
+function rmMedia(piId,pvId,pwId,uzId,fiId,isMain){
+  if(isMain){mainURL=null;mainType=null}
+  document.getElementById(pwId).style.display='none';document.getElementById(uzId).style.display='block';
+  document.getElementById(piId).src='';document.getElementById(pvId).src='';document.getElementById(fiId).value='';
+}
+function dov(e,id){e.preventDefault();document.getElementById(id).classList.add('drag')}
+function dlv(id){document.getElementById(id).classList.remove('drag')}
+function drp(e,uzId,piId,pvId,pwId,ppId){e.preventDefault();dlv(uzId);const f=e.dataTransfer.files[0];if(!f)return;hf({files:[f]},piId,pvId,pwId,ppId,uzId,uzId==='uz')}
+
+// ── PUBLIER DEPUIS LA PAGE WEB ────────────────────────────────────
+async function publier(e){
+  e.preventDefault();
+  const body={
+    nom:document.getElementById('fn').value,
+    telephone:document.getElementById('ft').value,
+    type:document.getElementById('fty').value,
+    region:document.getElementById('fr').value,
+    quantite:parseInt(document.getElementById('fq').value),
+    prix:parseInt(document.getElementById('fp').value),
+    poids:document.getElementById('fw').value||'N/D',
+    description:document.getElementById('fd').value||'',
+    mediaUrl:mainURL,
+    mediaType:mainType,
+  };
+  try{
+    const res=await fetch('/marche/api/annonces',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const json=await res.json();
+    if(json.success){
+      await loadAnnonces();
+      switchTab('marche',document.querySelector('.tab'));
+      e.target.reset();
+      rmMedia('pi','pv','pw','uz','fi',true);
+      toast('🎉 Annonce publiée ! Pensez à la booster pour vendre plus vite.');
+    }
+  }catch(err){toast('❌ Erreur. Réessayez.')}
+}
+function publierModal(e){e.preventDefault();closeM('m-pub');toast('🎉 Annonce publiée !')}
+
+// ── LIGHTBOX ──────────────────────────────────────────────────────
+function openLB(type,url){
+  const lb=document.getElementById('lb'),img=document.getElementById('lb-img'),vid=document.getElementById('lb-vid');
+  lb.classList.add('open');document.body.style.overflow='hidden';
+  if(type==='image'){img.src=url;img.style.display='block';vid.style.display='none'}
+  else{vid.src=url;vid.style.display='block';img.style.display='none';setTimeout(()=>vid.play(),100)}
+}
+function closeLB(){
+  document.getElementById('lb').classList.remove('open');document.body.style.overflow='';
+  const v=document.getElementById('lb-vid');v.pause();v.src='';
+  document.getElementById('lb-img').src='';
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────
+function openM(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden'}
+function closeM(id){document.getElementById(id).classList.remove('open');document.body.style.overflow=''}
+function switchTab(n,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.getElementById('tab-'+n).classList.add('active');
+}
+function toast(msg){
+  const t=document.getElementById('tk');
+  document.getElementById('tkm').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+// ── MODAL CONTACT ─────────────────────────────────────────────────
+let contactCurrent = null;
+const ANNONCE_MAP = {};
+
+function ouvrirContact(id) {
+  const a = ANNONCE_MAP[id];
+  contactCurrent = a;
+  document.getElementById('contact-annonce-details').innerHTML =
+    `🐔 <strong>${a.type}</strong> — ${a.region}<br>` +
+    `📦 ${a.qte} sujets · 💰 ${Number(a.prix).toLocaleString('fr-FR')} FCFA/sujet`;
+  document.getElementById('contact-tel').value = '';
+  document.getElementById('contact-msg').value = '';
+  openM('m-contact');
+}
+
+async function envoyerContact() {
+  const tel = document.getElementById('contact-tel').value.trim();
+  const msg = document.getElementById('contact-msg').value.trim();
+
+  if (!tel) {
+    toast('❌ Entrez votre numéro WhatsApp');
+    return;
+  }
+  if (tel.length < 8) {
+    toast('❌ Numéro invalide');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/notifier-contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        telephone:   contactCurrent.telephone,
+        acheteurTel: tel,
+        acheteurMsg: msg,
+        type:        'annonce',
+        details: {
+          type:     contactCurrent.type,
+          region:   contactCurrent.region,
+          quantite: contactCurrent.qte,
+          prix:     contactCurrent.prix,
+        }
+      })
+    });
+    const json = await res.json();
+    if (json.success) {
+      closeM('m-contact');
+      toast('✅ Demande envoyée ! L\'éleveur sera notifié sur WhatsApp.');
+    } else {
+      toast('❌ Erreur. Réessayez.');
+    }
+  } catch (err) {
+    toast('❌ Erreur réseau.');
+  }
+}
+// ── CHARGEMENT DYNAMIQUE DEPUIS MONGODB ───────────────────────────
+async function loadAnnonces(){
+  try{
+    const res=await fetch('/marche/api/annonces');
+    const json=await res.json();
+    if(!json.success)return;
+    const data=json.data.map(a=>({
+      id:        a._id,
+      nom:       a.nom,
+      telephone:  a.telephone,
+      region:    a.region,
+      type:      a.type,
+      qte:       a.quantite,
+      prix:      a.prix,
+      poids:     a.poids||'N/D',
+      date:      timeAgo(a.createdAt),
+      verified:  a.verified,
+      locked:    a.locked,
+      boosted:   a.boosted,
+      boostLabel:a.boostLabel,
+      boostDays: a.boostDays,
+      media:     a.mediaUrl?{t:a.mediaType||'image',url:a.mediaUrl}:null,
+    }));
+    applyF(data);
+  }catch(e){console.error('Erreur chargement:',e)}
+}
+
+function timeAgo(d){
+  const h=Math.floor((Date.now()-new Date(d))/3600000);
+  if(h<1) return "À l'instant";
+  if(h<24)return `Il y a ${h}h`;
+  const j=Math.floor(h/24);
+  if(j<7) return `Il y a ${j}j`;
+  return `Il y a ${Math.floor(j/7)} sem`;
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+loadAnnonces();
+setInterval(loadAnnonces,60000);
+</script>
+
+</body>
+</html>
