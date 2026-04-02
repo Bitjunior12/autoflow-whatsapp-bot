@@ -588,24 +588,28 @@ if (msg === "retour" || msg === "back" || msg === "precedent") {
   // ============================
 
   const isInCriticalFlow = [
-    "quantite", "nom", "devis_nom",
-    "devis_ville", "devis_superficie", "devis_sujets",
-    "formation_nom", "formation_ville", "formation_inscription",
-    "debutant_objectif", "debutant_superficie", "debutant_budget",
-    "debutant_nom", "debutant_ville","photo_symptome","races_objectif", "races_budget", "races_experience",
-    "suivi_type", "suivi_sujets", "suivi_probleme",
-    "choix_race", "commande_quantite", "commande_nom", "commande_ville",
-    "estimation_race", "premium_nom", "premium_ville",
-    "materiel_choix", "materiel_sujets", "materiel_action", "materiel_nom", "materiel_ville",
-    "estimation_type", "estimation_sujets", "estimation_budget",
-    "formation_niveau", "formation_objectif", "formation_motivation",
-    "premium_taille", "premium_besoin", "premium_pitch","question_libre",
-    "conseiller_motif", "conseiller_nom", "conseiller_message",
-    "upgrade_plan", "upgrade_confirmation","prophet_type", "prophet_sujets", "prophet_race", "prophet_date", "prophet_nom",
-    "suivi_bande_choix", "suivi_bande_mortalite", "suivi_bande_aliment", "suivi_bande_poids",
-    ...marcheHandler.MARCHE_STEPS,
-    ...emploiHandler.EMPLOI_STEPS,
-  ].includes(session?.step);
+  "quantite", "nom", "devis_nom",
+  "devis_ville", "devis_superficie", "devis_sujets",
+  "formation_nom", "formation_ville", "formation_inscription",
+  "debutant_objectif", "debutant_superficie", "debutant_budget",
+  "debutant_nom", "debutant_ville", "photo_symptome", "races_objectif", "races_budget", "races_experience",
+  "suivi_type", "suivi_sujets", "suivi_probleme",
+  "choix_race", "commande_quantite", "commande_nom", "commande_ville",
+  "estimation_race", "premium_nom", "premium_ville",
+
+  // 🔥 CORRECTION ICI (virgules OK)
+  "materiel_choix", "materiel_sujets", "materiel_action", "materiel_nom", "materiel_ville",
+
+  "estimation_type", "estimation_sujets", "estimation_budget",
+  "formation_niveau", "formation_objectif", "formation_motivation",
+  "premium_taille", "premium_besoin", "premium_pitch", "question_libre",
+  "conseiller_motif", "conseiller_nom", "conseiller_message",
+  "upgrade_plan", "upgrade_confirmation", "prophet_type", "prophet_sujets", "prophet_race", "prophet_date", "prophet_nom",
+  "suivi_bande_choix", "suivi_bande_mortalite", "suivi_bande_aliment", "suivi_bande_poids",
+
+  ...marcheHandler.MARCHE_STEPS,
+  ...emploiHandler.EMPLOI_STEPS
+].includes(session?.step);
 
   if (isSmartQuestion(text) && !isInCriticalFlow && !session?.step
     && !marcheHandler.sessions.has(from)
