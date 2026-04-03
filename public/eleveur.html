@@ -323,30 +323,48 @@ function selectBande(i) {
   renderCharts();
 }
 
-// ── DASHBOARD ─────────────────────────────────────────────────────
 function renderDashboard() {
   if (!selectedBande) return;
   const jourBande = Math.floor((new Date() - new Date(selectedBande.dateMiseEnPlace)) / 86400000);
-  const suiviBande = suiviData.filter(s => s.bandeNom === selectedBande.nom);
-  const totalMort = suiviBande.reduce((s,e) => s+(Number(e.mortalite)||0), 0);
-  const dernierSuivi = suiviBande[0];
+
+  // Calculer depuis les semaines sauvegardées
+  let totalMort = 0;
+  let dernierPoids = 0;
+  semaines.forEach(sem => {
+    sem.lignes.forEach(l => { totalMort += Number(l.mort)||0; });
+    if (sem.lignes.length > 0) {
+      const p = Number(sem.lignes[sem.lignes.length-1].poids)||0;
+      if (p > 0) dernierPoids = p;
+    }
+  });
+
+  // Fallback sur suiviData si pas de semaines
+  if (semaines.length === 0) {
+    const sb = suiviData.filter(s => s.bandeNom === selectedBande.nom);
+    totalMort = sb.reduce((s,e) => s+(Number(e.mortalite)||0), 0);
+    const ds = sb[0];
+    if (ds?.poidsMoyen) dernierPoids = ds.poidsMoyen;
+  }
+
   document.getElementById("statSujets").textContent = selectedBande.nombreSujets - totalMort;
   document.getElementById("statMortalite").textContent = totalMort;
   document.getElementById("statJour").textContent = `J${jourBande}`;
-  document.getElementById("statPoids").textContent = dernierSuivi?.poidsMoyen ? `${dernierSuivi.poidsMoyen}g` : "—";
+  document.getElementById("statPoids").textContent = dernierPoids ? `${dernierPoids}g` : "—";
   document.getElementById("scoreJour").textContent = `J${jourBande}`;
+
   const taux = (totalMort / selectedBande.nombreSujets) * 100;
   let score = 100;
   if (taux > 5) score -= 30; else if (taux > 2) score -= 15; else if (taux > 1) score -= 5;
-  if (suiviBande.length === 0) score -= 20;
+  if (semaines.length === 0 && suiviData.filter(s=>s.bandeNom===selectedBande.nom).length===0) score -= 20;
+
   const sc = document.getElementById("scoreCircle");
   document.getElementById("scoreVal").textContent = score;
   if (score >= 80) { sc.style.background="#d1e7dd"; sc.style.color="#0f5132"; document.getElementById("scoreComment").textContent="Excellent élevage — continuez ainsi"; }
   else if (score >= 60) { sc.style.background="#fff3cd"; sc.style.color="#856404"; document.getElementById("scoreComment").textContent="Bon élevage — quelques améliorations possibles"; }
   else { sc.style.background="#f8d7da"; sc.style.color="#842029"; document.getElementById("scoreComment").textContent="Attention — consultez un expert rapidement"; }
+
   renderProchainVaccin(jourBande);
 }
-
 function renderProchainVaccin(jourBande) {
   if (!selectedBande) return;
   const cal = selectedBande.typeBande === "ponte" ? CALENDRIER_PONTE : CALENDRIER_CHAIR;
@@ -418,64 +436,61 @@ function renderVaccins() {
 // ── CHARTS ────────────────────────────────────────────────────────
 function renderCharts() {
   if (!selectedBande) return;
-  const sb = suiviData.filter(s => s.bandeNom === selectedBande.nom).slice(0,7).reverse();
-  if (sb.length === 0) {
-    document.getElementById("chartMortalite").parentElement.innerHTML = `<p style="text-align:center;color:#aaa;font-size:12px;padding:20px">Aucune donnée de suivi</p>`;
-    document.getElementById("chartPoids").parentElement.innerHTML = `<p style="text-align:center;color:#aaa;font-size:12px;padding:20px">Aucune donnée de suivi</p>`;
-    document.getElementById("chartAliment").parentElement.innerHTML = `<p style="text-align:center;color:#aaa;font-size:12px;padding:20px">Aucune donnée de suivi</p>`;
+
+  // Construire les données depuis les semaines
+  let lignesAll = [];
+  semaines.forEach(sem => {
+    sem.lignes.forEach(l => {
+      if (l.date || Number(l.mort)||Number(l.aliment)||Number(l.poids)) {
+        lignesAll.push(l);
+      }
+    });
+  });
+
+  // Fallback sur suiviData
+  if (lignesAll.length === 0) {
+    const sb = suiviData.filter(s => s.bandeNom === selectedBande.nom).slice(0,7).reverse();
+    lignesAll = sb.map(s => ({
+      date: new Date(s.createdAt).toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"}),
+      mort: s.mortalite||0, aliment: s.aliment||0, poids: s.poidsMoyen||0
+    }));
+  }
+
+  const recent = lignesAll.slice(-7);
+  if (recent.length === 0) {
+    ['chartMortalite','chartPoids','chartAliment'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.parentElement.innerHTML = `<p style="text-align:center;color:#aaa;font-size:12px;padding:20px">Saisissez des données dans le suivi de bande</p>`;
+    });
     return;
   }
-  const labels = sb.map(s => new Date(s.createdAt).toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"}));
 
-  // Mortalité — barres rouges, plus foncé si élevé
-  const mortData = sb.map(s=>s.mortalite||0);
+  const labels = recent.map(l => l.date || `J${l.age||''}`);
+  const mortData = recent.map(l => Number(l.mort)||0);
+  const poidsData = recent.map(l => Number(l.poids)||0);
+  const alimentData = recent.map(l => Number(l.aliment)||0);
+
   const mortColors = mortData.map(v => v===0?'#d1e7dd':v<=2?'#fff3cd':v<=5?'#f0a500':'#dc3545');
+  const poidsColors = poidsData.map((_,i) => `rgba(26,74,46,${0.4+(i/Math.max(poidsData.length-1,1))*0.6})`);
+  const alimentColors = alimentData.map((_,i) => `rgba(13,110,253,${0.4+(i/Math.max(alimentData.length-1,1))*0.6})`);
 
-  // Poids — barres vertes graduelles
-  const poidsData = sb.map(s=>s.poidsMoyen||0);
-  const poidsColors = poidsData.map((_,i) => {
-    const ratio = i/Math.max(poidsData.length-1,1);
-    return `rgba(26,74,46,${0.4+ratio*0.6})`;
-  });
-
-  // Aliment — barres bleues
-  const alimentData = sb.map(s=>s.aliment||0);
-  const alimentColors = alimentData.map((_,i) => {
-    const ratio = i/Math.max(alimentData.length-1,1);
-    return `rgba(13,110,253,${0.4+ratio*0.6})`;
-  });
-
-  const opts = (title, unit) => ({
+  const opts = (unit) => ({
     responsive:true,
-    plugins:{
-      legend:{display:false},
-      tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y} ${unit}`}}
-    },
-    scales:{
-      y:{beginAtZero:true, grid:{color:'#f5f5f5'}, ticks:{font:{size:10}}},
-      x:{grid:{display:false}, ticks:{font:{size:10}}}
-    }
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y} ${unit}`}}},
+    scales:{y:{beginAtZero:true,grid:{color:'#f5f5f5'},ticks:{font:{size:10}}},x:{grid:{display:false},ticks:{font:{size:10}}}}
   });
 
   if (charts.m) charts.m.destroy();
   if (charts.p) charts.p.destroy();
   if (charts.a) charts.a.destroy();
 
-  charts.m = new Chart(document.getElementById("chartMortalite"),{
-    type:"bar",
-    data:{labels, datasets:[{label:"Mortalité",data:mortData,backgroundColor:mortColors,borderRadius:4}]},
-    options:opts("Mortalité","sujets")
-  });
-  charts.p = new Chart(document.getElementById("chartPoids"),{
-    type:"bar",
-    data:{labels, datasets:[{label:"Poids",data:poidsData,backgroundColor:poidsColors,borderRadius:4}]},
-    options:opts("Poids","g")
-  });
-  charts.a = new Chart(document.getElementById("chartAliment"),{
-    type:"bar",
-    data:{labels, datasets:[{label:"Aliment",data:alimentData,backgroundColor:alimentColors,borderRadius:4}]},
-    options:opts("Aliment","kg")
-  });
+  const cm = document.getElementById("chartMortalite");
+  const cp = document.getElementById("chartPoids");
+  const ca = document.getElementById("chartAliment");
+
+  if (cm) charts.m = new Chart(cm,{type:"bar",data:{labels,datasets:[{data:mortData,backgroundColor:mortColors,borderRadius:4}]},options:opts("sujets")});
+  if (cp) charts.p = new Chart(cp,{type:"bar",data:{labels,datasets:[{data:poidsData,backgroundColor:poidsColors,borderRadius:4}]},options:opts("g")});
+  if (ca) charts.a = new Chart(ca,{type:"bar",data:{labels,datasets:[{data:alimentData,backgroundColor:alimentColors,borderRadius:4}]},options:opts("kg")});
 }
 
 // ── FICHE IDENTIFICATION ──────────────────────────────────────────
@@ -506,6 +521,8 @@ async function chargerSemaines() {
       semaines = data.semaines;
       semNum = semaines.length;
       renderSemaines();
+      renderDashboard();
+      renderCharts();
     }
   } catch(e) { console.error('Erreur chargement semaines:', e); }
 }
@@ -586,6 +603,24 @@ function renderSemaines() {
             }).join('')}
           </tbody>
           <tr class="bilan-tr">
+            <td colspan="2" style="text-align:left">Bilan S${sem.num}</td>
+            <td style="color:#dc3545">${mortSem}</td>
+            <td style="color:#dc3545">${mortCumulGlobal}</td>
+            <td>${effFin}</td>
+            <td>${alimentSem}</td>
+            <td>—</td>
+            <td>${poidsFin||'—'}</td>
+            <td style="text-align:left">—</td>
+          </tr>
+          <tr style="background:#f0f7f0">
+            <td colspan="9" style="padding:6px 10px;font-size:11px;color:#1a4a2e">
+              <span style="margin-right:16px">GMQ : <strong>${gmq} g/j</strong></span>
+              <span style="margin-right:16px">IC : <strong>${ic}</strong></span>
+              <span style="margin-right:16px">PM : <strong>${poidsFin||'—'} g</strong></span>
+              <span style="margin-right:16px">TM : <strong style="color:${parseFloat(tm)>2?'#dc3545':'#1a4a2e'}">${tm}%</strong></span>
+              <span>TV : <strong style="color:#1a4a2e">${tv}%</strong></span>
+            </td>
+          </tr>
             <td colspan="2">Bilan S${sem.num}</td>
             <td style="color:#dc3545">${mortSem}</td>
             <td style="color:#dc3545">${mortCumulGlobal}</td>
