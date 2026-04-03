@@ -2281,6 +2281,20 @@ app.get("/", (req, res) => res.send("Bot WhatsApp opérationnel 🚀"));
 app.get("/dashboard", (req, res) => {
   res.sendFile(path.join(__dirname, "public/dashboard.html"));
 });
+// ── Upload image vers Cloudinary depuis le web ─────────────────
+app.post("/api/upload-image", async (req, res) => {
+  try {
+    const { base64, mimeType, folder } = req.body;
+    if (!base64 || !mimeType) {
+      return res.status(400).json({ success: false, error: 'Données manquantes' });
+    }
+    const url = await uploadImageFromBase64(base64, mimeType, folder || 'lpe-web');
+    if (!url) return res.status(500).json({ success: false, error: 'Erreur upload' });
+    res.json({ success: true, url });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 app.get("/admin-marche", (req, res) => {
   res.sendFile(path.join(__dirname, "public/admin-marche.html"));
 });

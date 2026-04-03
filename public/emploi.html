@@ -348,6 +348,20 @@ select{width:100%;padding:.48rem .8rem;border:1.5px solid var(--border);border-r
               <div class="form-group"><label>Prétention salariale (FCFA)</label><input id="pf-salaire" type="text" placeholder="Ex: 150000"></div>
             </div>
             <div class="form-group"><label>Description / expériences</label><textarea id="pf-desc" placeholder="Décrivez votre parcours…"></textarea></div>
+             <div class="form-group">
+  <label>Photo de profil * <span style="color:var(--rouge);font-size:.75rem">Obligatoire</span></label>
+  <div id="pf-photo-zone" style="border:2px dashed var(--border);border-radius:var(--rsm);padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s" onclick="document.getElementById('pf-photo-input').click()">
+    <div id="pf-photo-preview" style="display:none;margin-bottom:.75rem">
+      <img id="pf-photo-img" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--bleu)">
+    </div>
+    <div id="pf-photo-placeholder">
+      <div style="font-size:2rem;margin-bottom:.4rem">📸</div>
+      <div style="font-size:.83rem;color:var(--gris-m)">Cliquez pour ajouter votre photo</div>
+      <div style="font-size:.75rem;color:var(--gris-m);margin-top:.25rem">JPG, PNG — Max 5MB</div>
+    </div>
+    <input type="file" id="pf-photo-input" accept="image/*" style="display:none" onchange="previewPhoto(this,'pf')">
+  </div>
+</div>
             <button type="submit" class="btn-submit-vert">✅ Publier mon profil gratuitement</button>
           </form>
         </div>
@@ -399,6 +413,19 @@ select{width:100%;padding:.48rem .8rem;border:1.5px solid var(--border);border-r
             </div>
             <div class="form-group"><label>Effectif à gérer</label><input id="of-effectif" type="text" placeholder="Ex: 5 000 poulets de chair"></div>
             <div class="form-group"><label>Description du poste</label><textarea id="of-desc" placeholder="Missions, profil recherché…" required></textarea></div>
+            <div class="form-group"><label>Photo de la ferme * <span style="color:var(--rouge);font-size:.75rem">Obligatoire</span></label>
+  <div id="of-photo-zone" style="border:2px dashed var(--border);border-radius:var(--rsm);padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s" onclick="document.getElementById('of-photo-input').click()">
+    <div id="of-photo-preview" style="display:none;margin-bottom:.75rem">
+      <img id="of-photo-img" style="width:120px;height:80px;border-radius:var(--rsm);object-fit:cover;border:3px solid var(--bleu)">
+    </div>
+    <div id="of-photo-placeholder">
+      <div style="font-size:2rem;margin-bottom:.4rem">🏗️</div>
+      <div style="font-size:.83rem;color:var(--gris-m)">Cliquez pour ajouter une photo de votre ferme</div>
+      <div style="font-size:.75rem;color:var(--gris-m);margin-top:.25rem">JPG, PNG — Max 5MB</div>
+    </div>
+    <input type="file" id="of-photo-input" accept="image/*" style="display:none" onchange="previewPhoto(this,'of')">
+  </div>
+</div>
             <button type="submit" class="btn-submit">📋 Publier l'offre gratuitement</button>
           </form>
         </div>
@@ -645,53 +672,121 @@ function searchOffres(v){
   document.getElementById('grid-offres').innerHTML=d.length?d.map(offreCard).join(''):`<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--gris-m)">🔍 Aucune offre trouvée.</div>`;
 }
 
-async function publierProfil(e){
+async function publierProfil(e) {
   e.preventDefault();
-  const body={
-    nom:          document.getElementById('pf-nom').value,
-    telephone:    document.getElementById('pf-tel').value,
-    specialite:   document.getElementById('pf-spec').value,
-    region:       document.getElementById('pf-region').value,
-    experience:   document.getElementById('pf-exp').value,
-    disponibilite:document.getElementById('pf-dispo').value,
-    contrat:      document.getElementById('pf-contrat').value,
-    salaire:      document.getElementById('pf-salaire').value||'À négocier',
-    description:  document.getElementById('pf-desc').value||'',
-  };
-  try{
-    const res=await fetch('/emploi/api/profils',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    const json=await res.json();
-    if(json.success){
+
+  // Vérifier photo obligatoire
+  if (!pfPhotoBase64) {
+    toast('❌ La photo de profil est obligatoire !');
+    document.getElementById('pf-photo-zone').style.borderColor = 'var(--rouge)';
+    return;
+  }
+
+  // Bouton loading
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.textContent = '⏳ Upload en cours...';
+  btn.disabled = true;
+
+  try {
+    // Upload photo sur Cloudinary
+    const photoUrl = await uploadPhoto(pfPhotoBase64, pfPhotoMime, 'lpe-profils');
+
+    const body = {
+      nom:          document.getElementById('pf-nom').value,
+      telephone:    document.getElementById('pf-tel').value,
+      specialite:   document.getElementById('pf-spec').value,
+      region:       document.getElementById('pf-region').value,
+      experience:   document.getElementById('pf-exp').value,
+      disponibilite:document.getElementById('pf-dispo').value,
+      contrat:      document.getElementById('pf-contrat').value,
+      salaire:      document.getElementById('pf-salaire').value || 'À négocier',
+      description:  document.getElementById('pf-desc').value || '',
+      photoUrl:     photoUrl,
+    };
+
+    const res = await fetch('/emploi/api/profils', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const json = await res.json();
+
+    if (json.success) {
       await loadData();
-      switchTab('techniciens',document.querySelector('.tab'));
+      switchTab('techniciens', document.querySelector('.tab'));
       e.target.reset();
+      pfPhotoBase64 = null; pfPhotoMime = null;
+      document.getElementById('pf-photo-preview').style.display = 'none';
+      document.getElementById('pf-photo-placeholder').style.display = 'block';
+      document.getElementById('pf-photo-zone').style.borderColor = 'var(--border)';
       toast('🎉 Profil publié avec succès !');
+    } else {
+      toast('❌ Erreur. Réessayez.');
     }
-  }catch(err){toast('❌ Erreur. Réessayez.')}
+  } catch (err) {
+    toast('❌ Erreur upload photo.');
+  } finally {
+    btn.textContent = '✅ Publier mon profil gratuitement';
+    btn.disabled = false;
+  }
 }
 
-async function publierOffre(e){
+async function publierOffre(e) {
   e.preventDefault();
-  const body={
-    ferme:       document.getElementById('of-ferme').value,
-    telephone:   document.getElementById('of-tel').value,
-    poste:       document.getElementById('of-poste').value,
-    region:      document.getElementById('of-region').value,
-    contrat:     document.getElementById('of-contrat').value,
-    salaire:     document.getElementById('of-salaire').value||'À négocier',
-    effectif:    document.getElementById('of-effectif').value||'',
-    description: document.getElementById('of-desc').value||'',
-  };
-  try{
-    const res=await fetch('/emploi/api/offres',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    const json=await res.json();
-    if(json.success){
+
+  // Vérifier photo obligatoire
+  if (!ofPhotoBase64) {
+    toast('❌ La photo de la ferme est obligatoire !');
+    document.getElementById('of-photo-zone').style.borderColor = 'var(--rouge)';
+    return;
+  }
+
+  // Bouton loading
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.textContent = '⏳ Upload en cours...';
+  btn.disabled = true;
+
+  try {
+    // Upload photo sur Cloudinary
+    const photoUrl = await uploadPhoto(ofPhotoBase64, ofPhotoMime, 'lpe-fermes');
+
+    const body = {
+      ferme:       document.getElementById('of-ferme').value,
+      telephone:   document.getElementById('of-tel').value,
+      poste:       document.getElementById('of-poste').value,
+      region:      document.getElementById('of-region').value,
+      contrat:     document.getElementById('of-contrat').value,
+      salaire:     document.getElementById('of-salaire').value || 'À négocier',
+      effectif:    document.getElementById('of-effectif').value || '',
+      description: document.getElementById('of-desc').value || '',
+      photoUrl:    photoUrl,
+    };
+
+    const res = await fetch('/emploi/api/offres', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const json = await res.json();
+
+    if (json.success) {
       await loadData();
-      switchTab('offres',document.querySelectorAll('.tab')[1]);
+      switchTab('offres', document.querySelectorAll('.tab')[1]);
       e.target.reset();
+      ofPhotoBase64 = null; ofPhotoMime = null;
+      document.getElementById('of-photo-preview').style.display = 'none';
+      document.getElementById('of-photo-placeholder').style.display = 'block';
+      document.getElementById('of-photo-zone').style.borderColor = 'var(--border)';
       toast('🎉 Offre publiée avec succès !');
+    } else {
+      toast('❌ Erreur. Réessayez.');
     }
-  }catch(err){toast('❌ Erreur. Réessayez.')}
+  } catch (err) {
+    toast('❌ Erreur upload photo.');
+  } finally {
+    btn.textContent = '📋 Publier l\'offre gratuitement';
+    btn.disabled = false;
+  }
 }
 
 async function loadData(){
@@ -715,6 +810,50 @@ function switchTab(n,btn){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   if(btn)btn.classList.add('active');
   document.getElementById('tab-'+n).classList.add('active');
+}
+// ── UPLOAD PHOTO ──────────────────────────────────────────────────
+let pfPhotoBase64 = null, pfPhotoMime = null;
+let ofPhotoBase64 = null, ofPhotoMime = null;
+
+function previewPhoto(input, prefix) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    toast('❌ Photo trop lourde — max 5MB');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const base64 = e.target.result.split(',')[1];
+    const mimeType = file.type;
+    if (prefix === 'pf') {
+      pfPhotoBase64 = base64;
+      pfPhotoMime = mimeType;
+      document.getElementById('pf-photo-img').src = e.target.result;
+      document.getElementById('pf-photo-preview').style.display = 'block';
+      document.getElementById('pf-photo-placeholder').style.display = 'none';
+      document.getElementById('pf-photo-zone').style.borderColor = 'var(--bleu)';
+    } else {
+      ofPhotoBase64 = base64;
+      ofPhotoMime = mimeType;
+      document.getElementById('of-photo-img').src = e.target.result;
+      document.getElementById('of-photo-preview').style.display = 'block';
+      document.getElementById('of-photo-placeholder').style.display = 'none';
+      document.getElementById('of-photo-zone').style.borderColor = 'var(--bleu)';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function uploadPhoto(base64, mimeType, folder) {
+  const res = await fetch('/api/upload-image', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ base64, mimeType, folder })
+  });
+  const json = await res.json();
+  if (json.success) return json.url;
+  throw new Error(json.error || 'Erreur upload');
 }
 function toast(msg){
   const t=document.getElementById('tk');
