@@ -492,7 +492,8 @@ function renderCharts() {
   });
 
   const labels   = recent.map(l => l.date || `J${l.age||''}`);
-  const ages     = recent.map(l => l.age || null);
+  const jourDebut = Math.floor((new Date() - new Date(selectedBande.dateMiseEnPlace)) / 86400000);
+  const ages = recent.map((l,i) => l.age || (jourDebut - recent.length + i + 1));
   const mortReel = recent.map(l => Number(l.mort)||0);
   const poidsReel= recent.map(l => Number(l.poids)||0);
   const alimReel = recent.map(l => Number(l.aliment)||0);
@@ -528,7 +529,7 @@ function renderCharts() {
       labels,
       datasets: [
         { label: "Mortalité réelle", data: mortReel, borderColor: "#dc3545", backgroundColor: "rgba(220,53,69,0.1)", tension: 0.4, fill: true, pointRadius: 4, borderWidth: 2 },
-        { label: "Référence normale", data: mortRef, borderColor: "#1a4a2e", backgroundColor: "transparent", tension: 0.4, fill: false, pointRadius: 3, borderWidth: 1.5, borderDash: [5,5] }
+        { label: "Référence normale", data: mortRef, borderColor: "#28a745", backgroundColor: "transparent", tension: 0.4, fill: false, pointRadius: 3, borderWidth: 2, borderDash: [6,4] }
       ]
     },
     options: optsDouble("sujets")
@@ -540,7 +541,7 @@ function renderCharts() {
       labels,
       datasets: [
         { label: "Poids réel", data: poidsReel, borderColor: "#dc3545", backgroundColor: "rgba(220,53,69,0.1)", tension: 0.4, fill: true, pointRadius: 4, borderWidth: 2 },
-        { label: "Référence standard", data: poidsRef, borderColor: "#1a4a2e", backgroundColor: "rgba(26,74,46,0.05)", tension: 0.4, fill: true, pointRadius: 3, borderWidth: 1.5, borderDash: [5,5] }
+        { label: "Référence standard", data: poidsRef, borderColor: "#28a745", backgroundColor: "rgba(40,167,69,0.08)", tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2, borderDash: [6,4] }
       ]
     },
     options: optsDouble("g")
@@ -552,7 +553,7 @@ function renderCharts() {
       labels,
       datasets: [
         { label: "Consommation réelle", data: alimReel, borderColor: "#dc3545", backgroundColor: "rgba(220,53,69,0.1)", tension: 0.4, fill: true, pointRadius: 4, borderWidth: 2 },
-        { label: "Référence standard", data: alimRef, borderColor: "#1a4a2e", backgroundColor: "rgba(26,74,46,0.05)", tension: 0.4, fill: true, pointRadius: 3, borderWidth: 1.5, borderDash: [5,5] }
+        { label: "Référence standard", data: alimRef, borderColor: "#28a745", backgroundColor: "rgba(40,167,69,0.08)", tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2, borderDash: [6,4] }
       ]
     },
     options: optsDouble("g/oiseau")
