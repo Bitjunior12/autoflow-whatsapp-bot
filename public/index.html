@@ -3,326 +3,462 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Le Partenaire des Éleveurs — Bot WhatsApp IA</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
 <style>
-
-:root {
---vert:#1a4a2e;
---vert-clair:#2d7a4f;
---or:#c9a84c;
---blanc:#fafaf7;
---gris:#6b7280;
---noir:#0f1a14;
+:root{
+  --vert:#1a4a2e;--vert-clair:#2d7a4f;--or:#c9a84c;
+  --blanc:#fafaf7;--gris:#6b7280;--noir:#0f1a14;
 }
-
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'DM Sans',sans-serif;background:var(--blanc);color:var(--noir);}
 html{scroll-behavior:smooth}
 
 /* NAV */
 nav{
-position:fixed;top:0;width:100%;
-display:flex;justify-content:space-between;align-items:center;
-padding:1rem 5%;
-background:rgba(26,74,46,0.95);
-z-index:100;
+  position:fixed;top:0;width:100%;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1rem 5%;
+  background:rgba(26,74,46,0.97);
+  backdrop-filter:blur(10px);
+  z-index:100;
 }
-.nav-logo{color:var(--or);font-weight:700;}
+.nav-logo{color:var(--or);font-weight:700;font-size:1rem;}
 .nav-logo span{color:white;}
+.nav-links{display:flex;align-items:center;gap:1.5rem;}
+.nav-links a{color:rgba(255,255,255,0.8);text-decoration:none;font-size:.9rem;transition:.2s;}
+.nav-links a:hover{color:var(--or)}
 .nav-cta{
-background:var(--or);
-padding:0.6rem 1.2rem;
-border-radius:50px;
-text-decoration:none;
-color:var(--vert);
-font-weight:600;
+  background:var(--or);padding:0.6rem 1.4rem;
+  border-radius:50px;text-decoration:none;
+  color:var(--vert);font-weight:700;font-size:.88rem;
 }
+.nav-cta:hover{background:#b8963d}
 
 /* HERO */
 .hero{
-min-height:100vh;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-text-align:center;
-background:linear-gradient(135deg,var(--vert),#0f2d1e);
-padding:7rem 5% 4rem;
+  min-height:100vh;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;text-align:center;
+  background:linear-gradient(135deg,var(--vert) 0%,#0f2d1e 100%);
+  padding:7rem 5% 4rem;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-tag{
+  background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.35);
+  color:var(--or);font-size:.78rem;font-weight:600;
+  padding:5px 16px;border-radius:20px;letter-spacing:.05em;
+  text-transform:uppercase;margin-bottom:1.5rem;display:inline-block;
 }
 .hero h1{
-font-family:'Playfair Display',serif;
-font-size:3rem;
-color:white;
+  font-family:'Playfair Display',serif;
+  font-size:3.2rem;color:white;line-height:1.15;
+  margin-bottom:1rem;position:relative;
 }
-.hero em{color:var(--or);}
+.hero em{color:var(--or);font-style:normal;}
 .hero p{
-color:#ddd;
-margin:1rem 0 2rem;
-max-width:600px;
-line-height:1.6;
+  color:rgba(255,255,255,.78);margin:0 auto 2.5rem;
+  max-width:580px;line-height:1.7;font-size:1.05rem;position:relative;
 }
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;position:relative;}
 .btn{
-background:var(--or);
-color:var(--vert);
-padding:1rem 2rem;
-border-radius:50px;
-text-decoration:none;
-font-weight:700;
+  background:var(--or);color:var(--vert);
+  padding:1rem 2rem;border-radius:50px;
+  text-decoration:none;font-weight:700;
+  transition:.2s;display:inline-flex;align-items:center;gap:8px;
 }
+.btn:hover{background:#b8963d;transform:translateY(-2px)}
+.btn-outline{
+  background:transparent;color:white;
+  border:2px solid rgba(255,255,255,.35);
+  padding:1rem 2rem;border-radius:50px;
+  text-decoration:none;font-weight:600;
+  transition:.2s;
+}
+.btn-outline:hover{border-color:var(--or);color:var(--or)}
+.hero-stats{
+  display:flex;gap:3rem;margin-top:4rem;
+  position:relative;flex-wrap:wrap;justify-content:center;
+}
+.hero-stat strong{
+  display:block;font-family:'Playfair Display',serif;
+  font-size:2rem;color:var(--or);
+}
+.hero-stat small{font-size:.78rem;color:rgba(255,255,255,.6)}
 
-/* SECTION */
+/* SECTIONS */
 .section{padding:5rem 5%;}
+.section-center{text-align:center;}
 .section-title{
-font-family:'Playfair Display',serif;
-font-size:2.2rem;
-color:var(--vert);
-margin-bottom:1rem;
+  font-family:'Playfair Display',serif;
+  font-size:2.2rem;color:var(--vert);margin-bottom:.75rem;
 }
 .section-sub{
-color:var(--gris);
-max-width:600px;
-line-height:1.7;
+  color:var(--gris);max-width:580px;
+  line-height:1.7;margin:0 auto 2.5rem;
 }
 
 /* GRID */
 .grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:1.5rem;
-margin-top:2rem;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:1.5rem;margin-top:2rem;
 }
-
 .card{
-background:white;
-padding:1.5rem;
-border-radius:15px;
-border:1px solid #eee;
-transition:0.3s;
+  background:white;padding:1.75rem;
+  border-radius:16px;border:1px solid #eee;
+  transition:.3s;
 }
-.card:hover{
-transform:translateY(-5px);
-border-color:var(--or);
+.card:hover{transform:translateY(-5px);border-color:var(--or);box-shadow:0 12px 30px rgba(201,168,76,.12)}
+.card-icon{font-size:2rem;margin-bottom:.75rem;}
+.card h3{color:var(--vert);margin-bottom:.5rem;font-size:1.05rem;}
+.card p{color:var(--gris);font-size:.93rem;line-height:1.7;}
+
+/* BUSINESS SECTION */
+.business-section{
+  background:linear-gradient(135deg,#f8fdf9 0%,#fff 100%);
+  border-top:1px solid #eee;border-bottom:1px solid #eee;
 }
-.card h3{
-color:var(--vert);
-margin-bottom:0.5rem;
+.business-card{
+  background:white;padding:2rem;border-radius:16px;
+  border:1px solid #eee;transition:.3s;
+  display:flex;flex-direction:column;gap:.75rem;
 }
-.card p{
-color:var(--gris);
-font-size:0.95rem;
-line-height:1.7;
+.business-card:hover{transform:translateY(-5px);border-color:var(--vert);box-shadow:0 12px 30px rgba(26,74,46,.1)}
+.business-card-icon{font-size:2.5rem;}
+.business-card h3{color:var(--vert);font-size:1.1rem;font-weight:700;}
+.business-card p{color:var(--gris);font-size:.92rem;line-height:1.7;flex:1;}
+.business-card-link{
+  display:inline-flex;align-items:center;gap:6px;
+  color:var(--vert-clair);font-weight:600;font-size:.88rem;
+  text-decoration:none;margin-top:.5rem;
+}
+.business-card-link:hover{color:var(--or)}
+.badge-gratuit{
+  display:inline-block;background:#e6f5ec;color:var(--vert-clair);
+  font-size:.68rem;font-weight:700;padding:2px 8px;
+  border-radius:8px;text-transform:uppercase;letter-spacing:.04em;
 }
 
 /* COMMANDES */
-.commandes{
-background:var(--vert);
-color:white;
-}
+.commandes{background:var(--vert);padding:5rem 5%;}
 .cmd{
-background:rgba(255,255,255,0.05);
-padding:1.2rem;
-border-radius:12px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  padding:1.3rem;border-radius:12px;transition:.2s;
 }
+.cmd:hover{background:rgba(255,255,255,.1)}
 .cmd span{
-background:var(--or);
-color:var(--vert);
-padding:4px 10px;
-border-radius:6px;
-font-weight:700;
-display:inline-block;
-margin-bottom:8px;
-font-family:monospace;
+  background:var(--or);color:var(--vert);
+  padding:4px 12px;border-radius:6px;font-weight:700;
+  display:inline-block;margin-bottom:8px;
+  font-family:monospace;font-size:.9rem;
 }
-.cmd p{
-font-size:0.95rem;
-line-height:1.7;
+.cmd p{color:rgba(255,255,255,.78);font-size:.93rem;line-height:1.6;}
+
+/* PREMIUM */
+.premium-section{background:linear-gradient(135deg,#fff8e6 0%,#fff 100%);}
+.premium-card{
+  background:white;border:2px solid var(--or);
+  border-radius:20px;padding:2.5rem;
+  max-width:600px;margin:2rem auto 0;text-align:center;
+  box-shadow:0 12px 40px rgba(201,168,76,.15);
 }
+.premium-card h3{
+  font-family:'Playfair Display',serif;
+  font-size:1.6rem;color:var(--vert);margin-bottom:1rem;
+}
+.premium-feats{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:.65rem;margin:1.5rem 0;text-align:left;
+}
+.pf{
+  display:flex;align-items:center;gap:8px;
+  font-size:.88rem;color:var(--gris);
+}
+.pf::before{content:'✓';color:var(--vert-clair);font-weight:700;flex-shrink:0;}
+.premium-price{
+  font-family:'Playfair Display',serif;
+  font-size:2rem;color:var(--vert);margin-bottom:1.5rem;
+}
+.premium-price small{font-size:.9rem;font-weight:400;color:var(--gris);}
+
+/* TEMOIGNAGES */
+.temoignages{background:var(--blanc);}
+.temoignage{
+  background:white;border-radius:16px;padding:1.75rem;
+  border:1px solid #eee;
+}
+.temoignage p{color:var(--gris);font-size:.95rem;line-height:1.7;font-style:italic;margin-bottom:1rem;}
+.temoignage-auteur{display:flex;align-items:center;gap:.65rem;}
+.temoignage-avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--vert);color:white;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:.9rem;
+}
+.temoignage-nom strong{display:block;font-size:.9rem;color:var(--noir);}
+.temoignage-nom small{font-size:.78rem;color:var(--gris);}
+
+/* CTA SECTION */
+.cta-section{
+  background:linear-gradient(135deg,var(--vert) 0%,#0f2d1e 100%);
+  text-align:center;padding:6rem 5%;
+}
+.cta-section h2{
+  font-family:'Playfair Display',serif;
+  font-size:2.5rem;color:white;margin-bottom:1rem;
+}
+.cta-section p{color:rgba(255,255,255,.75);margin-bottom:2.5rem;font-size:1.05rem;}
 
 /* FOOTER */
 footer{
-background:#000;
-color:#aaa;
-text-align:center;
-padding:2rem;
-font-size:0.9rem;
+  background:#060e09;color:rgba(255,255,255,.5);
+  padding:3rem 5%;
+}
+.footer-inner{
+  max-width:1100px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:2rem;margin-bottom:2rem;
+}
+.footer-brand{color:var(--or);font-weight:700;font-size:1.05rem;margin-bottom:.75rem;}
+.footer-brand p{color:rgba(255,255,255,.45);font-size:.85rem;line-height:1.6;font-weight:400;}
+.footer-col h4{color:rgba(255,255,255,.8);font-size:.85rem;font-weight:700;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em;}
+.footer-col a{display:block;color:rgba(255,255,255,.45);text-decoration:none;font-size:.85rem;margin-bottom:.4rem;transition:.2s;}
+.footer-col a:hover{color:var(--or)}
+.footer-bottom{
+  border-top:1px solid rgba(255,255,255,.08);
+  padding-top:1.5rem;text-align:center;
+  font-size:.82rem;
 }
 
-/* RESPONSIVE */
 @media(max-width:768px){
-.hero h1{font-size:2.2rem;}
+  .hero h1{font-size:2.2rem;}
+  .nav-links{display:none;}
+  .premium-feats{grid-template-columns:1fr;}
+  .hero-stats{gap:1.5rem;}
 }
-
 </style>
 </head>
-
 <body>
 
+<!-- NAV -->
 <nav>
-<div class="nav-logo">🐔 Le Partenaire <span>des Éleveurs</span></div>
-<a href="https://wa.me/2250507293031?text=menu" class="nav-cta">WhatsApp</a>
+  <div class="nav-logo">🐔 Le Partenaire <span>des Éleveurs</span></div>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#marche">Marché</a>
+    <a href="#emploi">Emploi</a>
+    <a href="#premium">Premium</a>
+  </div>
+  <a href="https://wa.me/2250507293031?text=menu" class="nav-cta">💬 Démarrer</a>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-<h1>Élevez mieux,<br><em>gagnez plus.</em></h1>
-
-<p>
-Le premier assistant IA WhatsApp dédié aux éleveurs en Côte d’Ivoire.
-Suivi, vaccins, marché, emploi — tout dans un seul message.
-</p>
-
-<a href="https://wa.me/2250507293031?text=menu" class="btn">
-Essayer gratuitement
-</a>
-</section>
-
-<!-- FEATURES -->
-<section class="section">
-<h2 class="section-title">Tout ce dont tu as besoin</h2>
-
-<div class="grid">
-
-<div class="card">
-<h3>💉 Prophylaxie automatique</h3>
-<p>
-Alertes vaccinales envoyées automatiquement de J1 à J35 sur WhatsApp.
-Tu respectes ton programme sanitaire sans oubli et tu réduis fortement les pertes.
-</p>
-</div>
-
-<div class="card">
-<h3>📊 Suivi de bande IA</h3>
-<p>
-Enregistre chaque jour la mortalité, l’aliment et le poids.
-Analyse automatique pour améliorer tes performances et ta rentabilité.
-</p>
-</div>
-
-<div class="card">
-<h3>🔬 Diagnostic vétérinaire</h3>
-<p>
-Prends une photo de tes poulets et reçois un diagnostic rapide avec recommandations adaptées.
-</p>
-</div>
-
-<div class="card">
-<h3>🐥 Commande de poussins</h3>
-<p>
-Commande facilement tes poussins et reçois automatiquement une facture proforma.
-</p>
-</div>
-
-<div class="card">
-<h3>💰 Simulation financière</h3>
-<p>
-Estime tes coûts et bénéfices avant de démarrer pour éviter les mauvaises décisions.
-</p>
-</div>
-
-<div class="card">
-<h3>📈 Prix du marché</h3>
-<p>
-Consulte les prix en temps réel pour vendre au bon moment et maximiser tes gains.
-</p>
-</div>
-
-</div>
-</section>
-
-<!-- BUSINESS -->
-<section class="section">
-<h2 class="section-title">Une plateforme avicole complète</h2>
-
-<p class="section-sub">
-Connecte, vends, recrute et développe ton élevage directement depuis WhatsApp.
-</p>
-
-<div class="grid">
-
-<div class="card">
-<h3>🛒 Marché avicole</h3>
-<p>
-Publie tes poulets, œufs ou matériels et trouve rapidement des acheteurs.
-</p>
-</div>
-
-<div class="card">
-<h3>💼 Bourse de l’emploi</h3>
-<p>
-Trouve un emploi en élevage ou recrute un technicien qualifié.
-</p>
-</div>
-
-<div class="card">
-<h3>🤝 Mise en relation</h3>
-<p>
-Connecte éleveurs, investisseurs et propriétaires pour développer ton business.
-</p>
-</div>
-
-</div>
-</section>
-
-<section class="section commandes">
-
-  <div style="max-width:900px;margin:0 auto;">
-    
-    <h2 class="section-title" style="color:white;text-align:center;">
-      Mots clés WhatsApp
-    </h2>
-
-    <p class="section-sub" style="color:rgba(255,255,255,0.7);text-align:center;margin:0 auto 2rem;">
-      Tape simplement un mot clé dans WhatsApp et le bot exécute automatiquement l’action correspondante.
-    </p>
-
+  <div class="hero-tag">🇨🇮 Premier assistant avicole IA de Côte d'Ivoire</div>
+  <h1>Élevez mieux,<br><em>gagnez plus.</em></h1>
+  <p>Le premier assistant IA WhatsApp dédié aux éleveurs en Côte d'Ivoire. Suivi, vaccins, marché, emploi — tout dans un seul message.</p>
+  <div class="hero-btns">
+    <a href="https://wa.me/2250507293031?text=menu" class="btn">💬 Essayer gratuitement</a>
+    <a href="#services" class="btn-outline">Découvrir les services</a>
   </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><strong>24h/24</strong><small>Disponible sur WhatsApp</small></div>
+    <div class="hero-stat"><strong>100%</strong><small>Gratuit pour démarrer</small></div>
+    <div class="hero-stat"><strong>IA</strong><small>Powered by Claude AI</small></div>
+  </div>
+</section>
 
+<!-- SERVICES -->
+<section class="section" id="services">
+  <div class="section-center">
+    <h2 class="section-title">Tout ce dont tu as besoin</h2>
+    <p class="section-sub">Un assistant complet qui accompagne chaque étape de votre élevage, de la mise en place jusqu'à la vente.</p>
+  </div>
   <div class="grid">
-
-    <div class="cmd">
-      <span>prophet</span>
-      <p>Créer une bande et activer les alertes vaccins automatiques.</p>
+    <div class="card">
+      <div class="card-icon">💉</div>
+      <h3>Prophylaxie automatique</h3>
+      <p>Alertes vaccinales envoyées automatiquement de J1 à J35 sur WhatsApp. Tu respectes ton programme sanitaire sans oubli.</p>
     </div>
-
-    <div class="cmd">
-      <span>suivi</span>
-      <p>Saisir les données journalières pour analyser tes performances.</p>
+    <div class="card">
+      <div class="card-icon">📊</div>
+      <h3>Suivi de bande IA</h3>
+      <p>Enregistre chaque jour la mortalité, l'aliment et le poids. Analyse automatique pour améliorer tes performances.</p>
     </div>
-
-    <div class="cmd">
-      <span>photo</span>
-      <p>Envoyer une image et recevoir un diagnostic vétérinaire.</p>
+    <div class="card">
+      <div class="card-icon">🔬</div>
+      <h3>Diagnostic vétérinaire</h3>
+      <p>Prends une photo de tes poulets et reçois un diagnostic rapide avec recommandations adaptées à ton élevage.</p>
     </div>
-
-    <div class="cmd">
-      <span>prix</span>
-      <p>Consulter les prix du marché en temps réel.</p>
+    <div class="card">
+      <div class="card-icon">🐥</div>
+      <h3>Commande de poussins</h3>
+      <p>Commande facilement tes poussins certifiés et reçois automatiquement une facture proforma par WhatsApp.</p>
     </div>
-
-    <div class="cmd">
-      <span>marché</span>
-      <p>Vendre ou acheter poulets, œufs et matériels.</p>
+    <div class="card">
+      <div class="card-icon">💰</div>
+      <h3>Simulation financière</h3>
+      <p>Estime tes coûts et bénéfices avant de démarrer pour éviter les mauvaises décisions et maximiser tes gains.</p>
     </div>
-
-    <div class="cmd">
-      <span>emploi</span>
-      <p>Trouver un emploi ou recruter pour ta ferme.</p>
+    <div class="card">
+      <div class="card-icon">📈</div>
+      <h3>Prix du marché</h3>
+      <p>Consulte les prix en temps réel pour vendre au bon moment et maximiser tes revenus à chaque bande.</p>
     </div>
-
-    <div class="cmd">
-      <span>races</span>
-      <p>Comparer les races de poulets et choisir la meilleure.</p>
-    </div>
-
-    <div class="cmd">
-      <span>menu</span>
-      <p>Accéder à tous les services disponibles.</p>
-    </div>
-
   </div>
-
 </section>
+
+<!-- MARCHÉ & EMPLOI -->
+<section class="section business-section" id="marche">
+  <div class="section-center">
+    <h2 class="section-title">Une plateforme avicole complète</h2>
+    <p class="section-sub">Connecte, vends, recrute et développe ton élevage directement depuis WhatsApp ou sur le web.</p>
+  </div>
+  <div class="grid" id="emploi">
+    <div class="business-card">
+      <div class="business-card-icon">🛒</div>
+      <span class="badge-gratuit">Gratuit</span>
+      <h3>Marché des Volailles</h3>
+      <p>Publie tes annonces de vente de poulets, œufs ou pintades avec photos. Les acheteurs te contactent directement. Boost ton annonce pour vendre 3× plus vite.</p>
+      <a href="/marche" class="business-card-link">Voir le marché →</a>
+    </div>
+    <div class="business-card">
+      <div class="business-card-icon">💼</div>
+      <span class="badge-gratuit">Gratuit</span>
+      <h3>Bourse de l'Emploi Avicole</h3>
+      <p>Techniciens avicoles, vétérinaires, managers de ferme — publiez votre profil ou votre offre gratuitement. Les recruteurs accèdent aux contacts via le Plan Recruteur.</p>
+      <a href="/emploi" class="business-card-link">Voir les offres →</a>
+    </div>
+    <div class="business-card">
+      <div class="business-card-icon">🤝</div>
+      <span class="badge-gratuit">Premium</span>
+      <h3>Mise en Relation</h3>
+      <p>Connecte éleveurs, investisseurs et propriétaires de ferme. Accédez aux contacts directs des éleveurs vérifiés. Alertes en temps réel sur les nouvelles disponibilités.</p>
+      <a href="https://wa.me/2250507293031?text=mise en relation" class="business-card-link">En savoir plus →</a>
+    </div>
+  </div>
+</section>
+
+<!-- COMMANDES WHATSAPP -->
+<section class="commandes">
+  <div style="max-width:900px;margin:0 auto;">
+    <h2 class="section-title" style="color:white;text-align:center;">Mots clés WhatsApp</h2>
+    <p class="section-sub" style="color:rgba(255,255,255,.7);text-align:center;margin:0 auto 2rem;">
+      Tape simplement un mot clé dans WhatsApp et le bot exécute automatiquement l'action.
+    </p>
+  </div>
+  <div class="grid">
+    <div class="cmd"><span>prophet</span><p>Créer une bande et activer les alertes vaccins automatiques.</p></div>
+    <div class="cmd"><span>suivi</span><p>Saisir les données journalières pour analyser tes performances.</p></div>
+    <div class="cmd"><span>photo</span><p>Envoyer une image et recevoir un diagnostic vétérinaire.</p></div>
+    <div class="cmd"><span>prix</span><p>Consulter les prix du marché en temps réel.</p></div>
+    <div class="cmd"><span>marché</span><p>Vendre ou acheter poulets, œufs et matériels.</p></div>
+    <div class="cmd"><span>emploi</span><p>Trouver un emploi ou recruter pour ta ferme.</p></div>
+    <div class="cmd"><span>races</span><p>Comparer les races de poulets et choisir la meilleure.</p></div>
+    <div class="cmd"><span>menu</span><p>Accéder à tous les services disponibles.</p></div>
+  </div>
+</section>
+
+<!-- PREMIUM -->
+<section class="section premium-section" id="premium">
+  <div class="section-center">
+    <h2 class="section-title">Programme Premium</h2>
+    <p class="section-sub">Pour les éleveurs sérieux qui veulent maximiser leur rentabilité avec un suivi personnalisé.</p>
+  </div>
+  <div class="premium-card">
+    <div style="font-size:2.5rem;margin-bottom:.5rem">⭐</div>
+    <h3>Plan Pro & Premium</h3>
+    <div class="premium-feats">
+      <div class="pf">Questions expert illimitées</div>
+      <div class="pf">Diagnostics illimités</div>
+      <div class="pf">Calendrier prophylaxie</div>
+      <div class="pf">Suivi de bande actif</div>
+      <div class="pf">Coaching hebdomadaire</div>
+      <div class="pf">Rapport mensuel performance</div>
+      <div class="pf">Support WhatsApp 24H/24</div>
+      <div class="pf">Visite terrain sur demande</div>
+    </div>
+    <div class="premium-price">Dès 15 000 FCFA <small>/ mois</small></div>
+    <a href="https://wa.me/2250507293031?text=upgrade" class="btn">⭐ Rejoindre le Premium</a>
+  </div>
+</section>
+
+<!-- TÉMOIGNAGES -->
+<section class="section temoignages">
+  <div class="section-center">
+    <h2 class="section-title">Ce qu'ils en disent</h2>
+    <p class="section-sub">Des éleveurs qui ont transformé leur business grâce au Partenaire des Éleveurs.</p>
+  </div>
+  <div class="grid">
+    <div class="temoignage">
+      <p>"Depuis que j'utilise le bot pour mes alertes vaccins, j'ai réduit ma mortalité de 40%. Je ne rate plus aucun rappel."</p>
+      <div class="temoignage-auteur">
+        <div class="temoignage-avatar">KA</div>
+        <div class="temoignage-nom"><strong>Kouassi Ange</strong><small>Éleveur à Abidjan · 2 000 sujets</small></div>
+      </div>
+    </div>
+    <div class="temoignage">
+      <p>"J'ai vendu mes 500 poulets en 2 jours grâce au marché. Avec le boost, mon annonce était visible par tous les acheteurs."</p>
+      <div class="temoignage-auteur">
+        <div class="temoignage-avatar">TD</div>
+        <div class="temoignage-nom"><strong>Traoré Dramane</strong><small>Éleveur à Bouaké · 500 sujets</small></div>
+      </div>
+    </div>
+    <div class="temoignage">
+      <p>"Le diagnostic photo m'a sauvé une bande entière. En 30 secondes j'avais le traitement à appliquer."</p>
+      <div class="temoignage-auteur">
+        <div class="temoignage-avatar">BK</div>
+        <div class="temoignage-nom"><strong>Bamba Kadiatou</strong><small>Éleveuse à Korhogo · 1 000 sujets</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section">
+  <h2>Prêt à élever<br><em style="color:var(--or)">autrement ?</em></h2>
+  <p>Rejoins des centaines d'éleveurs qui font confiance au Partenaire des Éleveurs.</p>
+  <div class="hero-btns">
+    <a href="https://wa.me/2250507293031?text=menu" class="btn">💬 Démarrer gratuitement</a>
+    <a href="/marche" class="btn-outline">🛒 Voir le marché</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">🐔 Le Partenaire des Éleveurs</div>
+      <p class="footer-brand">Le premier assistant IA avicole de Côte d'Ivoire. Disponible 24h/24 sur WhatsApp.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <a href="https://wa.me/2250507293031?text=prophet">Prophylaxie</a>
+      <a href="https://wa.me/2250507293031?text=suivi">Suivi de bande</a>
+      <a href="https://wa.me/2250507293031?text=photo">Diagnostic photo</a>
+      <a href="https://wa.me/2250507293031?text=prix">Prix du marché</a>
+    </div>
+    <div class="footer-col">
+      <h4>Plateforme</h4>
+      <a href="/marche">🛒 Marché des Volailles</a>
+      <a href="/emploi">💼 Bourse de l'Emploi</a>
+      <a href="https://wa.me/2250507293031?text=upgrade">⭐ Plan Premium</a>
+      <a href="/admin-marche">🔐 Dashboard Admin</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <a href="https://wa.me/2250507293031">📱 WhatsApp</a>
+      <a href="tel:+2250102642080">📞 +225 01 02 64 20 80</a>
+      <a href="https://wa.me/2250507293031?text=formation">🎓 Formation avicole</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Le Partenaire des Éleveurs — Côte d'Ivoire 🇨🇮 — Tous droits réservés</p>
+  </div>
+</footer>
+
+</body>
+</html>
