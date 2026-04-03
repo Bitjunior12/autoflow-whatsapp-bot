@@ -439,42 +439,74 @@ function renderVaccins() {
 // ── CHARTS ────────────────────────────────────────────────────────
 function renderCharts() {
   if (!selectedBande) return;
-  const sb = suiviData.filter(s => s.bandeNom === selectedBande.nom).slice(0,7).reverse();
-  if (sb.length === 0) {
-    document.getElementById("chartMortalite").parentElement.innerHTML = `<p style="text-align:center;color:#aaa;font-size:12px;padding:20px">Aucune donnée de suivi</p>`;
-    document.getElementById("chartPoids").parentElement.innerHTML = `<p style="text-align:center;color:#aaa;font-size:12px;padding:20px">Aucune donnée de suivi</p>`;
-    document.getElementById("chartAliment").parentElement.innerHTML = `<p style="text-align:center;color:#aaa;font-size:12px;padding:20px">Aucune donnée de suivi</p>`;
+
+  const isChair = selectedBande.typeBande !== "ponte";
+
+  // Références standards
+  const REF_POIDS_CHAIR = {1:42,2:60,3:80,4:105,5:130,6:160,7:190,8:230,9:270,10:315,11:365,12:420,13:480,14:550,15:620,16:700,17:790,18:880,19:975,20:1070,21:1170,22:1270,23:1370,24:1470,25:1570,26:1680,27:1790,28:1900,29:2000,30:2100};
+  const REF_POIDS_PONTE = {7:70,14:120,21:180,28:250,35:330,42:420,49:510,56:610,63:700,70:800,77:900,84:990,91:1080,98:1150,105:1200,112:1250,119:1300,127:1350};
+  const REF_MORT_CHAIR = {1:0.1,2:0.1,3:0.1,4:0.1,5:0.1,6:0.1,7:0.2,8:0.1,9:0.1,10:0.1,11:0.1,12:0.1,13:0.1,14:0.2,15:0.1,16:0.1,17:0.1,18:0.1,19:0.1,20:0.1,21:0.2,22:0.1,23:0.1,24:0.1,25:0.1,26:0.1,27:0.1,28:0.1,29:0.1,30:0.1};
+  const REF_ALIMENT_CHAIR = {1:13,2:18,3:23,4:28,5:33,6:38,7:44,8:51,9:58,10:65,11:73,12:81,13:89,14:97,15:106,16:115,17:124,18:134,19:144,20:154,21:164,22:174,23:184,24:194,25:204,26:214,27:224,28:234,29:244,30:254};
+
+  const refPoids = isChair ? REF_POIDS_CHAIR : REF_POIDS_PONTE;
+  const refMort  = REF_MORT_CHAIR;
+  const refAlim  = REF_ALIMENT_CHAIR;
+
+  // Construire les données depuis les semaines
+  let lignesAll = [];
+  semaines.forEach(sem => {
+    sem.lignes.forEach(l => {
+      if (l.date || Number(l.mort)||Number(l.aliment)||Number(l.poids)) {
+        lignesAll.push(l);
+      }
+    });
+  });
+
+  if (lignesAll.length === 0) {
+    const sb = suiviData.filter(s => s.bandeNom === selectedBande.nom).slice(0,7).reverse();
+    lignesAll = sb.map(s => ({
+      date: new Date(s.createdAt).toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"}),
+      mort: s.mortalite||0, aliment: s.aliment||0, poids: s.poidsMoyen||0, age: null
+    }));
+  }
+
+  const recent = lignesAll.slice(-7);
+
+  if (recent.length === 0) {
+    document.getElementById("no-data-charts").style.display = "block";
+    ['chartMortalite','chartPoids','chartAliment'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = "none";
+    });
     return;
   }
-  const labels = sb.map(s => new Date(s.createdAt).toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"}));
 
-  // Mortalité — barres rouges, plus foncé si élevé
-  const mortData = sb.map(s=>s.mortalite||0);
-  const mortColors = mortData.map(v => v===0?'#d1e7dd':v<=2?'#fff3cd':v<=5?'#f0a500':'#dc3545');
-
-  // Poids — barres vertes graduelles
-  const poidsData = sb.map(s=>s.poidsMoyen||0);
-  const poidsColors = poidsData.map((_,i) => {
-    const ratio = i/Math.max(poidsData.length-1,1);
-    return `rgba(26,74,46,${0.4+ratio*0.6})`;
+  document.getElementById("no-data-charts").style.display = "none";
+  ['chartMortalite','chartPoids','chartAliment'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = "block";
   });
 
-  // Aliment — barres bleues
-  const alimentData = sb.map(s=>s.aliment||0);
-  const alimentColors = alimentData.map((_,i) => {
-    const ratio = i/Math.max(alimentData.length-1,1);
-    return `rgba(13,110,253,${0.4+ratio*0.6})`;
-  });
+  const labels   = recent.map(l => l.date || `J${l.age||''}`);
+  const ages     = recent.map(l => l.age || null);
+  const mortReel = recent.map(l => Number(l.mort)||0);
+  const poidsReel= recent.map(l => Number(l.poids)||0);
+  const alimReel = recent.map(l => Number(l.aliment)||0);
 
-  const opts = (title, unit) => ({
-    responsive:true,
-    plugins:{
-      legend:{display:false},
-      tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y} ${unit}`}}
+  // Courbes de référence selon l'âge
+  const mortRef  = ages.map(a => a ? (refMort[a]||null)  : null);
+  const poidsRef = ages.map(a => a ? (refPoids[a]||null) : null);
+  const alimRef  = ages.map(a => a ? (refAlim[a]||null)  : null);
+
+  const optsDouble = (unit) => ({
+    responsive: true,
+    plugins: {
+      legend: { display: true, position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12 } },
+      tooltip: { callbacks: { label: ctx => `${ctx.dataset.label} : ${ctx.parsed.y} ${unit}` } }
     },
-    scales:{
-      y:{beginAtZero:true, grid:{color:'#f5f5f5'}, ticks:{font:{size:10}}},
-      x:{grid:{display:false}, ticks:{font:{size:10}}}
+    scales: {
+      y: { beginAtZero: true, grid: { color: '#f5f5f5' }, ticks: { font: { size: 10 } } },
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } }
     }
   });
 
@@ -482,20 +514,44 @@ function renderCharts() {
   if (charts.p) charts.p.destroy();
   if (charts.a) charts.a.destroy();
 
-  charts.m = new Chart(document.getElementById("chartMortalite"),{
-    type:"bar",
-    data:{labels, datasets:[{label:"Mortalité",data:mortData,backgroundColor:mortColors,borderRadius:4}]},
-    options:opts("Mortalité","sujets")
+  const cm = document.getElementById("chartMortalite");
+  const cp = document.getElementById("chartPoids");
+  const ca = document.getElementById("chartAliment");
+
+  if (cm) charts.m = new Chart(cm, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        { label: "Mortalité réelle", data: mortReel, borderColor: "#dc3545", backgroundColor: "rgba(220,53,69,0.1)", tension: 0.4, fill: true, pointRadius: 4, borderWidth: 2 },
+        { label: "Référence normale", data: mortRef, borderColor: "#1a4a2e", backgroundColor: "transparent", tension: 0.4, fill: false, pointRadius: 3, borderWidth: 1.5, borderDash: [5,5] }
+      ]
+    },
+    options: optsDouble("sujets")
   });
-  charts.p = new Chart(document.getElementById("chartPoids"),{
-    type:"bar",
-    data:{labels, datasets:[{label:"Poids",data:poidsData,backgroundColor:poidsColors,borderRadius:4}]},
-    options:opts("Poids","g")
+
+  if (cp) charts.p = new Chart(cp, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        { label: "Poids réel", data: poidsReel, borderColor: "#dc3545", backgroundColor: "rgba(220,53,69,0.1)", tension: 0.4, fill: true, pointRadius: 4, borderWidth: 2 },
+        { label: "Référence standard", data: poidsRef, borderColor: "#1a4a2e", backgroundColor: "rgba(26,74,46,0.05)", tension: 0.4, fill: true, pointRadius: 3, borderWidth: 1.5, borderDash: [5,5] }
+      ]
+    },
+    options: optsDouble("g")
   });
-  charts.a = new Chart(document.getElementById("chartAliment"),{
-    type:"bar",
-    data:{labels, datasets:[{label:"Aliment",data:alimentData,backgroundColor:alimentColors,borderRadius:4}]},
-    options:opts("Aliment","kg")
+
+  if (ca) charts.a = new Chart(ca, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        { label: "Consommation réelle", data: alimReel, borderColor: "#dc3545", backgroundColor: "rgba(220,53,69,0.1)", tension: 0.4, fill: true, pointRadius: 4, borderWidth: 2 },
+        { label: "Référence standard", data: alimRef, borderColor: "#1a4a2e", backgroundColor: "rgba(26,74,46,0.05)", tension: 0.4, fill: true, pointRadius: 3, borderWidth: 1.5, borderDash: [5,5] }
+      ]
+    },
+    options: optsDouble("g/oiseau")
   });
 }
 // ── FICHE IDENTIFICATION ──────────────────────────────────────────
