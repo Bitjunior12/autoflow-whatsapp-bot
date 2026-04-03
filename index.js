@@ -11,6 +11,7 @@ const { setSession, getSession, clearSession } = require("./services/session");
 const { askClaude, askClaudeWithImage } = require("./services/claude");
 const { peutPoserQuestion, peutFaireDiagnostic, messageUpgrade, activerAbonnement, getOrCreateSubscription, isPremium, verifierRenouvellements } = require("./services/premium");
 const { enregistrerBande, getBandesActives, verifierEtEnvoyerAlertes, enregistrerSuivi, getResumeSuivi, envoyerResumesHebdo } = require("./services/prophylaxie");
+const mongoose = require('mongoose');
 const Bande = mongoose.model('Bande');
 const PrixMarche = require("./models/PrixMarche");
 const { demarrerOnboarding, verifierOnboardings, reprendreOnboardingsEnCours } = require('./services/onboarding');
