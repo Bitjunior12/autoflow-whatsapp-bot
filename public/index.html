@@ -459,6 +459,89 @@ footer{
     <p>© 2025 Le Partenaire des Éleveurs — Côte d'Ivoire 🇨🇮 — Tous droits réservés</p>
   </div>
 </footer>
+<!-- BOUTON FLOTTANT ESPACE ÉLEVEUR -->
+<div id="btn-espace" onclick="openEspace()" style="
+  position:fixed;bottom:2rem;right:2rem;z-index:200;
+  background:var(--vert);color:white;
+  padding:.85rem 1.4rem;border-radius:50px;
+  font-weight:700;font-size:.88rem;
+  box-shadow:0 8px 25px rgba(26,74,46,.35);
+  cursor:pointer;display:flex;align-items:center;gap:8px;
+  transition:all .2s;
+">
+  👨‍🌾 Mon Espace
+</div>
 
+<!-- MODAL ESPACE ÉLEVEUR -->
+<div id="modal-espace" onclick="if(event.target===this)closeEspace()" style="
+  display:none;position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;padding:1rem;
+">
+  <div style="
+    background:white;border-radius:20px;width:100%;max-width:400px;
+    box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;
+    animation:popIn .25s ease;
+  ">
+    <div style="background:linear-gradient(135deg,var(--vert),#0f2d1e);padding:2rem;text-align:center">
+      <div style="font-size:3rem;margin-bottom:.5rem">👨‍🌾</div>
+      <h3 style="color:white;font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:.35rem">Mon Espace Éleveur</h3>
+      <p style="color:rgba(255,255,255,.7);font-size:.85rem">Gérez votre ferme, vos bandes et vos annonces</p>
+    </div>
+    <div style="padding:1.75rem">
+      <label style="display:block;font-size:.78rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.5rem">
+        Votre numéro WhatsApp
+      </label>
+      <div style="display:flex;gap:.6rem;margin-bottom:1.1rem">
+        <input id="espace-tel" type="tel" placeholder="+225 07 00 00 00" 
+          onkeypress="if(event.key==='Enter')accederEspace()"
+          style="
+            flex:1;padding:.75rem 1rem;border:1.5px solid #e5e7eb;
+            border-radius:10px;font-size:.95rem;color:#374151;
+            font-family:'DM Sans',sans-serif;
+          ">
+      </div>
+      <button onclick="accederEspace()" style="
+        width:100%;padding:.88rem;background:var(--vert);color:white;
+        font-family:'DM Sans',sans-serif;font-weight:700;font-size:.95rem;
+        border:none;border-radius:10px;cursor:pointer;
+        transition:background .2s;
+      ">
+        Accéder à mon espace →
+      </button>
+      <p style="text-align:center;font-size:.78rem;color:#9ca3af;margin-top:.85rem">
+        Ou démarrez sur WhatsApp si vous n'avez pas encore de compte
+      </p>
+      <a href="https://wa.me/2250507293031?text=menu" style="
+        display:block;text-align:center;margin-top:.5rem;
+        color:var(--vert-clair);font-size:.85rem;font-weight:600;text-decoration:none;
+      ">💬 Démarrer sur WhatsApp →</a>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes popIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+#btn-espace:hover{background:var(--vert-clair);transform:translateY(-2px);box-shadow:0 12px 30px rgba(26,74,46,.4)}
+</style>
+
+<script>
+function openEspace(){
+  document.getElementById('modal-espace').style.display='flex';
+  document.body.style.overflow='hidden';
+  setTimeout(()=>document.getElementById('espace-tel').focus(),200);
+}
+function closeEspace(){
+  document.getElementById('modal-espace').style.display='none';
+  document.body.style.overflow='';
+}
+function accederEspace(){
+  let tel = document.getElementById('espace-tel').value.trim();
+  if(!tel){alert('❌ Entrez votre numéro WhatsApp');return;}
+  tel = tel.replace(/[\s+\-()]/g,'');
+  if(tel.length < 8){alert('❌ Numéro invalide');return;}
+  window.location.href = '/eleveur/' + tel;
+}
+</script>
 </body>
 </html>
