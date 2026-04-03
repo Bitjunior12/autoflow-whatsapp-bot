@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Le Partenaire des Éleveurs — Bot WhatsApp IA</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
+
 :root {
 --vert:#1a4a2e;
 --vert-clair:#2d7a4f;
---vert-pale:#e8f5ee;
 --or:#c9a84c;
---or-clair:#f0d080;
 --blanc:#fafaf7;
 --gris:#6b7280;
 --noir:#0f1a14;
@@ -25,51 +25,73 @@ html{scroll-behavior:smooth}
 
 /* NAV */
 nav{
-position:fixed;top:0;width:100%;z-index:100;
+position:fixed;top:0;width:100%;
 display:flex;justify-content:space-between;align-items:center;
 padding:1rem 5%;
-background:rgba(26,74,46,0.97);
+background:rgba(26,74,46,0.95);
+z-index:100;
 }
 .nav-logo{color:var(--or);font-weight:700;}
 .nav-logo span{color:white;}
 .nav-cta{
-background:var(--or);padding:0.6rem 1.2rem;border-radius:50px;
-text-decoration:none;color:var(--vert);font-weight:600;
+background:var(--or);
+padding:0.6rem 1.2rem;
+border-radius:50px;
+text-decoration:none;
+color:var(--vert);
+font-weight:600;
 }
 
 /* HERO */
 .hero{
 min-height:100vh;
-display:flex;flex-direction:column;justify-content:center;align-items:center;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
 text-align:center;
 background:linear-gradient(135deg,var(--vert),#0f2d1e);
 padding:7rem 5% 4rem;
 }
 .hero h1{
 font-family:'Playfair Display',serif;
-font-size:3rem;color:white;
+font-size:3rem;
+color:white;
 }
 .hero em{color:var(--or);}
-.hero p{color:#ddd;margin:1rem 0 2rem;max-width:600px;}
+.hero p{
+color:#ddd;
+margin:1rem 0 2rem;
+max-width:600px;
+line-height:1.6;
+}
 .btn{
-background:var(--or);color:var(--vert);
-padding:1rem 2rem;border-radius:50px;
-text-decoration:none;font-weight:700;
+background:var(--or);
+color:var(--vert);
+padding:1rem 2rem;
+border-radius:50px;
+text-decoration:none;
+font-weight:700;
 }
 
-/* SECTIONS */
+/* SECTION */
 .section{padding:5rem 5%;}
 .section-title{
 font-family:'Playfair Display',serif;
-font-size:2.2rem;color:var(--vert);
+font-size:2.2rem;
+color:var(--vert);
 margin-bottom:1rem;
 }
-.section-sub{color:var(--gris);}
+.section-sub{
+color:var(--gris);
+max-width:600px;
+line-height:1.7;
+}
 
 /* GRID */
 .grid{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
 gap:1.5rem;
 margin-top:2rem;
 }
@@ -79,9 +101,21 @@ background:white;
 padding:1.5rem;
 border-radius:15px;
 border:1px solid #eee;
+transition:0.3s;
 }
-.card h3{color:var(--vert);margin-bottom:0.5rem;}
-.card p{color:var(--gris);font-size:0.9rem;}
+.card:hover{
+transform:translateY(-5px);
+border-color:var(--or);
+}
+.card h3{
+color:var(--vert);
+margin-bottom:0.5rem;
+}
+.card p{
+color:var(--gris);
+font-size:0.95rem;
+line-height:1.7;
+}
 
 /* COMMANDES */
 .commandes{
@@ -90,15 +124,22 @@ color:white;
 }
 .cmd{
 background:rgba(255,255,255,0.05);
-padding:1rem;border-radius:12px;
+padding:1.2rem;
+border-radius:12px;
 }
 .cmd span{
 background:var(--or);
 color:var(--vert);
-padding:3px 8px;
+padding:4px 10px;
 border-radius:6px;
 font-weight:700;
-display:inline-block;margin-bottom:5px;
+display:inline-block;
+margin-bottom:8px;
+font-family:monospace;
+}
+.cmd p{
+font-size:0.95rem;
+line-height:1.7;
 }
 
 /* FOOTER */
@@ -107,7 +148,14 @@ background:#000;
 color:#aaa;
 text-align:center;
 padding:2rem;
+font-size:0.9rem;
 }
+
+/* RESPONSIVE */
+@media(max-width:768px){
+.hero h1{font-size:2.2rem;}
+}
+
 </style>
 </head>
 
@@ -121,10 +169,15 @@ padding:2rem;
 <!-- HERO -->
 <section class="hero">
 <h1>Élevez mieux,<br><em>gagnez plus.</em></h1>
+
 <p>
-Assistant IA WhatsApp pour éleveurs : suivi, vaccins, marché, emploi — tout en un seul message.
+Le premier assistant IA WhatsApp dédié aux éleveurs en Côte d’Ivoire.
+Suivi, vaccins, marché, emploi — tout dans un seul message.
 </p>
-<a href="https://wa.me/2250507293031?text=menu" class="btn">Essayer gratuitement</a>
+
+<a href="https://wa.me/2250507293031?text=menu" class="btn">
+Essayer gratuitement
+</a>
 </section>
 
 <!-- FEATURES -->
@@ -134,58 +187,81 @@ Assistant IA WhatsApp pour éleveurs : suivi, vaccins, marché, emploi — tout 
 <div class="grid">
 
 <div class="card">
-<h3>💉 Prophylaxie</h3>
-<p>Alertes vaccins automatiques pour ne rien oublier.</p>
+<h3>💉 Prophylaxie automatique</h3>
+<p>
+Alertes vaccinales envoyées automatiquement de J1 à J35 sur WhatsApp.
+Tu respectes ton programme sanitaire sans oubli et tu réduis fortement les pertes.
+</p>
 </div>
 
 <div class="card">
-<h3>📊 Suivi IA</h3>
-<p>Suivi de bande et performances en temps réel.</p>
+<h3>📊 Suivi de bande IA</h3>
+<p>
+Enregistre chaque jour la mortalité, l’aliment et le poids.
+Analyse automatique pour améliorer tes performances et ta rentabilité.
+</p>
 </div>
 
 <div class="card">
-<h3>🔬 Diagnostic</h3>
-<p>Analyse IA à partir de photos de tes poulets.</p>
+<h3>🔬 Diagnostic vétérinaire</h3>
+<p>
+Prends une photo de tes poulets et reçois un diagnostic rapide avec recommandations adaptées.
+</p>
 </div>
 
 <div class="card">
-<h3>💰 Simulation</h3>
-<p>Calcule tes bénéfices avant de démarrer.</p>
+<h3>🐥 Commande de poussins</h3>
+<p>
+Commande facilement tes poussins et reçois automatiquement une facture proforma.
+</p>
 </div>
 
 <div class="card">
-<h3>📈 Prix marché</h3>
-<p>Consulte les prix en temps réel.</p>
+<h3>💰 Simulation financière</h3>
+<p>
+Estime tes coûts et bénéfices avant de démarrer pour éviter les mauvaises décisions.
+</p>
 </div>
 
 <div class="card">
-<h3>🌍 Écosystème</h3>
-<p>Vente, emploi et réseau dans un seul outil.</p>
+<h3>📈 Prix du marché</h3>
+<p>
+Consulte les prix en temps réel pour vendre au bon moment et maximiser tes gains.
+</p>
 </div>
 
 </div>
 </section>
 
-<!-- NOUVELLE SECTION BUSINESS -->
+<!-- BUSINESS -->
 <section class="section">
 <h2 class="section-title">Une plateforme avicole complète</h2>
-<p class="section-sub">Plus qu’un bot : un véritable business digital pour les éleveurs.</p>
+
+<p class="section-sub">
+Connecte, vends, recrute et développe ton élevage directement depuis WhatsApp.
+</p>
 
 <div class="grid">
 
 <div class="card">
 <h3>🛒 Marché avicole</h3>
-<p>Vends tes poulets, œufs et matériels facilement.</p>
+<p>
+Publie tes poulets, œufs ou matériels et trouve rapidement des acheteurs.
+</p>
 </div>
 
 <div class="card">
-<h3>💼 Bourse d’emploi</h3>
-<p>Trouve ou propose un travail en élevage.</p>
+<h3>💼 Bourse de l’emploi</h3>
+<p>
+Trouve un emploi en élevage ou recrute un technicien qualifié.
+</p>
 </div>
 
 <div class="card">
 <h3>🤝 Mise en relation</h3>
-<p>Connecte éleveurs, techniciens et investisseurs.</p>
+<p>
+Connecte éleveurs, investisseurs et propriétaires pour développer ton business.
+</p>
 </div>
 
 </div>
@@ -193,50 +269,56 @@ Assistant IA WhatsApp pour éleveurs : suivi, vaccins, marché, emploi — tout 
 
 <!-- COMMANDES -->
 <section class="section commandes">
-<h2 class="section-title">Commandes WhatsApp</h2>
+
+<h2 class="section-title">Mots clés WhatsApp</h2>
 
 <div class="grid">
 
 <div class="cmd">
 <span>prophet</span>
-<p>Créer une bande</p>
+<p>Créer une bande et activer les alertes vaccins automatiques.</p>
 </div>
 
 <div class="cmd">
 <span>suivi</span>
-<p>Suivi journalier</p>
+<p>Saisir les données journalières pour analyser tes performances.</p>
 </div>
 
 <div class="cmd">
 <span>photo</span>
-<p>Diagnostic IA</p>
+<p>Envoyer une image et recevoir un diagnostic vétérinaire.</p>
 </div>
 
 <div class="cmd">
 <span>prix</span>
-<p>Prix du marché</p>
+<p>Consulter les prix du marché en temps réel.</p>
 </div>
 
 <div class="cmd">
 <span>marché</span>
-<p>Vente et achat</p>
+<p>Vendre ou acheter poulets, œufs et matériels.</p>
 </div>
 
 <div class="cmd">
 <span>emploi</span>
-<p>Recrutement et offres</p>
+<p>Trouver un emploi ou recruter pour ta ferme.</p>
+</div>
+
+<div class="cmd">
+<span>races</span>
+<p>Comparer les races de poulets et choisir la meilleure.</p>
 </div>
 
 <div class="cmd">
 <span>menu</span>
-<p>Voir tout</p>
+<p>Accéder à tous les services disponibles.</p>
 </div>
 
 </div>
 </section>
 
 <footer>
-<p>© 2025 Le Partenaire des Éleveurs</p>
+<p>© 2025 Le Partenaire des Éleveurs — Côte d’Ivoire</p>
 </footer>
 
 </body>
