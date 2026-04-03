@@ -280,26 +280,30 @@ async function init() {
     bandesData = await bR.json();
     suiviData  = await sR.json();
     const commandesData = await cR.json();
+
     document.getElementById("headerPhone").textContent = `+${phone}`;
     document.getElementById("loading").style.display = "none";
     document.getElementById("app").style.display = "block";
+
     if (bandesData.length > 0) {
       selectedBande = bandesData[0];
       renderHeaderChips();
       renderDashboard();
       renderVaccins();
-      renderCharts();
     }
+
     renderCommandes(commandesData);
-    await renderProvende();
-    chargerFiche();
-    await chargerSemaines();
-    try { renderCharts(); } catch(e) { console.error('Graphiques:', e); }
+
+    try { await renderProvende(); } catch(e) { console.error('Provende:', e); }
+    try { chargerFiche(); } catch(e) { console.error('Fiche:', e); }
+    try { await chargerSemaines(); } catch(e) { console.error('Semaines:', e); }
+    try { renderCharts(); } catch(e) { console.error('Charts:', e); }
+
   } catch(err) {
+    console.error('Init error:', err);
     document.getElementById("loading").innerHTML = `<div style="text-align:center;padding:32px"><p style="font-size:24px">⚠️</p><p style="color:#888;font-size:13px">Erreur. <button onclick="init()" style="background:#1a4a2e;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;margin-top:8px">Réessayer</button></p></div>`;
   }
 }
-
 // ── NAVIGATION ────────────────────────────────────────────────────
 function switchTab(name, btn) {
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
