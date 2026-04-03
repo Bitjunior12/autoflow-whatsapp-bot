@@ -69,9 +69,9 @@ table.st td:first-child,table.st td:last-child{text-align:left}
 table.st td input{width:100%;background:transparent;border:none;text-align:right;font-size:11px;color:#333;font-family:Arial,sans-serif;outline:none}
 table.st td input.tl{text-align:left}
 table.st td input:focus{background:#f0f7ff;border-radius:3px}
-.bilan-tr{background:#e8f5e9}
-.bilan-tr td{padding:6px 8px;text-align:right;font-size:10px;font-weight:700;color:#1a4a2e;border-top:2px solid #c8e6c9}
+.bilan-tr td{padding:6px 8px;text-align:right;font-size:10px;font-weight:700;color:#1a4a2e;border-top:2px solid #c8e6c9;background:#e8f5e9}
 .bilan-tr td:first-child,.bilan-tr td:last-child{text-align:left}
+.bilan-kpi td{padding:6px 10px;font-size:11px;color:#1a4a2e;background:#f0f7f0;border-bottom:1px solid #e0f0e0}
 .btn-add-sem{width:100%;padding:11px;background:#fff;border:1.5px dashed #ccc;border-radius:12px;color:#888;font-size:12px;cursor:pointer;margin-bottom:14px}
 .btn-add-sem:hover{border-color:#1a4a2e;color:#1a4a2e}
 .global-wrap{overflow-x:auto}
@@ -86,7 +86,6 @@ table.gt tfoot td{font-weight:700;background:#f0f7f0;border-top:2px solid #c8e6c
 .hist-item{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f5f5f5;font-size:12px}
 .hist-item:last-child{border-bottom:none}
 .empty{text-align:center;padding:24px;color:#aaa;font-size:13px}
-.alert-box{background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px}
 @media(max-width:480px){
   .stats-row{grid-template-columns:repeat(2,1fr)}
   .fiche-grid{grid-template-columns:1fr}
@@ -114,16 +113,15 @@ table.gt tfoot td{font-weight:700;background:#f0f7f0;border-top:2px solid #c8e6c
     <button class="tab" onclick="switchTab('provende',this)">Provende</button>
     <button class="tab" onclick="switchTab('commandes',this)">Commandes</button>
   </div>
+
   <!-- DASHBOARD -->
   <div id="tab-dashboard" class="page active">
-    <div id="alertesBande"></div>
     <div class="stats-row">
       <div class="stat-box"><div class="v v-green" id="statSujets">—</div><div class="l">Sujets vivants</div></div>
       <div class="stat-box"><div class="v v-red" id="statMortalite">—</div><div class="l">Mortalité</div></div>
       <div class="stat-box"><div class="v v-blue" id="statJour">—</div><div class="l">Âge de la bande</div></div>
       <div class="stat-box"><div class="v v-amber" id="statPoids">—</div><div class="l">Poids moyen</div></div>
     </div>
-
     <div class="card">
       <div class="card-head"><span>Score de performance</span><small id="scoreJour"></small></div>
       <div class="card-body" style="text-align:center">
@@ -134,14 +132,10 @@ table.gt tfoot td{font-weight:700;background:#f0f7f0;border-top:2px solid #c8e6c
         <p id="scoreComment" style="font-size:12px;color:#666"></p>
       </div>
     </div>
-
     <div class="card">
       <div class="card-head"><span>Prochain rappel vaccinal</span></div>
-      <div class="card-body" id="prochainVaccin">
-        <div class="empty">Aucune bande enregistrée</div>
-      </div>
+      <div class="card-body" id="prochainVaccin"><div class="empty">Aucune bande enregistrée</div></div>
     </div>
-
     <div id="no-data-charts" style="display:none;text-align:center;padding:20px;color:#aaa;font-size:12px;background:#fff;border-radius:12px;margin-bottom:14px">
       Saisissez des données dans le suivi de bande pour voir les graphiques
     </div>
@@ -184,6 +178,10 @@ table.gt tfoot td{font-weight:700;background:#f0f7f0;border-top:2px solid #c8e6c
       </div>
     </div>
 
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 10px">
+      <span style="font-size:13px;font-weight:600;color:#1a4a2e;letter-spacing:.03em;text-transform:uppercase">Suivi journalier</span>
+    </div>
+
     <div id="semaines-container"></div>
     <button class="btn-add-sem" onclick="ajouterSemaine()">+ Ajouter une semaine</button>
 
@@ -194,22 +192,15 @@ table.gt tfoot td{font-weight:700;background:#f0f7f0;border-top:2px solid #c8e6c
           <thead>
             <tr>
               <th style="text-align:left">Semaine</th>
-              <th>GMQ g/j</th>
-              <th>IC</th>
-              <th>PM g</th>
-              <th>TM %</th>
-              <th>TV %</th>
+              <th>GMQ g/j</th><th>IC</th><th>PM g</th><th>TM %</th><th>TV %</th>
             </tr>
           </thead>
           <tbody id="tbody-global"></tbody>
           <tfoot>
             <tr>
               <td>Cumul total</td>
-              <td id="g-gmq">—</td>
-              <td id="g-ic">—</td>
-              <td id="g-pm">—</td>
-              <td id="g-tm">—</td>
-              <td id="g-tv">—</td>
+              <td id="g-gmq">—</td><td id="g-ic">—</td><td id="g-pm">—</td>
+              <td id="g-tm">—</td><td id="g-tv">—</td>
             </tr>
           </tfoot>
         </table>
@@ -221,9 +212,7 @@ table.gt tfoot td{font-weight:700;background:#f0f7f0;border-top:2px solid #c8e6c
   <div id="tab-vaccins" class="page">
     <div class="card">
       <div class="card-head"><span>Calendrier de prophylaxie</span><small id="vaccinType"></small></div>
-      <div class="card-body" id="calendrierVaccins">
-        <div class="empty">Chargement...</div>
-      </div>
+      <div class="card-body" id="calendrierVaccins"><div class="empty">Chargement...</div></div>
     </div>
   </div>
 
@@ -231,9 +220,7 @@ table.gt tfoot td{font-weight:700;background:#f0f7f0;border-top:2px solid #c8e6c
   <div id="tab-provende" class="page">
     <div class="card">
       <div class="card-head"><span>Stock provende</span></div>
-      <div class="card-body" id="stockProvende">
-        <div class="empty">Aucune donnée provende</div>
-      </div>
+      <div class="card-body" id="stockProvende"><div class="empty">Aucune donnée provende</div></div>
     </div>
     <div class="card">
       <div class="card-head"><span>Enregistrer un achat</span></div>
@@ -252,27 +239,24 @@ table.gt tfoot td{font-weight:700;background:#f0f7f0;border-top:2px solid #c8e6c
   <div id="tab-commandes" class="page">
     <div class="card">
       <div class="card-head"><span>Historique de vos commandes</span></div>
-      <div class="card-body" id="historiqueCommandes">
-        <div class="empty">Chargement...</div>
-      </div>
+      <div class="card-body" id="historiqueCommandes"><div class="empty">Chargement...</div></div>
     </div>
   </div>
 </div>
+
 <script>
 const urlParams = new URLSearchParams(window.location.search);
 const phone = window.location.pathname.split("/eleveur/")[1] || urlParams.get("phone");
+let bandesData=[], suiviData=[], selectedBande=null, charts={};
+let semaines=[], semNum=0;
 
-let bandesData = [], suiviData = [], selectedBande = null, charts = {};
-let semaines = [], semNum = 0;
-
-// ── INIT ──────────────────────────────────────────────────────────
 async function init() {
   if (!phone) {
-    document.getElementById("loading").innerHTML = `<div style="text-align:center;padding:32px"><p style="font-size:24px">❌</p><p style="color:#888;font-size:13px">Lien invalide.</p></div>`;
+    document.getElementById("loading").innerHTML=`<div style="text-align:center;padding:32px"><p style="font-size:24px">❌</p><p style="color:#888;font-size:13px">Lien invalide.</p></div>`;
     return;
   }
   try {
-    const [bR, sR, cR] = await Promise.all([
+    const [bR,sR,cR] = await Promise.all([
       fetch(`/api/eleveur/${phone}/bandes`),
       fetch(`/api/eleveur/${phone}/suivi`),
       fetch(`/api/eleveur/${phone}/commandes`)
@@ -280,117 +264,100 @@ async function init() {
     bandesData = await bR.json();
     suiviData  = await sR.json();
     const commandesData = await cR.json();
-
     document.getElementById("headerPhone").textContent = `+${phone}`;
     document.getElementById("loading").style.display = "none";
     document.getElementById("app").style.display = "block";
-
     if (bandesData.length > 0) {
       selectedBande = bandesData[0];
       renderHeaderChips();
       renderDashboard();
       renderVaccins();
     }
-
     renderCommandes(commandesData);
-
-    try { await renderProvende(); } catch(e) { console.error('Provende:', e); }
-    try { chargerFiche(); } catch(e) { console.error('Fiche:', e); }
-    try { await chargerSemaines(); } catch(e) { console.error('Semaines:', e); }
-    try { renderCharts(); } catch(e) { console.error('Charts:', e); }
-
+    try { await renderProvende(); } catch(e) { console.error('Provende:',e); }
+    try { chargerFiche(); } catch(e) { console.error('Fiche:',e); }
+    try { await chargerSemaines(); } catch(e) { console.error('Semaines:',e); }
+    try { renderCharts(); } catch(e) { console.error('Charts:',e); }
   } catch(err) {
-    console.error('Init error:', err);
-    document.getElementById("loading").innerHTML = `<div style="text-align:center;padding:32px"><p style="font-size:24px">⚠️</p><p style="color:#888;font-size:13px">Erreur. <button onclick="init()" style="background:#1a4a2e;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;margin-top:8px">Réessayer</button></p></div>`;
+    console.error('Init error:',err);
+    document.getElementById("loading").innerHTML=`<div style="text-align:center;padding:32px"><p style="font-size:24px">⚠️</p><p style="color:#888;font-size:13px">Erreur. <button onclick="init()" style="background:#1a4a2e;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;margin-top:8px">Réessayer</button></p></div>`;
   }
 }
-// ── NAVIGATION ────────────────────────────────────────────────────
+
 function switchTab(name, btn) {
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   btn.classList.add("active");
   document.getElementById("tab-"+name).classList.add("active");
-  if (name === "dashboard") renderCharts();
-  if (name === "suivi") chargerSemaines();
+  if (name==="dashboard") { try{renderCharts();}catch(e){} }
+  if (name==="suivi") { try{chargerSemaines();}catch(e){} }
 }
 
-// ── HEADER CHIPS ──────────────────────────────────────────────────
 function renderHeaderChips() {
   const el = document.getElementById("headerChips");
-  el.innerHTML = bandesData.map((b,i) => `
-    <div class="bh-chip ${i===0?'active':''}" onclick="selectBande(${i})" id="hchip-${i}">${b.nom}</div>
-  `).join("");
+  el.innerHTML = bandesData.map((b,i)=>
+    `<div class="bh-chip ${i===0?'active':''}" onclick="selectBande(${i})" id="hchip-${i}">${b.nom}</div>`
+  ).join("");
 }
+
 function selectBande(i) {
-  document.querySelectorAll(".bh-chip").forEach(c => c.classList.remove("active"));
+  document.querySelectorAll(".bh-chip").forEach(c=>c.classList.remove("active"));
   document.getElementById("hchip-"+i).classList.add("active");
   selectedBande = bandesData[i];
+  semaines = []; semNum = 0;
   renderDashboard();
   renderVaccins();
-  renderCharts();
+  chargerSemaines();
 }
 
 function renderDashboard() {
   if (!selectedBande) return;
-  const jourBande = Math.floor((new Date() - new Date(selectedBande.dateMiseEnPlace)) / 86400000);
-
-  // Calculer depuis les semaines sauvegardées
-  let totalMort = 0;
-  let dernierPoids = 0;
-  semaines.forEach(sem => {
-    sem.lignes.forEach(l => { totalMort += Number(l.mort)||0; });
-    if (sem.lignes.length > 0) {
-      const p = Number(sem.lignes[sem.lignes.length-1].poids)||0;
-      if (p > 0) dernierPoids = p;
-    }
+  const jourBande = Math.floor((new Date()-new Date(selectedBande.dateMiseEnPlace))/86400000);
+  let totalMort=0, dernierPoids=0;
+  semaines.forEach(sem=>{
+    sem.lignes.forEach(l=>{ totalMort+=Number(l.mort)||0; });
+    if (sem.lignes.length>0) { const p=Number(sem.lignes[sem.lignes.length-1].poids)||0; if(p>0) dernierPoids=p; }
   });
-
-  // Fallback sur suiviData si pas de semaines
-  if (semaines.length === 0) {
-    const sb = suiviData.filter(s => s.bandeNom === selectedBande.nom);
-    totalMort = sb.reduce((s,e) => s+(Number(e.mortalite)||0), 0);
-    const ds = sb[0];
-    if (ds?.poidsMoyen) dernierPoids = ds.poidsMoyen;
+  if (semaines.length===0) {
+    const sb=suiviData.filter(s=>s.bandeNom===selectedBande.nom);
+    totalMort=sb.reduce((s,e)=>s+(Number(e.mortalite)||0),0);
+    if(sb[0]?.poidsMoyen) dernierPoids=sb[0].poidsMoyen;
   }
-
-  document.getElementById("statSujets").textContent = selectedBande.nombreSujets - totalMort;
+  document.getElementById("statSujets").textContent = selectedBande.nombreSujets-totalMort;
   document.getElementById("statMortalite").textContent = totalMort;
   document.getElementById("statJour").textContent = `J${jourBande}`;
-  document.getElementById("statPoids").textContent = dernierPoids ? `${dernierPoids}g` : "—";
+  document.getElementById("statPoids").textContent = dernierPoids?`${dernierPoids}g`:"—";
   document.getElementById("scoreJour").textContent = `J${jourBande}`;
-
-  const taux = (totalMort / selectedBande.nombreSujets) * 100;
-  let score = 100;
-  if (taux > 5) score -= 30; else if (taux > 2) score -= 15; else if (taux > 1) score -= 5;
-  if (semaines.length === 0 && suiviData.filter(s=>s.bandeNom===selectedBande.nom).length===0) score -= 20;
-
-  const sc = document.getElementById("scoreCircle");
-  document.getElementById("scoreVal").textContent = score;
-  if (score >= 80) { sc.style.background="#d1e7dd"; sc.style.color="#0f5132"; document.getElementById("scoreComment").textContent="Excellent élevage — continuez ainsi"; }
-  else if (score >= 60) { sc.style.background="#fff3cd"; sc.style.color="#856404"; document.getElementById("scoreComment").textContent="Bon élevage — quelques améliorations possibles"; }
-  else { sc.style.background="#f8d7da"; sc.style.color="#842029"; document.getElementById("scoreComment").textContent="Attention — consultez un expert rapidement"; }
-
+  const taux=(totalMort/selectedBande.nombreSujets)*100;
+  let score=100;
+  if(taux>5) score-=30; else if(taux>2) score-=15; else if(taux>1) score-=5;
+  if(semaines.length===0&&suiviData.filter(s=>s.bandeNom===selectedBande.nom).length===0) score-=20;
+  const sc=document.getElementById("scoreCircle");
+  document.getElementById("scoreVal").textContent=score;
+  if(score>=80){sc.style.background="#d1e7dd";sc.style.color="#0f5132";document.getElementById("scoreComment").textContent="Excellent élevage — continuez ainsi";}
+  else if(score>=60){sc.style.background="#fff3cd";sc.style.color="#856404";document.getElementById("scoreComment").textContent="Bon élevage — quelques améliorations possibles";}
+  else{sc.style.background="#f8d7da";sc.style.color="#842029";document.getElementById("scoreComment").textContent="Attention — consultez un expert rapidement";}
   renderProchainVaccin(jourBande);
 }
+
 function renderProchainVaccin(jourBande) {
   if (!selectedBande) return;
-  const cal = selectedBande.typeBande === "ponte" ? CALENDRIER_PONTE : CALENDRIER_CHAIR;
-  const el = document.getElementById("prochainVaccin");
-  const prochains = cal.filter(v => v.jour >= jourBande - 1).slice(0, 3);
-  if (!prochains.length) { el.innerHTML = `<p style="text-align:center;color:#1a4a2e;font-size:12px">Cycle de prophylaxie terminé !</p>`; return; }
-  el.innerHTML = prochains.map(v => {
-    const diff = v.jour - jourBande;
-    let cls, lbl;
-    if (diff < 0) { cls="vb-fait"; lbl="Fait"; }
-    else if (diff === 0) { cls="vb-auj"; lbl="Aujourd'hui"; }
-    else if (diff <= 3) { cls="vb-proche"; lbl=`Dans ${diff}j`; }
-    else { cls="vb-futur"; lbl=`J${v.jour}`; }
+  const cal=selectedBande.typeBande==="ponte"?CALENDRIER_PONTE:CALENDRIER_CHAIR;
+  const el=document.getElementById("prochainVaccin");
+  const prochains=cal.filter(v=>v.jour>=jourBande-1).slice(0,3);
+  if(!prochains.length){el.innerHTML=`<p style="text-align:center;color:#1a4a2e;font-size:12px">Cycle terminé !</p>`;return;}
+  el.innerHTML=prochains.map(v=>{
+    const diff=v.jour-jourBande;
+    let cls,lbl;
+    if(diff<0){cls="vb-fait";lbl="Fait";}
+    else if(diff===0){cls="vb-auj";lbl="Aujourd'hui";}
+    else if(diff<=3){cls="vb-proche";lbl=`Dans ${diff}j`;}
+    else{cls="vb-futur";lbl=`J${v.jour}`;}
     return `<div class="vaccin-row"><span class="vbadge ${cls}">${lbl}</span><span style="font-size:12px${diff<=0&&diff>-2?';font-weight:600':''}">${v.message}</span></div>`;
   }).join("");
 }
 
-// ── CALENDRIERS ───────────────────────────────────────────────────
-const CALENDRIER_CHAIR = [
+const CALENDRIER_CHAIR=[
   {jour:1,message:"J1 — Anti-stress"},{jour:2,message:"J2 — Anti-stress"},
   {jour:3,message:"J3 — Vaccin HB1 + H120 + Anti-stress"},{jour:4,message:"J4 — Vitamines"},
   {jour:5,message:"J5 — Vitamines"},{jour:6,message:"J6 — Vitamines"},
@@ -408,7 +375,7 @@ const CALENDRIER_CHAIR = [
   {jour:26,message:"J26 — Hépato-protecteur"},{jour:27,message:"J27 — Eau simple"},
   {jour:28,message:"J28 — Eau simple"},{jour:29,message:"J29 — Eau simple"},{jour:30,message:"J30 — Eau simple"},
 ];
-const CALENDRIER_PONTE = [
+const CALENDRIER_PONTE=[
   {jour:1,message:"J1-J3 — Anti-stress"},{jour:5,message:"J5 — H120 + HB1 + CEVAC IBIRD (EB)"},
   {jour:7,message:"J7 — CEVAC GUMBO L (EB)"},{jour:10,message:"J10 — CEVAC GUMBO L rappel (EB)"},
   {jour:12,message:"J12 — LA SOTA (EB)"},{jour:15,message:"J15 — CEVAC IBD L (EB)"},
@@ -423,208 +390,180 @@ const CALENDRIER_PONTE = [
   {jour:113,message:"J113-J118 — Déparasitage"},{jour:119,message:"J119-J127 — Préparation entrée en ponte"},
 ];
 
-// ── VACCINS ───────────────────────────────────────────────────────
 function renderVaccins() {
   if (!selectedBande) return;
-  const jourBande = Math.floor((new Date() - new Date(selectedBande.dateMiseEnPlace)) / 86400000);
-  const cal = selectedBande.typeBande === "ponte" ? CALENDRIER_PONTE : CALENDRIER_CHAIR;
-  document.getElementById("vaccinType").textContent = selectedBande.typeBande === "ponte" ? "Pondeuse ISA BROWN" : "Poulet de chair";
-  document.getElementById("calendrierVaccins").innerHTML = cal.map(v => {
-    const diff = v.jour - jourBande;
-    let cls, lbl;
-    if (diff < -1) { cls="vb-fait"; lbl="✓ Fait"; }
-    else if (diff === 0 || diff === -1) { cls="vb-auj"; lbl="Aujourd'hui"; }
-    else if (diff <= 3) { cls="vb-proche"; lbl=`Dans ${diff}j`; }
-    else { cls="vb-futur"; lbl=`J${v.jour}`; }
+  const jourBande=Math.floor((new Date()-new Date(selectedBande.dateMiseEnPlace))/86400000);
+  const cal=selectedBande.typeBande==="ponte"?CALENDRIER_PONTE:CALENDRIER_CHAIR;
+  document.getElementById("vaccinType").textContent=selectedBande.typeBande==="ponte"?"Pondeuse ISA BROWN":"Poulet de chair";
+  document.getElementById("calendrierVaccins").innerHTML=cal.map(v=>{
+    const diff=v.jour-jourBande;
+    let cls,lbl;
+    if(diff<-1){cls="vb-fait";lbl="✓ Fait";}
+    else if(diff===0||diff===-1){cls="vb-auj";lbl="Aujourd'hui";}
+    else if(diff<=3){cls="vb-proche";lbl=`Dans ${diff}j`;}
+    else{cls="vb-futur";lbl=`J${v.jour}`;}
     return `<div class="vaccin-row"><span class="vbadge ${cls}">${lbl}</span><span style="font-size:12px;${cls==='vb-auj'||cls==='vb-proche'?'font-weight:600':''}">${v.message}</span></div>`;
   }).join("");
 }
 
-// ── CHARTS ────────────────────────────────────────────────────────
 function renderCharts() {
   if (!selectedBande) return;
+  const isChair=selectedBande.typeBande!=="ponte";
+  const REF_POIDS_CHAIR={1:42,2:60,3:80,4:105,5:130,6:160,7:190,8:230,9:270,10:315,11:365,12:420,13:480,14:550,15:620,16:700,17:790,18:880,19:975,20:1070,21:1170,22:1270,23:1370,24:1470,25:1570,26:1680,27:1790,28:1900,29:2000,30:2100};
+  const REF_POIDS_PONTE={7:70,14:120,21:180,28:250,35:330,42:420,49:510,56:610,63:700,70:800,77:900,84:990,91:1080,98:1150,105:1200,112:1250,119:1300,127:1350};
+  const REF_MORT={1:0.1,2:0.1,3:0.1,4:0.1,5:0.1,6:0.1,7:0.2,8:0.1,9:0.1,10:0.1,11:0.1,12:0.1,13:0.1,14:0.2,15:0.1,16:0.1,17:0.1,18:0.1,19:0.1,20:0.1,21:0.2,22:0.1,23:0.1,24:0.1,25:0.1,26:0.1,27:0.1,28:0.1,29:0.1,30:0.1};
+  const REF_ALIM={1:13,2:18,3:23,4:28,5:33,6:38,7:44,8:51,9:58,10:65,11:73,12:81,13:89,14:97,15:106,16:115,17:124,18:134,19:144,20:154,21:164,22:174,23:184,24:194,25:204,26:214,27:224,28:234,29:244,30:254};
+  const refPoids=isChair?REF_POIDS_CHAIR:REF_POIDS_PONTE;
 
-  const isChair = selectedBande.typeBande !== "ponte";
-
-  // Références standards
-  const REF_POIDS_CHAIR = {1:42,2:60,3:80,4:105,5:130,6:160,7:190,8:230,9:270,10:315,11:365,12:420,13:480,14:550,15:620,16:700,17:790,18:880,19:975,20:1070,21:1170,22:1270,23:1370,24:1470,25:1570,26:1680,27:1790,28:1900,29:2000,30:2100};
-  const REF_POIDS_PONTE = {7:70,14:120,21:180,28:250,35:330,42:420,49:510,56:610,63:700,70:800,77:900,84:990,91:1080,98:1150,105:1200,112:1250,119:1300,127:1350};
-  const REF_MORT_CHAIR = {1:0.1,2:0.1,3:0.1,4:0.1,5:0.1,6:0.1,7:0.2,8:0.1,9:0.1,10:0.1,11:0.1,12:0.1,13:0.1,14:0.2,15:0.1,16:0.1,17:0.1,18:0.1,19:0.1,20:0.1,21:0.2,22:0.1,23:0.1,24:0.1,25:0.1,26:0.1,27:0.1,28:0.1,29:0.1,30:0.1};
-  const REF_ALIMENT_CHAIR = {1:13,2:18,3:23,4:28,5:33,6:38,7:44,8:51,9:58,10:65,11:73,12:81,13:89,14:97,15:106,16:115,17:124,18:134,19:144,20:154,21:164,22:174,23:184,24:194,25:204,26:214,27:224,28:234,29:244,30:254};
-
-  const refPoids = isChair ? REF_POIDS_CHAIR : REF_POIDS_PONTE;
-  const refMort  = REF_MORT_CHAIR;
-  const refAlim  = REF_ALIMENT_CHAIR;
-
-  // Construire les données depuis les semaines
-  let lignesAll = [];
-  semaines.forEach(sem => {
-    sem.lignes.forEach(l => {
-      if (l.date || Number(l.mort)||Number(l.aliment)||Number(l.poids)) {
-        lignesAll.push(l);
-      }
-    });
+  let lignesAll=[];
+  semaines.forEach(sem=>{
+    sem.lignes.forEach(l=>{ if(l.date||Number(l.mort)||Number(l.aliment)||Number(l.poids)) lignesAll.push(l); });
   });
-
-  if (lignesAll.length === 0) {
-    const sb = suiviData.filter(s => s.bandeNom === selectedBande.nom).slice(0,7).reverse();
-    lignesAll = sb.map(s => ({
-      date: new Date(s.createdAt).toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"}),
-      mort: s.mortalite||0, aliment: s.aliment||0, poids: s.poidsMoyen||0, age: null
-    }));
+  if(lignesAll.length===0){
+    const sb=suiviData.filter(s=>s.bandeNom===selectedBande.nom).slice(0,7).reverse();
+    lignesAll=sb.map(s=>({date:new Date(s.createdAt).toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"}),mort:s.mortalite||0,aliment:s.aliment||0,poids:s.poidsMoyen||0,age:null}));
   }
-
-  const recent = lignesAll.slice(-7);
-
-  if (recent.length === 0) {
-    document.getElementById("no-data-charts").style.display = "block";
-    ['chartMortalite','chartPoids','chartAliment'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = "none";
-    });
+  const recent=lignesAll.slice(-7);
+  if(recent.length===0){
+    document.getElementById("no-data-charts").style.display="block";
+    ['chartMortalite','chartPoids','chartAliment'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none";});
     return;
   }
+  document.getElementById("no-data-charts").style.display="none";
+  ['chartMortalite','chartPoids','chartAliment'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="block";});
 
-  document.getElementById("no-data-charts").style.display = "none";
-  ['chartMortalite','chartPoids','chartAliment'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = "block";
-  });
+  const labels=recent.map(l=>l.date||`J${l.age||''}`);
+  const jourBande=Math.floor((new Date()-new Date(selectedBande.dateMiseEnPlace))/86400000);
+  const ages=recent.map((l,i)=>l.age||(jourBande-recent.length+i+1));
+  const mortReel=recent.map(l=>Number(l.mort)||0);
+  const poidsReel=recent.map(l=>Number(l.poids)||0);
+  const alimReel=recent.map(l=>Number(l.aliment)||0);
+  const mortRef=ages.map(a=>REF_MORT[a]||null);
+  const poidsRef=ages.map(a=>refPoids[a]||null);
+  const alimRef=ages.map(a=>REF_ALIM[a]||null);
 
-  const labels   = recent.map(l => l.date || `J${l.age||''}`);
-  const jourDebut = Math.floor((new Date() - new Date(selectedBande.dateMiseEnPlace)) / 86400000);
-  const ages = recent.map((l,i) => l.age || (jourDebut - recent.length + i + 1));
-  const mortReel = recent.map(l => Number(l.mort)||0);
-  const poidsReel= recent.map(l => Number(l.poids)||0);
-  const alimReel = recent.map(l => Number(l.aliment)||0);
-
-  // Courbes de référence selon l'âge
-  const mortRef  = ages.map(a => a ? (refMort[a]||null)  : null);
-  const poidsRef = ages.map(a => a ? (refPoids[a]||null) : null);
-  const alimRef  = ages.map(a => a ? (refAlim[a]||null)  : null);
-
-  const optsDouble = (unit) => ({
-    responsive: true,
-    plugins: {
-      legend: { display: true, position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12 } },
-      tooltip: { callbacks: { label: ctx => `${ctx.dataset.label} : ${ctx.parsed.y} ${unit}` } }
+  const opts=(unit)=>({
+    responsive:true,
+    plugins:{
+      legend:{display:true,position:'bottom',labels:{font:{size:10},boxWidth:12}},
+      tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label} : ${ctx.parsed.y} ${unit}`}}
     },
-    scales: {
-      y: { beginAtZero: true, grid: { color: '#f5f5f5' }, ticks: { font: { size: 10 } } },
-      x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+    scales:{
+      y:{beginAtZero:true,grid:{color:'#f5f5f5'},ticks:{font:{size:10}}},
+      x:{grid:{display:false},ticks:{font:{size:10}}}
     }
   });
 
-  if (charts.m) charts.m.destroy();
-  if (charts.p) charts.p.destroy();
-  if (charts.a) charts.a.destroy();
+  if(charts.m)charts.m.destroy();
+  if(charts.p)charts.p.destroy();
+  if(charts.a)charts.a.destroy();
 
-  const cm = document.getElementById("chartMortalite");
-  const cp = document.getElementById("chartPoids");
-  const ca = document.getElementById("chartAliment");
+  const cm=document.getElementById("chartMortalite");
+  const cp=document.getElementById("chartPoids");
+  const ca=document.getElementById("chartAliment");
 
-  if (cm) charts.m = new Chart(cm, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [
-        { label: "Mortalité réelle", data: mortReel, borderColor: "#dc3545", backgroundColor: "rgba(220,53,69,0.1)", tension: 0.4, fill: true, pointRadius: 4, borderWidth: 2 },
-        { label: "Référence normale", data: mortRef, borderColor: "#28a745", backgroundColor: "transparent", tension: 0.4, fill: false, pointRadius: 3, borderWidth: 2, borderDash: [6,4] }
-      ]
-    },
-    options: optsDouble("sujets")
-  });
+  if(cm) charts.m=new Chart(cm,{type:"line",data:{labels,datasets:[
+    {label:"Mortalité réelle",data:mortReel,borderColor:"#dc3545",backgroundColor:"rgba(220,53,69,0.1)",tension:0.4,fill:true,pointRadius:4,borderWidth:2},
+    {label:"Référence normale",data:mortRef,borderColor:"#28a745",backgroundColor:"transparent",tension:0.4,fill:false,pointRadius:3,borderWidth:2,borderDash:[6,4]}
+  ]},options:opts("sujets")});
 
-  if (cp) charts.p = new Chart(cp, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [
-        { label: "Poids réel", data: poidsReel, borderColor: "#dc3545", backgroundColor: "rgba(220,53,69,0.1)", tension: 0.4, fill: true, pointRadius: 4, borderWidth: 2 },
-        { label: "Référence standard", data: poidsRef, borderColor: "#28a745", backgroundColor: "rgba(40,167,69,0.08)", tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2, borderDash: [6,4] }
-      ]
-    },
-    options: optsDouble("g")
-  });
+  if(cp) charts.p=new Chart(cp,{type:"line",data:{labels,datasets:[
+    {label:"Poids réel",data:poidsReel,borderColor:"#dc3545",backgroundColor:"rgba(220,53,69,0.1)",tension:0.4,fill:true,pointRadius:4,borderWidth:2},
+    {label:"Référence standard",data:poidsRef,borderColor:"#28a745",backgroundColor:"rgba(40,167,69,0.08)",tension:0.4,fill:true,pointRadius:3,borderWidth:2,borderDash:[6,4]}
+  ]},options:opts("g")});
 
-  if (ca) charts.a = new Chart(ca, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [
-        { label: "Consommation réelle", data: alimReel, borderColor: "#dc3545", backgroundColor: "rgba(220,53,69,0.1)", tension: 0.4, fill: true, pointRadius: 4, borderWidth: 2 },
-        { label: "Référence standard", data: alimRef, borderColor: "#28a745", backgroundColor: "rgba(40,167,69,0.08)", tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2, borderDash: [6,4] }
-      ]
-    },
-    options: optsDouble("g/oiseau")
-  });
+  if(ca) charts.a=new Chart(ca,{type:"line",data:{labels,datasets:[
+    {label:"Consommation réelle",data:alimReel,borderColor:"#dc3545",backgroundColor:"rgba(220,53,69,0.1)",tension:0.4,fill:true,pointRadius:4,borderWidth:2},
+    {label:"Référence standard",data:alimRef,borderColor:"#28a745",backgroundColor:"rgba(40,167,69,0.08)",tension:0.4,fill:true,pointRadius:3,borderWidth:2,borderDash:[6,4]}
+  ]},options:opts("g/oiseau")});
 }
-// ── FICHE IDENTIFICATION ──────────────────────────────────────────
+
 function sauvegarderFiche() {
-  const champs = ['ferme','batiment','superficie','lot','responsable','date','effectif','fournisseur','souche','poids'];
-  const data = {};
-  champs.forEach(c => { data[c] = document.getElementById('fi-'+c).value; });
-  if (selectedBande) data.bandeNom = selectedBande.nom;
-  localStorage.setItem('fiche-'+phone+'-'+(selectedBande?.nom||''), JSON.stringify(data));
+  const champs=['ferme','batiment','superficie','lot','responsable','date','effectif','fournisseur','souche','poids'];
+  const data={};
+  champs.forEach(c=>{data[c]=document.getElementById('fi-'+c).value;});
+  if(selectedBande) data.bandeNom=selectedBande.nom;
+  localStorage.setItem('fiche-'+phone+'-'+(selectedBande?.nom||''),JSON.stringify(data));
   alert("Fiche sauvegardée !");
 }
 function chargerFiche() {
-  if (!selectedBande) return;
+  if(!selectedBande) return;
   try {
-    const saved = JSON.parse(localStorage.getItem('fiche-'+phone+'-'+selectedBande.nom) || '{}');
-    const champs = ['ferme','batiment','superficie','lot','responsable','date','effectif','fournisseur','souche','poids'];
-    champs.forEach(c => { const el = document.getElementById('fi-'+c); if (el && saved[c]) el.value = saved[c]; });
-  } catch(e) {}
+    const saved=JSON.parse(localStorage.getItem('fiche-'+phone+'-'+selectedBande.nom)||'{}');
+    const champs=['ferme','batiment','superficie','lot','responsable','date','effectif','fournisseur','souche','poids'];
+    champs.forEach(c=>{const el=document.getElementById('fi-'+c);if(el&&saved[c])el.value=saved[c];});
+  }catch(e){}
 }
 
-// ── SUIVI SEMAINES ────────────────────────────────────────────────
 async function chargerSemaines() {
-  if (!selectedBande) return;
+  if(!selectedBande) return;
   try {
-    const res = await fetch(`/api/eleveur/${phone}/semaines?bandeNom=${encodeURIComponent(selectedBande.nom)}`);
-    const data = await res.json();
-    if (data.success && data.semaines.length > 0) {
-      semaines = data.semaines;
-      semNum = semaines.length;
-      renderSemaines();
-      renderDashboard();
-      renderCharts();
+    const res=await fetch(`/api/eleveur/${phone}/semaines?bandeNom=${encodeURIComponent(selectedBande.nom)}`);
+    const data=await res.json();
+    if(data.success&&data.semaines.length>0){
+      semaines=data.semaines;
+      semNum=semaines.length;
+    } else {
+      semaines=[];
+      semNum=0;
     }
-  } catch(e) { console.error('Erreur chargement semaines:', e); }
+    renderSemaines();
+    renderDashboard();
+    try{renderCharts();}catch(e){}
+  }catch(e){console.error('Erreur chargement semaines:',e);}
 }
 
 async function sauvegarderSemaines() {
-  if (!selectedBande) return;
+  if(!selectedBande) return;
   try {
-    await fetch(`/api/eleveur/${phone}/semaines`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bandeNom: selectedBande.nom, semaines })
+    await fetch(`/api/eleveur/${phone}/semaines`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({bandeNom:selectedBande.nom,semaines})
     });
-  } catch(e) { console.error('Erreur sauvegarde semaines:', e); }
+  }catch(e){console.error('Erreur sauvegarde:',e);}
 }
+
 function renderSemaines() {
-  const container = document.getElementById("semaines-container");
-  container.innerHTML = '';
-  let mortCumulGlobal = 0;
-  const depart = selectedBande?.nombreSujets || 500;
+  const container=document.getElementById("semaines-container");
+  container.innerHTML='';
+  let mortCumulGlobal=0;
+  const depart=selectedBande?.nombreSujets||500;
 
-  semaines.forEach((sem,si) => {
-    let mortSem=0, alimentSem=0, poidsDebut=0, poidsFin=0;
-    sem.lignes.forEach(l => { mortSem+=Number(l.mort)||0; alimentSem+=Number(l.aliment)||0; });
-    if (sem.lignes.length>0) { poidsDebut=Number(sem.lignes[0].poids)||0; poidsFin=Number(sem.lignes[sem.lignes.length-1].poids)||0; }
-    const effDebut = depart - mortCumulGlobal;
-    mortCumulGlobal += mortSem;
-    const effFin = depart - mortCumulGlobal;
-    const gainTotal = (poidsFin-poidsDebut)*effFin/1000;
-    const ic = gainTotal>0 ? (alimentSem/gainTotal).toFixed(2) : '—';
-    const gmq = ((poidsFin-poidsDebut)/7).toFixed(1);
-    const tm = effDebut>0 ? ((mortSem/effDebut)*100).toFixed(2) : '0.00';
-    const tv = (100-parseFloat(tm)).toFixed(2);
+  semaines.forEach((sem,si)=>{
+    let mortSem=0,alimentSem=0,poidsDebut=0,poidsFin=0;
+    sem.lignes.forEach(l=>{mortSem+=Number(l.mort)||0;alimentSem+=Number(l.aliment)||0;});
+    if(sem.lignes.length>0){poidsDebut=Number(sem.lignes[0].poids)||0;poidsFin=Number(sem.lignes[sem.lignes.length-1].poids)||0;}
+    const effDebut=depart-mortCumulGlobal;
+    mortCumulGlobal+=mortSem;
+    const effFin=depart-mortCumulGlobal;
+    const gainTotal=(poidsFin-poidsDebut)*effFin/1000;
+    const ic=gainTotal>0?(alimentSem/gainTotal).toFixed(2):'—';
+    const gmq=((poidsFin-poidsDebut)/7).toFixed(1);
+    const tm=effDebut>0?((mortSem/effDebut)*100).toFixed(2):'0.00';
+    const tv=(100-parseFloat(tm)).toFixed(2);
 
-    const div = document.createElement('div');
-    div.className = 'sem-block';
-    div.innerHTML = `
+    const lignesHTML=sem.lignes.map((l,li)=>{
+      const mortCumL=semaines.slice(0,si).reduce((s,se)=>s+se.lignes.reduce((a,ll)=>a+(Number(ll.mort)||0),0),0)
+        +sem.lignes.slice(0,li+1).reduce((a,ll)=>a+(Number(ll.mort)||0),0);
+      const eff=depart-mortCumL;
+      const consJr=eff>0?Math.round((Number(l.aliment)||0)*1000/eff)+'g':'—';
+      const mortVal=Number(l.mort)||0;
+      return `<tr>
+        <td><input class="tl" value="${l.date}" placeholder="jj/mm" onchange="updateLigne(${si},${li},'date',this.value)"/></td>
+        <td style="color:#888">J${l.age}</td>
+        <td style="color:${mortVal>0?'#dc3545':'#aaa'}"><input type="number" value="${mortVal||''}" placeholder="0" min="0" onchange="updateLigne(${si},${li},'mort',this.value)" style="color:inherit"/></td>
+        <td style="color:${mortCumL>0?'#dc3545':'#aaa'}">${mortCumL}</td>
+        <td>${eff}</td>
+        <td><input type="number" value="${l.aliment||''}" placeholder="0" min="0" onchange="updateLigne(${si},${li},'aliment',this.value)"/></td>
+        <td style="color:#aaa">${consJr}</td>
+        <td><input type="number" value="${l.poids||''}" placeholder="0" min="0" onchange="updateLigne(${si},${li},'poids',this.value)"/></td>
+        <td><input class="tl" value="${l.obs}" placeholder="..." onchange="updateLigne(${si},${li},'obs',this.value)"/></td>
+      </tr>`;
+    }).join('');
+
+    const div=document.createElement('div');
+    div.className='sem-block';
+    div.innerHTML=`
       <div class="sem-head">
         <span>Semaine ${sem.num} — J${sem.debut} à J${sem.fin}</span>
         <div style="display:flex;gap:6px">
@@ -648,26 +587,7 @@ function renderSemaines() {
               <th style="text-align:left;min-width:90px">Observation</th>
             </tr>
           </thead>
-          <tbody>
-            ${sem.lignes.map((l,li) => {
-              const mortCumL = semaines.slice(0,si).reduce((s,se)=>s+se.lignes.reduce((a,ll)=>a+(Number(ll.mort)||0),0),0)
-                + sem.lignes.slice(0,li+1).reduce((a,ll)=>a+(Number(ll.mort)||0),0);
-              const eff = depart - mortCumL;
-              const consJr = eff>0 ? Math.round((Number(l.aliment)||0)*1000/eff)+'g' : '—';
-              const mortVal = Number(l.mort)||0;
-              return `<tr>
-                <td><input class="tl" value="${l.date}" placeholder="jj/mm" onchange="updateLigne(${si},${li},'date',this.value)"/></td>
-                <td style="color:#888">J${l.age}</td>
-                <td style="color:${mortVal>0?'#dc3545':'#aaa'}"><input type="number" value="${mortVal||''}" placeholder="0" min="0" onchange="updateLigne(${si},${li},'mort',this.value)" style="color:inherit"/></td>
-                <td style="color:${mortCumL>0?'#dc3545':'#aaa'}">${mortCumL}</td>
-                <td>${eff}</td>
-                <td><input type="number" value="${l.aliment||''}" placeholder="0" min="0" onchange="updateLigne(${si},${li},'aliment',this.value)"/></td>
-                <td style="color:#aaa">${consJr}</td>
-                <td><input type="number" value="${l.poids||''}" placeholder="0" min="0" onchange="updateLigne(${si},${li},'poids',this.value)"/></td>
-                <td><input class="tl" value="${l.obs}" placeholder="..." onchange="updateLigne(${si},${li},'obs',this.value)"/></td>
-              </tr>`;
-            }).join('')}
-          </tbody>
+          <tbody>${lignesHTML}</tbody>
           <tr class="bilan-tr">
             <td colspan="2" style="text-align:left">Bilan S${sem.num}</td>
             <td style="color:#dc3545">${mortSem}</td>
@@ -678,8 +598,8 @@ function renderSemaines() {
             <td>${poidsFin||'—'}</td>
             <td style="text-align:left">—</td>
           </tr>
-          <tr style="background:#f0f7f0">
-            <td colspan="9" style="padding:6px 10px;font-size:11px;color:#1a4a2e">
+          <tr class="bilan-kpi">
+            <td colspan="9">
               <span style="margin-right:16px">GMQ : <strong>${gmq} g/j</strong></span>
               <span style="margin-right:16px">IC : <strong>${ic}</strong></span>
               <span style="margin-right:16px">PM : <strong>${poidsFin||'—'} g</strong></span>
@@ -687,81 +607,68 @@ function renderSemaines() {
               <span>TV : <strong style="color:#1a4a2e">${tv}%</strong></span>
             </td>
           </tr>
-            <td colspan="2">Bilan S${sem.num}</td>
-            <td style="color:#dc3545">${mortSem}</td>
-            <td style="color:#dc3545">${mortCumulGlobal}</td>
-            <td>${effFin}</td>
-            <td>${alimentSem}</td>
-            <td>—</td>
-            <td>${poidsFin||'—'}</td>
-            <td style="text-align:left;font-size:10px">GMQ: ${gmq}g · IC: ${ic} · TM: ${tm}% · TV: ${tv}%</td>
-          </tr>
         </table>
       </div>`;
     container.appendChild(div);
   });
   renderBilanGlobal();
 }
+
 function ajouterSemaine() {
   semNum++;
-  const debut = (semNum-1)*7+1;
-  const fin = semNum*7;
-  const lignes = [];
-  for (let j=debut; j<=fin; j++) lignes.push({age:j,date:'',mort:0,aliment:0,poids:0,obs:''});
+  const debut=(semNum-1)*7+1, fin=semNum*7;
+  const lignes=[];
+  for(let j=debut;j<=fin;j++) lignes.push({age:j,date:'',mort:0,aliment:0,poids:0,obs:''});
   semaines.push({num:semNum,debut,fin,lignes});
   renderSemaines();
   sauvegarderSemaines();
 }
-
 function ajouterLigne(si) {
-  const sem = semaines[si];
-  const dernierAge = sem.lignes.length>0 ? sem.lignes[sem.lignes.length-1].age : sem.debut-1;
+  const sem=semaines[si];
+  const dernierAge=sem.lignes.length>0?sem.lignes[sem.lignes.length-1].age:sem.debut-1;
   sem.lignes.push({age:dernierAge+1,date:'',mort:0,aliment:0,poids:0,obs:''});
   renderSemaines();
   sauvegarderSemaines();
 }
-
 function updateLigne(si,li,key,val) {
-  semaines[si].lignes[li][key] = val;
+  semaines[si].lignes[li][key]=val;
   renderSemaines();
   sauvegarderSemaines();
 }
-
 function supprimerSemaine(si) {
-  if (!confirm("Supprimer cette semaine ?")) return;
-  semaines.splice(si, 1);
-  semNum = semaines.length;
-  semaines.forEach((s,i) => s.num = i+1);
+  if(!confirm("Supprimer cette semaine ?")) return;
+  semaines.splice(si,1);
+  semNum=semaines.length;
+  semaines.forEach((s,i)=>s.num=i+1);
   renderSemaines();
   sauvegarderSemaines();
 }
-
 function supprimerLigne(si) {
-  if (semaines[si].lignes.length <= 1) { alert("❌ Minimum 1 ligne par semaine"); return; }
+  if(semaines[si].lignes.length<=1){alert("❌ Minimum 1 ligne par semaine");return;}
   semaines[si].lignes.pop();
   renderSemaines();
   sauvegarderSemaines();
 }
-function renderBilanGlobal() {
-  const tbody = document.getElementById("tbody-global");
-  tbody.innerHTML = '';
-  const depart = selectedBande?.nombreSujets || 500;
-  let mortCum=0, totalAliment=0, premierPoids=0, dernierPoids=0, totalMort=0;
 
-  semaines.forEach((sem,si) => {
-    let mortSem=0, alimentSem=0, poidsDebut=0, poidsFin=0;
-    sem.lignes.forEach(l => { mortSem+=Number(l.mort)||0; alimentSem+=Number(l.aliment)||0; });
-    if (sem.lignes.length>0) { poidsDebut=Number(sem.lignes[0].poids)||0; poidsFin=Number(sem.lignes[sem.lignes.length-1].poids)||0; }
-    const effDebut = depart - mortCum;
-    mortCum += mortSem;
-    const effFin = depart - mortCum;
-    const gain = (poidsFin-poidsDebut)*effFin/1000;
-    const ic = gain>0 ? (alimentSem/gain).toFixed(2) : '—';
-    const gmq = ((poidsFin-poidsDebut)/7).toFixed(1);
-    const tm = effDebut>0 ? ((mortSem/effDebut)*100).toFixed(2) : '0.00';
-    const tv = (100-parseFloat(tm)).toFixed(2);
-    totalAliment+=alimentSem; totalMort+=mortSem;
-    if (si===0) premierPoids=poidsDebut;
+function renderBilanGlobal() {
+  const tbody=document.getElementById("tbody-global");
+  tbody.innerHTML='';
+  const depart=selectedBande?.nombreSujets||500;
+  let mortCum=0,totalAliment=0,premierPoids=0,dernierPoids=0,totalMort=0;
+  semaines.forEach((sem,si)=>{
+    let mortSem=0,alimentSem=0,poidsDebut=0,poidsFin=0;
+    sem.lignes.forEach(l=>{mortSem+=Number(l.mort)||0;alimentSem+=Number(l.aliment)||0;});
+    if(sem.lignes.length>0){poidsDebut=Number(sem.lignes[0].poids)||0;poidsFin=Number(sem.lignes[sem.lignes.length-1].poids)||0;}
+    const effDebut=depart-mortCum;
+    mortCum+=mortSem;
+    const effFin=depart-mortCum;
+    const gain=(poidsFin-poidsDebut)*effFin/1000;
+    const ic=gain>0?(alimentSem/gain).toFixed(2):'—';
+    const gmq=((poidsFin-poidsDebut)/7).toFixed(1);
+    const tm=effDebut>0?((mortSem/effDebut)*100).toFixed(2):'0.00';
+    const tv=(100-parseFloat(tm)).toFixed(2);
+    totalAliment+=alimentSem;totalMort+=mortSem;
+    if(si===0) premierPoids=poidsDebut;
     dernierPoids=poidsFin;
     const tr=document.createElement('tr');
     tr.innerHTML=`
@@ -772,35 +679,33 @@ function renderBilanGlobal() {
       <td style="color:#1a4a2e">${tv}</td>`;
     tbody.appendChild(tr);
   });
-
-  if (semaines.length>0) {
-    const totalJ = semaines.length*7;
-    const gmqT = ((dernierPoids-premierPoids)/totalJ).toFixed(1);
-    const effF = depart-totalMort;
-    const gainG = (dernierPoids-premierPoids)*effF/1000;
-    const icG = gainG>0 ? (totalAliment/gainG).toFixed(2) : '—';
-    const tmG = ((totalMort/depart)*100).toFixed(2);
-    const tvG = (100-parseFloat(tmG)).toFixed(2);
-    document.getElementById('g-gmq').textContent = gmqT+'g';
-    document.getElementById('g-ic').textContent = icG;
-    document.getElementById('g-pm').textContent = dernierPoids?dernierPoids+'g':'—';
-    document.getElementById('g-tm').textContent = tmG+'%';
-    document.getElementById('g-tv').textContent = tvG+'%';
+  if(semaines.length>0){
+    const totalJ=semaines.length*7;
+    const gmqT=((dernierPoids-premierPoids)/totalJ).toFixed(1);
+    const effF=depart-totalMort;
+    const gainG=(dernierPoids-premierPoids)*effF/1000;
+    const icG=gainG>0?(totalAliment/gainG).toFixed(2):'—';
+    const tmG=((totalMort/depart)*100).toFixed(2);
+    const tvG=(100-parseFloat(tmG)).toFixed(2);
+    document.getElementById('g-gmq').textContent=gmqT+'g';
+    document.getElementById('g-ic').textContent=icG;
+    document.getElementById('g-pm').textContent=dernierPoids?dernierPoids+'g':'—';
+    document.getElementById('g-tm').textContent=tmG+'%';
+    document.getElementById('g-tv').textContent=tvG+'%';
   }
 }
 
-// ── PROVENDE ──────────────────────────────────────────────────────
 async function renderProvende() {
   try {
-    const res = await fetch(`/api/eleveur/${phone}/provende`);
-    const data = await res.json();
-    const el = document.getElementById("stockProvende");
-    if (!data||data.length===0) { el.innerHTML=`<div class="empty">Aucun achat enregistré</div>`; return; }
-    const totalA = data.filter(d=>d.type==="achat").reduce((s,d)=>s+d.quantite,0);
-    const totalC = data.filter(d=>d.type==="consommation").reduce((s,d)=>s+d.quantite,0);
-    const rest = totalA-totalC;
-    const pct = totalA>0?Math.min(100,Math.round(rest/totalA*100)):0;
-    el.innerHTML = `
+    const res=await fetch(`/api/eleveur/${phone}/provende`);
+    const data=await res.json();
+    const el=document.getElementById("stockProvende");
+    if(!data||data.length===0){el.innerHTML=`<div class="empty">Aucun achat enregistré</div>`;return;}
+    const totalA=data.filter(d=>d.type==="achat").reduce((s,d)=>s+d.quantite,0);
+    const totalC=data.filter(d=>d.type==="consommation").reduce((s,d)=>s+d.quantite,0);
+    const rest=totalA-totalC;
+    const pct=totalA>0?Math.min(100,Math.round(rest/totalA*100)):0;
+    el.innerHTML=`
       <div style="margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
           <span style="color:#888">Stock restant</span>
@@ -821,34 +726,34 @@ async function renderProvende() {
           </div>
           <strong style="color:${d.type==='achat'?'#1a4a2e':'#dc3545'}">${d.type==="achat"?"+":"-"}${d.quantite} kg</strong>
         </div>`).join("")}`;
-  } catch(e) { console.error(e); }
+  }catch(e){console.error(e);}
 }
+
 async function enregistrerAchatProvende() {
-  const qte = parseFloat(document.getElementById("provendeQte").value);
-  const prix = parseFloat(document.getElementById("provendePrix").value)||0;
-  const fourn = document.getElementById("provendeFournisseur").value;
-  if (!qte||qte<=0) { alert("❌ Entrez une quantité valide"); return; }
+  const qte=parseFloat(document.getElementById("provendeQte").value);
+  const prix=parseFloat(document.getElementById("provendePrix").value)||0;
+  const fourn=document.getElementById("provendeFournisseur").value;
+  if(!qte||qte<=0){alert("❌ Entrez une quantité valide");return;}
   try {
-    const res = await fetch(`/api/eleveur/${phone}/provende`,{
-      method:"POST", headers:{"Content-Type":"application/json"},
+    const res=await fetch(`/api/eleveur/${phone}/provende`,{
+      method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({bandeNom:selectedBande?.nom||"",quantite:qte,prixUnitaire:prix,fournisseur:fourn,type:"achat"})
     });
-    const data = await res.json();
-    if (data.success) {
+    const data=await res.json();
+    if(data.success){
       alert("✅ Achat enregistré !");
       document.getElementById("provendeQte").value="";
       document.getElementById("provendePrix").value="";
       document.getElementById("provendeFournisseur").value="";
       await renderProvende();
     }
-  } catch(e) { alert("❌ Erreur réseau"); }
+  }catch(e){alert("❌ Erreur réseau");}
 }
 
-// ── COMMANDES ────────────────────────────────────────────────────
 function renderCommandes(commandes) {
-  const el = document.getElementById("historiqueCommandes");
-  if (!commandes||commandes.length===0) { el.innerHTML=`<div class="empty">Aucune commande</div>`; return; }
-  el.innerHTML = commandes.map(c=>`
+  const el=document.getElementById("historiqueCommandes");
+  if(!commandes||commandes.length===0){el.innerHTML=`<div class="empty">Aucune commande</div>`;return;}
+  el.innerHTML=commandes.map(c=>`
     <div class="hist-item">
       <div>
         <span style="font-size:11px;color:#aaa">${new Date(c.createdAt).toLocaleDateString("fr-FR")}</span>
