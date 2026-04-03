@@ -2375,7 +2375,7 @@ app.post("/api/verifier-code", async (req, res) => {
       `✅ *Compte activé avec succès !*\n\n` +
       `Bienvenue sur *Le Partenaire des Éleveurs* 🐔\n\n` +
       `👉 Accédez à votre espace :\n` +
-      `${process.env.APP_URL}/eleveur/${tel}\n\n` +
+      `${process.env.APP_URL}/eleveur/${tel.replace(/^\+/, '')}\n\n` +
       `↩️ Tapez *menu* pour accéder à tous nos services`
     );
 
