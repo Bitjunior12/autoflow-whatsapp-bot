@@ -290,6 +290,8 @@ async function init() {
     renderCommandes(commandesData);
     await renderProvende();
     chargerFiche();
+    await chargerSemaines();
+    renderCharts();
   } catch(err) {
     document.getElementById("loading").innerHTML = `<div style="text-align:center;padding:32px"><p style="font-size:24px">⚠️</p><p style="color:#888;font-size:13px">Erreur. <button onclick="init()" style="background:#1a4a2e;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;margin-top:8px">Réessayer</button></p></div>`;
   }
@@ -302,6 +304,7 @@ function switchTab(name, btn) {
   btn.classList.add("active");
   document.getElementById("tab-"+name).classList.add("active");
   if (name === "dashboard") renderCharts();
+  if (name === "suivi") chargerSemaines();
 }
 
 // ── HEADER CHIPS ──────────────────────────────────────────────────
@@ -494,6 +497,30 @@ function chargerFiche() {
 }
 
 // ── SUIVI SEMAINES ────────────────────────────────────────────────
+async function chargerSemaines() {
+  if (!selectedBande) return;
+  try {
+    const res = await fetch(`/api/eleveur/${phone}/semaines?bandeNom=${encodeURIComponent(selectedBande.nom)}`);
+    const data = await res.json();
+    if (data.success && data.semaines.length > 0) {
+      semaines = data.semaines;
+      semNum = semaines.length;
+      renderSemaines();
+    }
+  } catch(e) { console.error('Erreur chargement semaines:', e); }
+}
+
+async function sauvegarderSemaines() {
+  if (!selectedBande) return;
+  try {
+    await fetch(`/api/eleveur/${phone}/semaines`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bandeNom: selectedBande.nom, semaines })
+    });
+  } catch(e) { console.error('Erreur sauvegarde semaines:', e); }
+}
+
 function ajouterSemaine() {
   semNum++;
   const debut = (semNum-1)*7+1;
@@ -502,109 +529,37 @@ function ajouterSemaine() {
   for (let j=debut; j<=fin; j++) lignes.push({age:j,date:'',mort:0,aliment:0,poids:0,obs:''});
   semaines.push({num:semNum,debut,fin,lignes});
   renderSemaines();
+  sauvegarderSemaines();
 }
+
 function ajouterLigne(si) {
   const sem = semaines[si];
   const dernierAge = sem.lignes.length>0 ? sem.lignes[sem.lignes.length-1].age : sem.debut-1;
   sem.lignes.push({age:dernierAge+1,date:'',mort:0,aliment:0,poids:0,obs:''});
   renderSemaines();
+  sauvegarderSemaines();
 }
+
 function updateLigne(si,li,key,val) {
   semaines[si].lignes[li][key] = val;
   renderSemaines();
+  sauvegarderSemaines();
 }
-function renderSemaines() {
-  const container = document.getElementById("semaines-container");
-  container.innerHTML = '';
-  let mortCumulGlobal = 0;
-  const depart = selectedBande?.nombreSujets || 500;
 
-  semaines.forEach((sem,si) => {
-    let mortSem=0, alimentSem=0, poidsDebut=0, poidsFin=0;
-    sem.lignes.forEach(l => { mortSem+=Number(l.mort)||0; alimentSem+=Number(l.aliment)||0; });
-    if (sem.lignes.length>0) { poidsDebut=Number(sem.lignes[0].poids)||0; poidsFin=Number(sem.lignes[sem.lignes.length-1].poids)||0; }
-    const effDebut = depart - mortCumulGlobal;
-    mortCumulGlobal += mortSem;
-    const effFin = depart - mortCumulGlobal;
-    const gainTotal = (poidsFin-poidsDebut)*effFin/1000;
-    const ic = gainTotal>0 ? (alimentSem/gainTotal).toFixed(2) : '—';
-    const gmq = ((poidsFin-poidsDebut)/7).toFixed(1);
-    const tm = effDebut>0 ? ((mortSem/effDebut)*100).toFixed(2) : '0.00';
-    const tv = (100-parseFloat(tm)).toFixed(2);
-
-    const div = document.createElement('div');
-    div.className = 'sem-block';
-    div.innerHTML = `
-      <div class="sem-head">
-        <span>Semaine ${sem.num} — J${sem.debut} à J${sem.fin}</span>
-        <div style="display:flex;gap:6px">
-          <button onclick="ajouterLigne(${si})">+ Ligne</button>
-          <button onclick="supprimerLigne(${si})" style="color:#dc3545;border-color:#f5c6cb">- Ligne</button>
-          <button onclick="supprimerSemaine(${si})" style="color:#dc3545;border-color:#f5c6cb">Supprimer</button>
-        </div>
-      </div>
-      <div class="suivi-wrap">
-        <table class="st">
-          <thead>
-            <tr>
-              <th style="text-align:left;min-width:65px">Date</th>
-              <th style="min-width:35px">Âge</th>
-              <th style="min-width:45px">Mort</th>
-              <th style="min-width:70px">Mort cumul</th>
-              <th style="min-width:70px">Effectif</th>
-              <th style="min-width:70px">Aliment kg</th>
-              <th style="min-width:55px">Conso/jr</th>
-              <th style="min-width:55px">Poids g</th>
-              <th style="text-align:left;min-width:90px">Observation</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${sem.lignes.map((l,li) => {
-              const mortCumL = semaines.slice(0,si).reduce((s,se)=>s+se.lignes.reduce((a,ll)=>a+(Number(ll.mort)||0),0),0)
-                + sem.lignes.slice(0,li+1).reduce((a,ll)=>a+(Number(ll.mort)||0),0);
-              const eff = depart - mortCumL;
-              const consJr = eff>0 ? Math.round((Number(l.aliment)||0)*1000/eff)+'g' : '—';
-              const mortVal = Number(l.mort)||0;
-              return `<tr>
-                <td><input class="tl" value="${l.date}" placeholder="jj/mm" onchange="updateLigne(${si},${li},'date',this.value)"/></td>
-                <td style="color:#888">J${l.age}</td>
-                <td style="color:${mortVal>0?'#dc3545':'#aaa'}"><input type="number" value="${mortVal||''}" placeholder="0" min="0" onchange="updateLigne(${si},${li},'mort',this.value)" style="color:inherit"/></td>
-                <td style="color:${mortCumL>0?'#dc3545':'#aaa'}">${mortCumL}</td>
-                <td>${eff}</td>
-                <td><input type="number" value="${l.aliment||''}" placeholder="0" min="0" onchange="updateLigne(${si},${li},'aliment',this.value)"/></td>
-                <td style="color:#aaa">${consJr}</td>
-                <td><input type="number" value="${l.poids||''}" placeholder="0" min="0" onchange="updateLigne(${si},${li},'poids',this.value)"/></td>
-                <td><input class="tl" value="${l.obs}" placeholder="..." onchange="updateLigne(${si},${li},'obs',this.value)"/></td>
-              </tr>`;
-            }).join('')}
-          </tbody>
-          <tr class="bilan-tr">
-            <td colspan="2">Bilan S${sem.num}</td>
-            <td style="color:#dc3545">${mortSem}</td>
-            <td style="color:#dc3545">${mortCumulGlobal}</td>
-            <td>${effFin}</td>
-            <td>${alimentSem}</td>
-            <td>—</td>
-            <td>${poidsFin||'—'}</td>
-            <td style="text-align:left;font-size:10px">GMQ: ${gmq}g · IC: ${ic} · TM: ${tm}% · TV: ${tv}%</td>
-          </tr>
-        </table>
-      </div>`;
-    container.appendChild(div);
-  });
-  renderBilanGlobal();
-}
 function supprimerSemaine(si) {
   if (!confirm("Supprimer cette semaine ?")) return;
   semaines.splice(si, 1);
   semNum = semaines.length;
   semaines.forEach((s,i) => s.num = i+1);
   renderSemaines();
+  sauvegarderSemaines();
 }
+
 function supprimerLigne(si) {
-  if (semaines[si].lignes.length <= 1) { alert("❌ Impossible — minimum 1 ligne par semaine"); return; }
+  if (semaines[si].lignes.length <= 1) { alert("❌ Minimum 1 ligne par semaine"); return; }
   semaines[si].lignes.pop();
   renderSemaines();
+  sauvegarderSemaines();
 }
 function renderBilanGlobal() {
   const tbody = document.getElementById("tbody-global");

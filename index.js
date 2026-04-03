@@ -2462,7 +2462,35 @@ app.get("/api/eleveur/:phone/suivi", async (req, res) => {
     res.json([]);
   }
 });
+// Sauvegarder semaines suivi
+app.post("/api/eleveur/:phone/semaines", async (req, res) => {
+  try {
+    const { bandeNom, semaines } = req.body;
+    await mongoose.connection.collection('semaines_suivi').updateOne(
+      { phone: req.params.phone, bandeNom },
+      { $set: { phone: req.params.phone, bandeNom, semaines, updatedAt: new Date() } },
+      { upsert: true }
+    );
+    res.json({ success: true });
+  } catch(err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
+// Charger semaines suivi
+app.get("/api/eleveur/:phone/semaines", async (req, res) => {
+  try {
+    const { bandeNom } = req.query;
+    const phone = req.params.phone;
+    const variantes = [phone, phone.replace(/^2250/, '225'), phone.replace(/^225/, '2250')];
+    const doc = await mongoose.connection.collection('semaines_suivi').findOne({
+      phone: { $in: variantes }, bandeNom
+    });
+    res.json({ success: true, semaines: doc?.semaines || [] });
+  } catch(err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 // Enregistrer saisie suivi
 app.post("/api/eleveur/:phone/suivi", async (req, res) => {
   try {
