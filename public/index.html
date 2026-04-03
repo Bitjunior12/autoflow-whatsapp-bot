@@ -525,22 +525,271 @@ footer{
 #btn-espace:hover{background:var(--vert-clair);transform:translateY(-2px);box-shadow:0 12px 30px rgba(26,74,46,.4)}
 </style>
 
+<!-- BOUTON FLOTTANT ESPACE ÉLEVEUR -->
+<div id="btn-espace" onclick="openEspace()" style="
+  position:fixed;bottom:2rem;right:2rem;z-index:200;
+  background:var(--vert);color:white;
+  padding:.85rem 1.4rem;border-radius:50px;
+  font-weight:700;font-size:.88rem;
+  box-shadow:0 8px 25px rgba(26,74,46,.35);
+  cursor:pointer;display:flex;align-items:center;gap:8px;
+  transition:all .2s;
+">
+  👨‍🌾 Mon Espace
+</div>
+
+<!-- MODAL ESPACE ÉLEVEUR -->
+<div id="modal-espace" onclick="if(event.target===this)closeEspace()" style="
+  display:none;position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;padding:1rem;
+">
+  <div style="
+    background:white;border-radius:20px;width:100%;max-width:420px;
+    box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;
+    animation:popIn .25s ease;
+  ">
+    <!-- HEADER -->
+    <div style="background:linear-gradient(135deg,var(--vert),#0f2d1e);padding:2rem;text-align:center;position:relative">
+      <button onclick="closeEspace()" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,.15);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:.9rem">✕</button>
+      <div style="font-size:3rem;margin-bottom:.5rem">👨‍🌾</div>
+      <h3 style="color:white;font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:.25rem">Mon Espace Éleveur</h3>
+      <p style="color:rgba(255,255,255,.7);font-size:.82rem">Gérez votre ferme, vos bandes et vos annonces</p>
+    </div>
+
+    <!-- TABS -->
+    <div style="display:flex;border-bottom:1px solid #e5e7eb;">
+      <button id="tab-connexion" onclick="switchTab('connexion')" style="flex:1;padding:.85rem;border:none;background:none;font-weight:700;font-size:.88rem;color:var(--vert);border-bottom:2px solid var(--vert);cursor:pointer;font-family:'DM Sans',sans-serif">
+        Connexion
+      </button>
+      <button id="tab-inscription" onclick="switchTab('inscription')" style="flex:1;padding:.85rem;border:none;background:none;font-weight:500;font-size:.88rem;color:#9ca3af;border-bottom:2px solid transparent;cursor:pointer;font-family:'DM Sans',sans-serif">
+        Inscription
+      </button>
+    </div>
+
+    <!-- CONTENU CONNEXION -->
+    <div id="panel-connexion" style="padding:1.75rem">
+      <div id="conn-step1">
+        <label style="display:block;font-size:.78rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.5rem">Votre numéro WhatsApp</label>
+        <input id="conn-tel" type="tel" placeholder="+225 07 00 00 00"
+          style="width:100%;padding:.75rem 1rem;border:1.5px solid #e5e7eb;border-radius:10px;font-size:.95rem;color:#374151;font-family:'DM Sans',sans-serif;margin-bottom:1rem">
+        <button onclick="demanderCodeConnexion()" style="width:100%;padding:.88rem;background:var(--vert);color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.95rem;border:none;border-radius:10px;cursor:pointer">
+          Recevoir mon code WhatsApp
+        </button>
+      </div>
+      <div id="conn-step2" style="display:none">
+        <p style="font-size:.85rem;color:#6b7280;margin-bottom:1rem;text-align:center">
+          📱 Code envoyé sur WhatsApp.<br>Entrez-le ci-dessous.
+        </p>
+        <input id="conn-code" type="text" placeholder="1234" maxlength="4"
+          style="width:100%;padding:.75rem 1rem;border:1.5px solid #e5e7eb;border-radius:10px;font-size:1.5rem;color:#374151;font-family:monospace;text-align:center;letter-spacing:.5rem;margin-bottom:1rem">
+        <button onclick="verifierConnexion()" style="width:100%;padding:.88rem;background:var(--vert);color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.95rem;border:none;border-radius:10px;cursor:pointer">
+          Accéder à mon espace →
+        </button>
+        <button onclick="resetConn()" style="width:100%;padding:.5rem;background:none;color:#9ca3af;font-size:.82rem;border:none;cursor:pointer;margin-top:.5rem">
+          ← Changer de numéro
+        </button>
+      </div>
+      <div id="conn-msg" style="font-size:.82rem;text-align:center;margin-top:.75rem;min-height:1.2rem"></div>
+    </div>
+
+    <!-- CONTENU INSCRIPTION -->
+    <div id="panel-inscription" style="padding:1.75rem;display:none">
+      <div id="insc-step1">
+        <div style="display:grid;gap:.75rem;margin-bottom:1rem">
+          <div>
+            <label style="display:block;font-size:.75rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">Nom complet *</label>
+            <input id="insc-nom" type="text" placeholder="Ex: Kouassi Emmanuel"
+              style="width:100%;padding:.72rem 1rem;border:1.5px solid #e5e7eb;border-radius:10px;font-size:.9rem;color:#374151;font-family:'DM Sans',sans-serif">
+          </div>
+          <div>
+            <label style="display:block;font-size:.75rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">Numéro WhatsApp *</label>
+            <input id="insc-tel" type="tel" placeholder="+225 07 00 00 00"
+              style="width:100%;padding:.72rem 1rem;border:1.5px solid #e5e7eb;border-radius:10px;font-size:.9rem;color:#374151;font-family:'DM Sans',sans-serif">
+          </div>
+          <div>
+            <label style="display:block;font-size:.75rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">Vous êtes *</label>
+            <select id="insc-type" style="width:100%;padding:.72rem 1rem;border:1.5px solid #e5e7eb;border-radius:10px;font-size:.9rem;color:#374151;font-family:'DM Sans',sans-serif;appearance:none">
+              <option value="">-- Choisir --</option>
+              <option>Éleveur</option>
+              <option>Vendeur</option>
+              <option>Recruteur</option>
+              <option>Technicien</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;font-size:.75rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">Région *</label>
+            <select id="insc-region" style="width:100%;padding:.72rem 1rem;border:1.5px solid #e5e7eb;border-radius:10px;font-size:.9rem;color:#374151;font-family:'DM Sans',sans-serif;appearance:none">
+              <option value="">-- Choisir --</option>
+              <option>Abidjan</option><option>Bouaké</option>
+              <option>Yamoussoukro</option><option>Korhogo</option>
+              <option>San-Pédro</option><option>Daloa</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="demanderCodeInscription()" style="width:100%;padding:.88rem;background:var(--vert);color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.95rem;border:none;border-radius:10px;cursor:pointer">
+          Recevoir mon code WhatsApp
+        </button>
+      </div>
+      <div id="insc-step2" style="display:none">
+        <p style="font-size:.85rem;color:#6b7280;margin-bottom:1rem;text-align:center">
+          📱 Code envoyé sur WhatsApp.<br>Entrez-le ci-dessous.
+        </p>
+        <input id="insc-code" type="text" placeholder="1234" maxlength="4"
+          style="width:100%;padding:.75rem 1rem;border:1.5px solid #e5e7eb;border-radius:10px;font-size:1.5rem;color:#374151;font-family:monospace;text-align:center;letter-spacing:.5rem;margin-bottom:1rem">
+        <button onclick="verifierInscription()" style="width:100%;padding:.88rem;background:var(--vert);color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.95rem;border:none;border-radius:10px;cursor:pointer">
+          Confirmer mon inscription →
+        </button>
+        <button onclick="resetInsc()" style="width:100%;padding:.5rem;background:none;color:#9ca3af;font-size:.82rem;border:none;cursor:pointer;margin-top:.5rem">
+          ← Modifier mes informations
+        </button>
+      </div>
+      <div id="insc-msg" style="font-size:.82rem;text-align:center;margin-top:.75rem;min-height:1.2rem"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes popIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+#btn-espace:hover{background:var(--vert-clair);transform:translateY(-2px);box-shadow:0 12px 30px rgba(26,74,46,.4)}
+</style>
+
 <script>
+let connTel = '';
+let inscTel = '';
+
 function openEspace(){
   document.getElementById('modal-espace').style.display='flex';
   document.body.style.overflow='hidden';
-  setTimeout(()=>document.getElementById('espace-tel').focus(),200);
 }
 function closeEspace(){
   document.getElementById('modal-espace').style.display='none';
   document.body.style.overflow='';
 }
-function accederEspace(){
-  let tel = document.getElementById('espace-tel').value.trim();
-  if(!tel){alert('❌ Entrez votre numéro WhatsApp');return;}
-  tel = tel.replace(/[\s+\-()]/g,'');
-  if(tel.length < 8){alert('❌ Numéro invalide');return;}
-  window.location.href = '/eleveur/' + tel;
+
+function switchTab(tab){
+  const isConn = tab === 'connexion';
+  document.getElementById('panel-connexion').style.display = isConn ? 'block' : 'none';
+  document.getElementById('panel-inscription').style.display = isConn ? 'none' : 'block';
+  document.getElementById('tab-connexion').style.cssText += isConn
+    ? 'font-weight:700;color:var(--vert);border-bottom:2px solid var(--vert)'
+    : 'font-weight:500;color:#9ca3af;border-bottom:2px solid transparent';
+  document.getElementById('tab-inscription').style.cssText += isConn
+    ? 'font-weight:500;color:#9ca3af;border-bottom:2px solid transparent'
+    : 'font-weight:700;color:var(--vert);border-bottom:2px solid var(--vert)';
+}
+
+function showMsg(id, msg, color='#ef4444'){
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.color = color;
+}
+
+// ── CONNEXION ──────────────────────────────────────────────────────
+async function demanderCodeConnexion(){
+  const tel = document.getElementById('conn-tel').value.trim();
+  if(!tel){showMsg('conn-msg','❌ Entrez votre numéro WhatsApp');return;}
+  showMsg('conn-msg','⏳ Envoi du code...','#6b7280');
+  try{
+    const res = await fetch('/api/connexion',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({telephone:tel})
+    });
+    const json = await res.json();
+    if(json.success){
+      connTel = tel;
+      document.getElementById('conn-step1').style.display='none';
+      document.getElementById('conn-step2').style.display='block';
+      showMsg('conn-msg','✅ Code envoyé !','#1a4a2e');
+    } else {
+      showMsg('conn-msg','❌ '+json.error);
+    }
+  }catch(e){showMsg('conn-msg','❌ Erreur réseau');}
+}
+
+async function verifierConnexion(){
+  const code = document.getElementById('conn-code').value.trim();
+  if(!code||code.length!==4){showMsg('conn-msg','❌ Entrez le code à 4 chiffres');return;}
+  showMsg('conn-msg','⏳ Vérification...','#6b7280');
+  try{
+    const res = await fetch('/api/verifier-code',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({telephone:connTel,code})
+    });
+    const json = await res.json();
+    if(json.success){
+      showMsg('conn-msg','✅ Connexion réussie !','#1a4a2e');
+      setTimeout(()=>{
+        window.location.href='/eleveur/'+json.telephone;
+      },800);
+    } else {
+      showMsg('conn-msg','❌ '+json.error);
+    }
+  }catch(e){showMsg('conn-msg','❌ Erreur réseau');}
+}
+
+function resetConn(){
+  document.getElementById('conn-step1').style.display='block';
+  document.getElementById('conn-step2').style.display='none';
+  document.getElementById('conn-msg').textContent='';
+}
+
+// ── INSCRIPTION ────────────────────────────────────────────────────
+async function demanderCodeInscription(){
+  const nom    = document.getElementById('insc-nom').value.trim();
+  const tel    = document.getElementById('insc-tel').value.trim();
+  const type   = document.getElementById('insc-type').value;
+  const region = document.getElementById('insc-region').value;
+  if(!nom||!tel||!type||!region){
+    showMsg('insc-msg','❌ Tous les champs sont obligatoires');return;
+  }
+  showMsg('insc-msg','⏳ Envoi du code...','#6b7280');
+  try{
+    const res = await fetch('/api/inscription',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({nom,telephone:tel,type,region})
+    });
+    const json = await res.json();
+    if(json.success){
+      inscTel = tel;
+      document.getElementById('insc-step1').style.display='none';
+      document.getElementById('insc-step2').style.display='block';
+      showMsg('insc-msg','✅ Code envoyé sur WhatsApp !','#1a4a2e');
+    } else {
+      showMsg('insc-msg','❌ '+json.error);
+    }
+  }catch(e){showMsg('insc-msg','❌ Erreur réseau');}
+}
+
+async function verifierInscription(){
+  const code = document.getElementById('insc-code').value.trim();
+  if(!code||code.length!==4){showMsg('insc-msg','❌ Entrez le code à 4 chiffres');return;}
+  showMsg('insc-msg','⏳ Vérification...','#6b7280');
+  try{
+    const res = await fetch('/api/verifier-code',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({telephone:inscTel,code})
+    });
+    const json = await res.json();
+    if(json.success){
+      showMsg('insc-msg','🎉 Compte créé avec succès !','#1a4a2e');
+      setTimeout(()=>{
+        window.location.href='/eleveur/'+json.telephone;
+      },800);
+    } else {
+      showMsg('insc-msg','❌ '+json.error);
+    }
+  }catch(e){showMsg('insc-msg','❌ Erreur réseau');}
+}
+
+function resetInsc(){
+  document.getElementById('insc-step1').style.display='block';
+  document.getElementById('insc-step2').style.display='none';
+  document.getElementById('insc-msg').textContent='';
 }
 </script>
 </body>

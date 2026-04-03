@@ -18,6 +18,7 @@ const marcheHandler = require('./handlers/marcheHandler');
 const emploiRoute   = require('./routes/emploi');
 const emploiHandler = require('./handlers/emploiHandler');
 const { uploadImageFromBase64 } = require('./services/cloudinary');
+const User = require('./models/User');
 const relanceTimers = {};
 const app = express();
 app.use(express.json());
@@ -2291,6 +2292,137 @@ app.post("/api/upload-image", async (req, res) => {
     const url = await uploadImageFromBase64(base64, mimeType, folder || 'lpe-web');
     if (!url) return res.status(500).json({ success: false, error: 'Erreur upload' });
     res.json({ success: true, url });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+// ── INSCRIPTION ───────────────────────────────────────────────────
+app.post("/api/inscription", async (req, res) => {
+  try {
+    const { nom, telephone, type, region } = req.body;
+    if (!nom || !telephone || !type || !region) {
+      return res.status(400).json({ success: false, error: 'Tous les champs sont obligatoires' });
+    }
+
+    // Nettoyer le numéro
+    const tel = telephone.replace(/[\s+\-()]/g, '');
+
+    // Vérifier si déjà inscrit
+    const existing = await User.findOne({ telephone: tel });
+    if (existing && existing.actif) {
+      return res.json({ success: false, error: 'Ce numéro est déjà inscrit. Connectez-vous.' });
+    }
+
+    // Générer code à 4 chiffres
+    const code = Math.floor(1000 + Math.random() * 9000).toString();
+    const codeExpire = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    if (existing) {
+      existing.nom = nom;
+      existing.type = type;
+      existing.region = region;
+      existing.code = code;
+      existing.codeExpire = codeExpire;
+      existing.codeTentatives = 0;
+      await existing.save();
+    } else {
+      await User.create({ nom, telephone: tel, type, region, code, codeExpire });
+    }
+
+    // Envoyer code WhatsApp
+    await sendWhatsAppMessage(tel,
+      `👋 Bonjour *${nom}* !\n\n` +
+      `🔐 Votre code de confirmation :\n\n` +
+      `*${code}*\n\n` +
+      `_Ce code expire dans 10 minutes._\n\n` +
+      `↩️ Retournez sur le site pour finaliser votre inscription.`
+    );
+
+    res.json({ success: true, message: 'Code envoyé sur WhatsApp' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ── VÉRIFICATION CODE ─────────────────────────────────────────────
+app.post("/api/verifier-code", async (req, res) => {
+  try {
+    const { telephone, code } = req.body;
+    const tel = telephone.replace(/[\s+\-()]/g, '');
+    const user = await User.findOne({ telephone: tel });
+
+    if (!user) return res.json({ success: false, error: 'Numéro introuvable' });
+    if (user.codeTentatives >= 3) return res.json({ success: false, error: 'Trop de tentatives. Recommencez.' });
+    if (new Date() > user.codeExpire) return res.json({ success: false, error: 'Code expiré. Recommencez.' });
+    if (user.code !== code) {
+      user.codeTentatives += 1;
+      await user.save();
+      return res.json({ success: false, error: 'Code incorrect' });
+    }
+
+    // Activer le compte
+    user.actif = true;
+    user.code = null;
+    user.codeExpire = null;
+    user.codeTentatives = 0;
+    user.dernierAcces = new Date();
+    await user.save();
+
+    // Message de bienvenue
+    await sendWhatsAppMessage(tel,
+      `✅ *Compte activé avec succès !*\n\n` +
+      `Bienvenue sur *Le Partenaire des Éleveurs* 🐔\n\n` +
+      `👉 Accédez à votre espace :\n` +
+      `${process.env.APP_URL}/eleveur/${tel}\n\n` +
+      `↩️ Tapez *menu* pour accéder à tous nos services`
+    );
+
+    res.json({ success: true, telephone: tel, nom: user.nom, type: user.type });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ── CONNEXION ─────────────────────────────────────────────────────
+app.post("/api/connexion", async (req, res) => {
+  try {
+    const { telephone } = req.body;
+    const tel = telephone.replace(/[\s+\-()]/g, '');
+    const user = await User.findOne({ telephone: tel, actif: true });
+
+    if (!user) return res.json({ success: false, error: 'Numéro non trouvé. Inscrivez-vous.' });
+
+    // Générer code connexion
+    const code = Math.floor(1000 + Math.random() * 9000).toString();
+    user.code = code;
+    user.codeExpire = new Date(Date.now() + 10 * 60 * 1000);
+    user.codeTentatives = 0;
+    await user.save();
+
+    // Envoyer code
+    await sendWhatsAppMessage(tel,
+      `🔐 *Code de connexion :*\n\n` +
+      `*${code}*\n\n` +
+      `_Ce code expire dans 10 minutes._`
+    );
+
+    res.json({ success: true, message: 'Code envoyé sur WhatsApp' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ── STATS UTILISATEURS (admin) ────────────────────────────────────
+app.get("/admin/users", verifierAdmin, async (req, res) => {
+  try {
+    const users = await User.find().sort({ createdAt: -1 }).lean();
+    const total = users.length;
+    const actifs = users.filter(u => u.actif).length;
+    const parType = users.reduce((acc, u) => {
+      acc[u.type] = (acc[u.type] || 0) + 1;
+      return acc;
+    }, {});
+    res.json({ success: true, total, actifs, parType, users });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
