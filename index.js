@@ -11,6 +11,7 @@ const { setSession, getSession, clearSession } = require("./services/session");
 const { askClaude, askClaudeWithImage } = require("./services/claude");
 const { peutPoserQuestion, peutFaireDiagnostic, messageUpgrade, activerAbonnement, getOrCreateSubscription, isPremium, verifierRenouvellements } = require("./services/premium");
 const { enregistrerBande, getBandesActives, verifierEtEnvoyerAlertes, enregistrerSuivi, getResumeSuivi, envoyerResumesHebdo } = require("./services/prophylaxie");
+const Bande = require('./models/Bande');
 const PrixMarche = require("./models/PrixMarche");
 const { demarrerOnboarding, verifierOnboardings, reprendreOnboardingsEnCours } = require('./services/onboarding');
 const marcheRoute   = require('./routes/marche');
@@ -2430,12 +2431,12 @@ app.get("/admin/users", verifierAdmin, async (req, res) => {
 // ── ESPACE ÉLEVEUR ────────────────────────────────────────────────
 
 // Bandes de l'éleveur
+// Bandes de l'éleveur
 app.get("/api/eleveur/:phone/bandes", async (req, res) => {
   try {
-    const phone = req.params.phone;
-    const bandes = await mongoose.model('Bande') ? 
-      await mongoose.connection.collection('bandes').find({ phone }).sort({ createdAt: -1 }).toArray()
-      : [];
+    const bandes = await Bande.find({ phone: req.params.phone })
+      .sort({ createdAt: -1 })
+      .lean();
     res.json(bandes);
   } catch (err) {
     res.json([]);
@@ -2445,11 +2446,11 @@ app.get("/api/eleveur/:phone/bandes", async (req, res) => {
 // Suivi de l'éleveur
 app.get("/api/eleveur/:phone/suivi", async (req, res) => {
   try {
-    const suivi = await mongoose.connection.collection('suivivandes')
-      .find({ phone: req.params.phone })
+    const SuiviBande = require('./models/SuiviBande');
+    const suivi = await SuiviBande.find({ phone: req.params.phone })
       .sort({ createdAt: -1 })
       .limit(30)
-      .toArray();
+      .lean();
     res.json(suivi);
   } catch (err) {
     res.json([]);
