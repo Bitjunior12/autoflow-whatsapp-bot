@@ -159,7 +159,7 @@ table.gt tfoot td{font-weight:700;background:#f0f7f0;border-top:2px solid #c8e6c
   <!-- SUIVI -->
   <div id="tab-suivi" class="page">
     <div class="fiche-wrap">
-      <div class="fiche-head-bar"><span>Fiche d'identification du lot</span></div>
+      <div class="fiche-head-bar"><span>Fiche d'identification des poulets</span></div>
       <div class="fiche-grid">
         <div class="fiche-col">
           <div class="fiche-row"><label>Ferme</label><input id="fi-ferme" placeholder="Nom de la ferme"/></div>
@@ -491,7 +491,11 @@ function renderSemaines() {
     div.innerHTML = `
       <div class="sem-head">
         <span>Semaine ${sem.num} — J${sem.debut} à J${sem.fin}</span>
-        <button onclick="ajouterLigne(${si})">+ Ligne</button>
+        <div style="display:flex;gap:6px">
+          <button onclick="ajouterLigne(${si})">+ Ligne</button>
+          <button onclick="supprimerLigne(${si})" style="color:#dc3545;border-color:#f5c6cb">- Ligne</button>
+          <button onclick="supprimerSemaine(${si})" style="color:#dc3545;border-color:#f5c6cb">Supprimer</button>
+        </div>
       </div>
       <div class="suivi-wrap">
         <table class="st">
@@ -544,7 +548,18 @@ function renderSemaines() {
   });
   renderBilanGlobal();
 }
-
+function supprimerSemaine(si) {
+  if (!confirm("Supprimer cette semaine ?")) return;
+  semaines.splice(si, 1);
+  semNum = semaines.length;
+  semaines.forEach((s,i) => s.num = i+1);
+  renderSemaines();
+}
+function supprimerLigne(si) {
+  if (semaines[si].lignes.length <= 1) { alert("❌ Impossible — minimum 1 ligne par semaine"); return; }
+  semaines[si].lignes.pop();
+  renderSemaines();
+}
 function renderBilanGlobal() {
   const tbody = document.getElementById("tbody-global");
   tbody.innerHTML = '';
