@@ -2435,9 +2435,11 @@ app.get("/admin/users", verifierAdmin, async (req, res) => {
 // Bandes de l'éleveur
 app.get("/api/eleveur/:phone/bandes", async (req, res) => {
   try {
-    const bandes = await Bande.find({ phone: req.params.phone })
-      .sort({ createdAt: -1 })
-      .lean();
+    const phone = req.params.phone;
+    // Chercher avec le numéro tel quel ET sans le préfixe pays
+    const bandes = await Bande.find({
+      phone: { $in: [phone, phone.replace(/^225/, ''), '225' + phone] }
+    }).sort({ createdAt: -1 }).lean();
     res.json(bandes);
   } catch (err) {
     res.json([]);
