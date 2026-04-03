@@ -2544,7 +2544,14 @@ app.get("/debug-subscription", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
+app.get("/api/debug/bandes/:phone", async (req, res) => {
+  try {
+    const toutes = await Bande.find({}).limit(5).lean();
+    res.json({ phone_cherche: req.params.phone, bandes: toutes });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
 app.get("/register-phone", async (req, res) => {
   try {
     const response = await fetch(
