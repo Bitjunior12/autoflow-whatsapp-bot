@@ -642,7 +642,7 @@ if (msg === "retour" || msg === "back" || msg === "precedent") {
     await sendWhatsAppMessage(from,
       `💼 *Bourse de l'Emploi Avicole*\n\n` +
       `Consultez profils et offres d'emploi :\n\n` +
-      `👉 ${process.env.APP_URL}/emploi\n\n` +
+      ``${process.env.APP_URL}/eleveur/${tel.replace(/^\+/,'')}\n\n`` +
       `↩️ Tapez *menu* pour revenir au menu principal`
     );
     return null;
@@ -2436,16 +2436,16 @@ app.get("/admin/users", verifierAdmin, async (req, res) => {
 app.get("/api/eleveur/:phone/bandes", async (req, res) => {
   try {
     const phone = req.params.phone;
-    // Chercher avec le numéro tel quel ET sans le préfixe pays
+    // 2250102642080 → 22502642080 (supprimer le "10" après 225)
+    const phoneNormalisé = phone.replace(/^2250/, '225');
     const bandes = await Bande.find({
-      phone: { $in: [phone, phone.replace(/^225/, ''), '225' + phone] }
+      phone: { $in: [phone, phoneNormalisé] }
     }).sort({ createdAt: -1 }).lean();
     res.json(bandes);
   } catch (err) {
     res.json([]);
   }
 });
-
 // Suivi de l'éleveur
 app.get("/api/eleveur/:phone/suivi", async (req, res) => {
   try {
