@@ -642,7 +642,7 @@ if (msg === "retour" || msg === "back" || msg === "precedent") {
     await sendWhatsAppMessage(from,
       `💼 *Bourse de l'Emploi Avicole*\n\n` +
       `Consultez profils et offres d'emploi :\n\n` +
-      ``${process.env.APP_URL}/eleveur/${tel.replace(/^\+/,'')}\n\n`` +
+      `${process.env.APP_URL}/eleveur/${tel.replace(/^\+/, '')}\n\n` +
       `↩️ Tapez *menu* pour revenir au menu principal`
     );
     return null;
