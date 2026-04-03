@@ -2436,10 +2436,13 @@ app.get("/admin/users", verifierAdmin, async (req, res) => {
 app.get("/api/eleveur/:phone/bandes", async (req, res) => {
   try {
     const phone = req.params.phone;
-    // 2250102642080 → 22502642080 (supprimer le "10" après 225)
-    const phoneNormalisé = phone.replace(/^2250/, '225');
+const variantes = [
+  phone,
+  phone.replace(/^2250(\d)/, '2250'),
+  '225' + phone.replace(/^(2250?|0)/, ''),
+];
     const bandes = await Bande.find({
-      phone: { $in: [phone, phoneNormalisé] }
+      phone: { $in: variantes }
     }).sort({ createdAt: -1 }).lean();
     res.json(bandes);
   } catch (err) {
