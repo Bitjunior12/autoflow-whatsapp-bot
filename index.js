@@ -2427,6 +2427,97 @@ app.get("/admin/users", verifierAdmin, async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+// ── ESPACE ÉLEVEUR ────────────────────────────────────────────────
+
+// Bandes de l'éleveur
+app.get("/api/eleveur/:phone/bandes", async (req, res) => {
+  try {
+    const phone = req.params.phone;
+    const bandes = await mongoose.model('Bande') ? 
+      await mongoose.connection.collection('bandes').find({ phone }).sort({ createdAt: -1 }).toArray()
+      : [];
+    res.json(bandes);
+  } catch (err) {
+    res.json([]);
+  }
+});
+
+// Suivi de l'éleveur
+app.get("/api/eleveur/:phone/suivi", async (req, res) => {
+  try {
+    const suivi = await mongoose.connection.collection('suivivandes')
+      .find({ phone: req.params.phone })
+      .sort({ createdAt: -1 })
+      .limit(30)
+      .toArray();
+    res.json(suivi);
+  } catch (err) {
+    res.json([]);
+  }
+});
+
+// Enregistrer saisie suivi
+app.post("/api/eleveur/:phone/suivi", async (req, res) => {
+  try {
+    const { bandeNom, mortalite, aliment, poidsMoyen } = req.body;
+    await mongoose.connection.collection('suivivandes').insertOne({
+      phone:      req.params.phone,
+      bandeNom,
+      mortalite:  mortalite || 0,
+      aliment:    aliment || 0,
+      poidsMoyen: poidsMoyen || 0,
+      createdAt:  new Date()
+    });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Commandes de l'éleveur
+app.get("/api/eleveur/:phone/commandes", async (req, res) => {
+  try {
+    const commandes = await Order.find({ phone: req.params.phone })
+      .sort({ createdAt: -1 })
+      .lean();
+    res.json(commandes);
+  } catch (err) {
+    res.json([]);
+  }
+});
+
+// Provende de l'éleveur
+app.get("/api/eleveur/:phone/provende", async (req, res) => {
+  try {
+    const provende = await mongoose.connection.collection('provendes')
+      .find({ phone: req.params.phone })
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .toArray();
+    res.json(provende);
+  } catch (err) {
+    res.json([]);
+  }
+});
+
+// Enregistrer achat provende
+app.post("/api/eleveur/:phone/provende", async (req, res) => {
+  try {
+    const { bandeNom, quantite, prixUnitaire, fournisseur, type } = req.body;
+    await mongoose.connection.collection('provendes').insertOne({
+      phone:        req.params.phone,
+      bandeNom,
+      quantite,
+      prixUnitaire: prixUnitaire || 0,
+      fournisseur:  fournisseur || '',
+      type:         type || 'achat',
+      createdAt:    new Date()
+    });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 app.get("/admin-marche", (req, res) => {
   res.sendFile(path.join(__dirname, "public/admin-marche.html"));
 });

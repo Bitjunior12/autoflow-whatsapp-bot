@@ -867,19 +867,6 @@ let contactOffreCurrent = null;
 const TECH_MAP = {};
 const OFFRE_MAP = {};
 
-function ouvrirContactTech(id) {
-  const t = TECH_MAP[id];
-  contactTechCurrent = t;
-  document.getElementById('contact-tech-details').innerHTML =
-    `👷 <strong>${t.nom}</strong><br>` +
-    `🔧 ${t.specialite} — 📍 ${t.region}<br>` +
-    `📅 ${t.experience} · ${t.disponibilite}`;
-  document.getElementById('contact-tech-tel').value = '';
-  document.getElementById('contact-tech-msg').value = '';
-  openM('m-contact-tech');
-}
-
-async function envoyerContactTech() {
   const tel = document.getElementById('contact-tech-tel').value.trim();
   const msg = document.getElementById('contact-tech-msg').value.trim();
   if (!tel || tel.length < 8) {
