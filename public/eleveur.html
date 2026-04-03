@@ -142,6 +142,9 @@ table.gt tfoot td{font-weight:700;background:#f0f7f0;border-top:2px solid #c8e6c
       </div>
     </div>
 
+    <div id="no-data-charts" style="display:none;text-align:center;padding:20px;color:#aaa;font-size:12px;background:#fff;border-radius:12px;margin-bottom:14px">
+      Saisissez des données dans le suivi de bande pour voir les graphiques
+    </div>
     <div class="card">
       <div class="card-head"><span>Évolution mortalité — 7 jours</span></div>
       <div class="card-body"><canvas id="chartMortalite" height="160"></canvas></div>
@@ -457,13 +460,19 @@ function renderCharts() {
   }
 
   const recent = lignesAll.slice(-7);
-  if (recent.length === 0) {
+ if (recent.length === 0) {
+    document.getElementById("no-data-charts").style.display = "block";
     ['chartMortalite','chartPoids','chartAliment'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.parentElement.innerHTML = `<p style="text-align:center;color:#aaa;font-size:12px;padding:20px">Saisissez des données dans le suivi de bande</p>`;
+      if (el) el.style.display = "none";
     });
     return;
   }
+  document.getElementById("no-data-charts").style.display = "none";
+  ['chartMortalite','chartPoids','chartAliment'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = "block";
+  });
 
   const labels = recent.map(l => l.date || `J${l.age||''}`);
   const mortData = recent.map(l => Number(l.mort)||0);
