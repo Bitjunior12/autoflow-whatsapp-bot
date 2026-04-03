@@ -439,69 +439,65 @@ function renderVaccins() {
 // ── CHARTS ────────────────────────────────────────────────────────
 function renderCharts() {
   if (!selectedBande) return;
-
-  // Construire les données depuis les semaines
-  let lignesAll = [];
-  semaines.forEach(sem => {
-    sem.lignes.forEach(l => {
-      if (l.date || Number(l.mort)||Number(l.aliment)||Number(l.poids)) {
-        lignesAll.push(l);
-      }
-    });
-  });
-
-  // Fallback sur suiviData
-  if (lignesAll.length === 0) {
-    const sb = suiviData.filter(s => s.bandeNom === selectedBande.nom).slice(0,7).reverse();
-    lignesAll = sb.map(s => ({
-      date: new Date(s.createdAt).toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"}),
-      mort: s.mortalite||0, aliment: s.aliment||0, poids: s.poidsMoyen||0
-    }));
-  }
-
-  const recent = lignesAll.slice(-7);
- if (recent.length === 0) {
-    document.getElementById("no-data-charts").style.display = "block";
-    ['chartMortalite','chartPoids','chartAliment'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = "none";
-    });
+  const sb = suiviData.filter(s => s.bandeNom === selectedBande.nom).slice(0,7).reverse();
+  if (sb.length === 0) {
+    document.getElementById("chartMortalite").parentElement.innerHTML = `<p style="text-align:center;color:#aaa;font-size:12px;padding:20px">Aucune donnée de suivi</p>`;
+    document.getElementById("chartPoids").parentElement.innerHTML = `<p style="text-align:center;color:#aaa;font-size:12px;padding:20px">Aucune donnée de suivi</p>`;
+    document.getElementById("chartAliment").parentElement.innerHTML = `<p style="text-align:center;color:#aaa;font-size:12px;padding:20px">Aucune donnée de suivi</p>`;
     return;
   }
-  document.getElementById("no-data-charts").style.display = "none";
-  ['chartMortalite','chartPoids','chartAliment'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = "block";
+  const labels = sb.map(s => new Date(s.createdAt).toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"}));
+
+  // Mortalité — barres rouges, plus foncé si élevé
+  const mortData = sb.map(s=>s.mortalite||0);
+  const mortColors = mortData.map(v => v===0?'#d1e7dd':v<=2?'#fff3cd':v<=5?'#f0a500':'#dc3545');
+
+  // Poids — barres vertes graduelles
+  const poidsData = sb.map(s=>s.poidsMoyen||0);
+  const poidsColors = poidsData.map((_,i) => {
+    const ratio = i/Math.max(poidsData.length-1,1);
+    return `rgba(26,74,46,${0.4+ratio*0.6})`;
   });
 
-  const labels = recent.map(l => l.date || `J${l.age||''}`);
-  const mortData = recent.map(l => Number(l.mort)||0);
-  const poidsData = recent.map(l => Number(l.poids)||0);
-  const alimentData = recent.map(l => Number(l.aliment)||0);
+  // Aliment — barres bleues
+  const alimentData = sb.map(s=>s.aliment||0);
+  const alimentColors = alimentData.map((_,i) => {
+    const ratio = i/Math.max(alimentData.length-1,1);
+    return `rgba(13,110,253,${0.4+ratio*0.6})`;
+  });
 
-  const mortColors = mortData.map(v => v===0?'#d1e7dd':v<=2?'#fff3cd':v<=5?'#f0a500':'#dc3545');
-  const poidsColors = poidsData.map((_,i) => `rgba(26,74,46,${0.4+(i/Math.max(poidsData.length-1,1))*0.6})`);
-  const alimentColors = alimentData.map((_,i) => `rgba(13,110,253,${0.4+(i/Math.max(alimentData.length-1,1))*0.6})`);
-
-  const opts = (unit) => ({
+  const opts = (title, unit) => ({
     responsive:true,
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y} ${unit}`}}},
-    scales:{y:{beginAtZero:true,grid:{color:'#f5f5f5'},ticks:{font:{size:10}}},x:{grid:{display:false},ticks:{font:{size:10}}}}
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y} ${unit}`}}
+    },
+    scales:{
+      y:{beginAtZero:true, grid:{color:'#f5f5f5'}, ticks:{font:{size:10}}},
+      x:{grid:{display:false}, ticks:{font:{size:10}}}
+    }
   });
 
   if (charts.m) charts.m.destroy();
   if (charts.p) charts.p.destroy();
   if (charts.a) charts.a.destroy();
 
-  const cm = document.getElementById("chartMortalite");
-  const cp = document.getElementById("chartPoids");
-  const ca = document.getElementById("chartAliment");
-
-  if (cm) charts.m = new Chart(cm,{type:"bar",data:{labels,datasets:[{data:mortData,backgroundColor:mortColors,borderRadius:4}]},options:opts("sujets")});
-  if (cp) charts.p = new Chart(cp,{type:"bar",data:{labels,datasets:[{data:poidsData,backgroundColor:poidsColors,borderRadius:4}]},options:opts("g")});
-  if (ca) charts.a = new Chart(ca,{type:"bar",data:{labels,datasets:[{data:alimentData,backgroundColor:alimentColors,borderRadius:4}]},options:opts("kg")});
+  charts.m = new Chart(document.getElementById("chartMortalite"),{
+    type:"bar",
+    data:{labels, datasets:[{label:"Mortalité",data:mortData,backgroundColor:mortColors,borderRadius:4}]},
+    options:opts("Mortalité","sujets")
+  });
+  charts.p = new Chart(document.getElementById("chartPoids"),{
+    type:"bar",
+    data:{labels, datasets:[{label:"Poids",data:poidsData,backgroundColor:poidsColors,borderRadius:4}]},
+    options:opts("Poids","g")
+  });
+  charts.a = new Chart(document.getElementById("chartAliment"),{
+    type:"bar",
+    data:{labels, datasets:[{label:"Aliment",data:alimentData,backgroundColor:alimentColors,borderRadius:4}]},
+    options:opts("Aliment","kg")
+  });
 }
-
 // ── FICHE IDENTIFICATION ──────────────────────────────────────────
 function sauvegarderFiche() {
   const champs = ['ferme','batiment','superficie','lot','responsable','date','effectif','fournisseur','souche','poids'];
