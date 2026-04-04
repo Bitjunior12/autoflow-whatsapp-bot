@@ -129,7 +129,21 @@ select{width:100%;padding:.48rem .8rem;border:1.5px solid var(--border);border-r
 .offre-footer{padding:.62rem 1rem;border-top:1px solid var(--gris-l);display:flex;gap:.5rem}
 .btn-postuler{flex:1;padding:.52rem;background:var(--bleu);color:#fff;font-family:'Sora',sans-serif;font-size:.78rem;font-weight:700;border:none;border-radius:var(--rsm);cursor:pointer;transition:background .15s}
 .btn-postuler:hover{background:var(--bleu-m)}
-.tab-content{display:none}.tab-content.active{display:block}
+.tab-content{
+  opacity:0;
+  transform:translateY(10px);
+  pointer-events:none;
+  position:absolute;
+  width:100%;
+  transition:all .25s ease;
+}
+
+.tab-content.active{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+  position:relative;
+}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
 .form-group{margin-bottom:.82rem}
 .form-group label{display:block;font-size:.75rem;font-weight:600;color:var(--gris-m);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.36rem}
@@ -167,6 +181,97 @@ select{width:100%;padding:.48rem .8rem;border:1.5px solid var(--border);border-r
   .hero h1{font-size:1.5rem}
   .form-row{grid-template-columns:1fr}
   .feats-grid{grid-template-columns:1fr}
+}
+/* ===== MOBILE NAV ===== */
+
+.mobile-nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#fff;
+  border-top:1px solid #e5e7eb;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  padding:.4rem 0;
+  z-index:1000;
+}
+
+.mobile-nav button{
+  background:none;
+  border:none;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  font-size:.75rem;
+  color:#6b7280;
+  cursor:pointer;
+}
+
+.mobile-nav button span{
+  font-size:.65rem;
+}
+
+.center-btn{
+  background:#1e40af;
+  color:#fff !important;
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.2rem;
+  margin-top:-20px;
+  box-shadow:0 4px 12px rgba(0,0,0,.2);
+}
+
+/* cacher sur desktop */
+@media(min-width:900px){
+  .mobile-nav{
+    display:none;
+  }
+@media(max-width:780px){
+  .main{
+    grid-template-columns:1fr;
+  }
+}
+
+/* ⬇️ TU COLLES ICI */
+
+.fab{
+  position:fixed;
+  bottom:80px;
+  right:15px;
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  background:#1e40af;
+  color:#fff;
+  border:none;
+  font-size:1.5rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 6px 18px rgba(0,0,0,.2);
+  cursor:pointer;
+  z-index:1000;
+  transition:all .2s ease;
+}
+
+.fab:hover{
+  transform:scale(1.05);
+}
+
+@media(min-width:900px){
+  .fab{
+    display:none;
+  }
+}
+/* éviter que le contenu soit caché */
+body{
+  padding-bottom:70px;
 }
 </style>
 </head>
@@ -234,7 +339,7 @@ select{width:100%;padding:.48rem .8rem;border:1.5px solid var(--border);border-r
 
   </div>
 
-  <button onclick="openM('m-boost')" 
+  <button onclick="openM('m-boost')"
     style="margin-top:.8rem;width:100%;padding:.5rem;background:#fff;color:#7c2d12;font-weight:700;border:none;border-radius:8px;cursor:pointer">
     Booster mon profil →
   </button>
@@ -944,19 +1049,6 @@ const TECH_MAP = {};
 const OFFRE_MAP = {};
 
 // ── MODAL CONTACT OFFRE ───────────────────────────────────────────
-
-function ouvrirContactOffre(id) {
-  const o = OFFRE_MAP[id];
-  contactOffreCurrent = o;
-  document.getElementById('contact-offre-details').innerHTML =
-    `🏗️ <strong>${o.ferme}</strong><br>` +
-    `💼 ${o.poste} — 📍 ${o.region}<br>` +
-    `📄 ${o.contrat} · 💰 ${o.salaire}`;
-  document.getElementById('contact-offre-tel').value = '';
-  document.getElementById('contact-offre-msg').value = '';
-  openM('m-contact-offre');
-}
-
 async function envoyerContactOffre() {
   const tel = document.getElementById('contact-offre-tel').value.trim();
   const msg = document.getElementById('contact-offre-msg').value.trim();
@@ -1064,9 +1156,96 @@ function payerBoost(plan){
   closeM('m-boost');
   toast("🔥 Boost activé !");
 }
+// ===== SWIPE MOBILE =====
+let startX = 0;
+let endX = 0;
+
+const tabs = ['techniciens','offres','profil','recruter','plan'];
+
+function getCurrentTab(){
+  const active = document.querySelector('.tab-content.active');
+  return active ? active.id.replace('tab-','') : 'techniciens';
+}
+
+function goToTab(direction){
+  let current = getCurrentTab();
+  let index = tabs.indexOf(current);
+
+  if(direction === 'left' && index < tabs.length - 1){
+    index++;
+  }
+  if(direction === 'right' && index > 0){
+    index--;
+  }
+
+  const nextTab = tabs[index];
+  const btn = document.querySelectorAll('.tab')[index];
+
+  switchTab(nextTab, btn);
+}
+
+// Détection swipe
+document.addEventListener('touchstart', e=>{
+  startX = e.touches[0].clientX;
+});
+
+document.addEventListener('touchend', e=>{
+  endX = e.changedTouches[0].clientX;
+
+  if(startX - endX > 50){
+    goToTab('left');
+  }
+  else if(endX - startX > 50){
+    goToTab('right');
+  }
+});
+// ===== SCROLL INTELLIGENT =====
+let lastScroll = 0;
+
+window.addEventListener('scroll', () => {
+  const currentScroll = window.pageYOffset;
+  const nav = document.querySelector('.mobile-nav');
+
+  if(!nav) return;
+
+  if(currentScroll > lastScroll){
+    // scroll vers le bas → cacher
+    nav.style.transform = 'translateY(100%)';
+  } else {
+    // scroll vers le haut → montrer
+    nav.style.transform = 'translateY(0)';
+  }
+
+  lastScroll = currentScroll;
+});
 loadData();
 setInterval(loadData,60000);
 </script>
+<!-- NAVIGATION MOBILE -->
+<div class="mobile-nav">
+  <button onclick="switchTab('techniciens', document.querySelectorAll('.tab')[0])">
+    👷<span>Tech</span>
+  </button>
 
+  <button onclick="switchTab('offres', document.querySelectorAll('.tab')[1])">
+    📋<span>Offres</span>
+  </button>
+
+  <button class="center-btn" onclick="switchTab('profil', document.querySelectorAll('.tab')[2])">
+    ➕
+  </button>
+
+  <button onclick="switchTab('recruter', document.querySelectorAll('.tab')[3])">
+    🏗️<span>Publier</span>
+  </button>
+
+  <button onclick="switchTab('plan', document.querySelectorAll('.tab')[4])">
+    💼<span>Plan</span>
+  </button>
+</div>
+<!-- FLOATING BUTTON -->
+<button class="fab" onclick="switchTab('profil', document.querySelectorAll('.tab')[2])">
+  ➕
+</button>
 </body>
 </html>
