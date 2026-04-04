@@ -909,39 +909,6 @@ let contactOffreCurrent = null;
 const TECH_MAP = {};
 const OFFRE_MAP = {};
 
-  const tel = document.getElementById('contact-tech-tel').value.trim();
-  const msg = document.getElementById('contact-tech-msg').value.trim();
-  if (!tel || tel.length < 8) {
-    toast('❌ Entrez votre numéro WhatsApp');
-    return;
-  }
-  try {
-    const res = await fetch('/api/notifier-contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        telephone:   contactTechCurrent.telephone,
-        acheteurTel: tel,
-        acheteurMsg: msg,
-        type:        'technicien',
-        details: {
-          specialite: contactTechCurrent.specialite,
-          region:     contactTechCurrent.region,
-        }
-      })
-    });
-    const json = await res.json();
-    if (json.success) {
-      closeM('m-contact-tech');
-      toast('✅ Demande envoyée ! Le technicien sera notifié sur WhatsApp.');
-    } else {
-      toast('❌ Erreur. Réessayez.');
-    }
-  } catch (err) {
-    toast('❌ Erreur réseau.');
-  }
-}
-
 // ── MODAL CONTACT OFFRE ───────────────────────────────────────────
 
 function ouvrirContactOffre(id) {
