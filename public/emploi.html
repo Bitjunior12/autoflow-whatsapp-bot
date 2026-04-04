@@ -20,13 +20,77 @@
   --r:12px;--rsm:8px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:var(--gris-xl);color:var(--gris);min-height:100vh}
+body{font-family:'DM Sans',sans-serif;background:var(--gris-xl);color:var(--gris);min-height:100vh;padding-bottom:70px}
+
+/* ===== HEADER ===== */
 header{background:var(--bleu);position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(30,64,175,.35)}
 .hinner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px}
-.logo{display:flex;align-items:center;gap:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem;color:#fff;text-decoration:none}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem;color:#fff;text-decoration:none;cursor:pointer}
 .logo-icon{width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
 .logo em{opacity:.65;font-style:normal;font-weight:400}
 .hbadge{background:rgba(255,255,255,.15);color:#fff;font-size:.72rem;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.04em}
+.admin-badge-header{background:#c0392b;color:#fff;font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.04em;display:none}
+.admin-bar{display:none;background:#c0392b;color:#fff;text-align:center;font-size:.78rem;font-weight:700;padding:6px;letter-spacing:.03em}
+
+/* ===== TICKER BOOSTÉS ===== */
+.ticker-wrap{
+  background:linear-gradient(135deg,#92400e,#7c2d12);
+  color:#fff;
+  overflow:hidden;
+  display:none;
+  border-bottom:1px solid rgba(0,0,0,.1);
+  position:relative;
+  height:38px;
+  align-items:center;
+}
+.ticker-wrap.visible{display:flex}
+.ticker-label{
+  flex-shrink:0;
+  background:rgba(0,0,0,.25);
+  padding:0 14px;
+  height:100%;
+  display:flex;
+  align-items:center;
+  font-family:'Sora',sans-serif;
+  font-size:.7rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+  white-space:nowrap;
+  z-index:2;
+}
+.ticker-track{
+  display:flex;
+  align-items:center;
+  white-space:nowrap;
+  animation:ticker-scroll linear infinite;
+  will-change:transform;
+}
+.ticker-track:hover{animation-play-state:paused}
+.ticker-item{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:0 2rem;
+  font-size:.78rem;
+  font-weight:600;
+  border-right:1px solid rgba(255,255,255,.2);
+}
+.ticker-item-badge{
+  background:rgba(255,255,255,.2);
+  border-radius:10px;
+  padding:1px 7px;
+  font-size:.65rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+@keyframes ticker-scroll{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+
+/* ===== HERO ===== */
 .hero{background:linear-gradient(135deg,#1e40af 0%,#1e3a8a 100%);color:#fff;text-align:center;padding:3rem 2rem 2.5rem}
 .hero-tag{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:1rem}
 .hero h1{font-family:'Sora',sans-serif;font-size:1.9rem;font-weight:800;line-height:1.2;margin-bottom:.6rem}
@@ -34,6 +98,8 @@ header{background:var(--bleu);position:sticky;top:0;z-index:100;box-shadow:0 2px
 .hero-stats{display:flex;justify-content:center;gap:2.5rem}
 .hero-stat strong{display:block;font-family:'Sora',sans-serif;font-size:1.6rem;font-weight:800}
 .hero-stat small{font-size:.75rem;opacity:.7}
+
+/* ===== TABS ===== */
 .tabs-wrap{background:var(--blanc);border-bottom:1px solid var(--border);position:sticky;top:64px;z-index:90}
 .tabs{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;overflow-x:auto}
 .tab{padding:.85rem 1.1rem;font-size:.87rem;font-weight:500;cursor:pointer;border:none;background:none;color:var(--gris-m);border-bottom:3px solid transparent;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0}
@@ -41,6 +107,8 @@ header{background:var(--bleu);position:sticky;top:0;z-index:100;box-shadow:0 2px
 .tab:hover:not(.active){color:var(--gris)}
 .tab-count{background:var(--gris-l);color:var(--gris-m);font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:10px}
 .tab.active .tab-count{background:var(--bleu-l);color:var(--bleu)}
+
+/* ===== LAYOUT ===== */
 .main{max-width:1200px;margin:0 auto;padding:1.5rem 2rem 3rem;display:grid;grid-template-columns:268px 1fr;gap:1.5rem}
 .sidebar{display:flex;flex-direction:column;gap:1rem}
 .card{background:var(--blanc);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden}
@@ -55,6 +123,8 @@ header{background:var(--bleu);position:sticky;top:0;z-index:100;box-shadow:0 2px
 select{width:100%;padding:.48rem .8rem;border:1.5px solid var(--border);border-radius:var(--rsm);font-family:'DM Sans',sans-serif;font-size:.87rem;color:var(--gris);background:var(--blanc);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .8rem center;cursor:pointer}
 .btn-publi{width:100%;padding:.82rem;background:var(--bleu);color:#fff;font-family:'Sora',sans-serif;font-size:.88rem;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;box-shadow:0 4px 14px rgba(30,64,175,.28)}
 .btn-publi:hover{background:var(--bleu-m);transform:translateY(-1px)}
+
+/* ===== PLAN & CERT CARDS ===== */
 .plan-card{background:linear-gradient(135deg,#1e40af 0%,#1e3a8a 100%);color:#fff;border-radius:var(--r);padding:1.15rem;box-shadow:0 4px 16px rgba(30,64,175,.28)}
 .plan-card h3{font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700;margin-bottom:.35rem}
 .plan-card p{font-size:.77rem;opacity:.8;margin-bottom:.8rem;line-height:1.5}
@@ -68,17 +138,20 @@ select{width:100%;padding:.48rem .8rem;border:1.5px solid var(--border);border-r
 .cert-card h3{font-family:'Sora',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.35rem}
 .cert-card p{font-size:.77rem;opacity:.8;margin-bottom:.75rem;line-height:1.5}
 .btn-cert{width:100%;padding:.62rem;background:#fff;color:#065f46;font-family:'Sora',sans-serif;font-size:.83rem;font-weight:700;border:none;border-radius:var(--rsm);cursor:pointer}
+
+/* ===== CONTENT ===== */
 .content{min-width:0}
 .search-bar{display:flex;gap:.7rem;margin-bottom:1rem;align-items:center}
 .search-wrap{flex:1;position:relative}
 .search-wrap input{width:100%;padding:.62rem 1rem .62rem 2.5rem;border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:.88rem;background:var(--blanc);color:var(--gris)}
 .search-wrap input:focus{outline:none;border-color:var(--bleu)}
 .search-icon{position:absolute;left:.82rem;top:50%;transform:translateY(-50%);color:var(--gris-m)}
-.sort-select{width:175px;padding:.62rem .8rem;border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:.87rem;color:var(--gris);background:var(--blanc);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .8rem center}
 .results-info{font-size:.83rem;color:var(--gris-m);margin-bottom:1rem}
 .results-info strong{color:var(--gris)}
 .grid-tech{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem}
 .grid-offres{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem}
+
+/* ===== TECH CARDS ===== */
 .tech-card{background:var(--blanc);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;transition:box-shadow .2s,transform .2s;display:flex;flex-direction:column}
 .tech-card:hover{box-shadow:var(--shadow-h);transform:translateY(-2px)}
 .tech-card.featured{border:2px solid var(--or)}
@@ -107,6 +180,54 @@ select{width:100%;padding:.48rem .8rem;border:1.5px solid var(--border);border-r
 .btn-contact.locked{background:var(--gris-l);color:var(--gris-m);cursor:not-allowed}
 .btn-save{padding:.52rem .62rem;border:1.5px solid var(--border);border-radius:var(--rsm);background:var(--blanc);cursor:pointer;font-size:.88rem;transition:all .15s}
 .btn-save:hover{border-color:var(--rouge);background:var(--rouge-l)}
+
+/* ===== OWNER ACTIONS ===== */
+.owner-actions{
+  background:linear-gradient(90deg,#fffbeb,#fef3c7);
+  border-top:1px solid #fde68a;
+  padding:.55rem 1rem;
+  display:flex;
+  align-items:center;
+  gap:.45rem;
+  flex-wrap:wrap;
+}
+.owner-label{
+  font-size:.7rem;
+  font-weight:700;
+  color:#92400e;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  flex:1;
+  min-width:80px;
+}
+.btn-edit{
+  padding:.38rem .7rem;
+  background:#fff;
+  border:1.5px solid #d97706;
+  color:#b45309;
+  border-radius:var(--rsm);
+  font-size:.75rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .15s;
+  font-family:'Sora',sans-serif;
+}
+.btn-edit:hover{background:#fef3c7}
+.btn-delete{
+  padding:.38rem .7rem;
+  background:#fff;
+  border:1.5px solid var(--rouge);
+  color:var(--rouge);
+  border-radius:var(--rsm);
+  font-size:.75rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .15s;
+  font-family:'Sora',sans-serif;
+}
+.btn-delete:hover{background:var(--rouge-l)}
+
+/* ===== OFFRE CARDS ===== */
 .offre-card{background:var(--blanc);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;transition:box-shadow .2s,transform .2s;display:flex;flex-direction:column}
 .offre-card:hover{box-shadow:var(--shadow-h);transform:translateY(-2px)}
 .offre-top{padding:.85rem 1rem .6rem;border-bottom:1px solid var(--gris-l)}
@@ -129,21 +250,12 @@ select{width:100%;padding:.48rem .8rem;border:1.5px solid var(--border);border-r
 .offre-footer{padding:.62rem 1rem;border-top:1px solid var(--gris-l);display:flex;gap:.5rem}
 .btn-postuler{flex:1;padding:.52rem;background:var(--bleu);color:#fff;font-family:'Sora',sans-serif;font-size:.78rem;font-weight:700;border:none;border-radius:var(--rsm);cursor:pointer;transition:background .15s}
 .btn-postuler:hover{background:var(--bleu-m)}
-.tab-content{
-  opacity:0;
-  transform:translateY(10px);
-  pointer-events:none;
-  position:absolute;
-  width:100%;
-  transition:all .25s ease;
-}
 
-.tab-content.active{
-  opacity:1;
-  transform:translateY(0);
-  pointer-events:auto;
-  position:relative;
-}
+/* ===== TAB CONTENT ===== */
+.tab-content{opacity:0;transform:translateY(10px);pointer-events:none;position:absolute;width:100%;transition:all .25s ease}
+.tab-content.active{opacity:1;transform:translateY(0);pointer-events:auto;position:relative}
+
+/* ===== FORMS ===== */
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
 .form-group{margin-bottom:.82rem}
 .form-group label{display:block;font-size:.75rem;font-weight:600;color:var(--gris-m);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.36rem}
@@ -154,12 +266,16 @@ select{width:100%;padding:.48rem .8rem;border:1.5px solid var(--border);border-r
 .btn-submit{width:100%;padding:.82rem;background:var(--bleu);color:#fff;font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;margin-top:.5rem}
 .btn-submit:hover{background:var(--bleu-m)}
 .btn-submit-vert{width:100%;padding:.82rem;background:var(--vert);color:#fff;font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;margin-top:.5rem}
+
+/* ===== MODALS ===== */
 .modal-bg{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.48);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:1rem}
 .modal-bg.open{display:flex}
 .modal{background:var(--blanc);border-radius:16px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:popIn .25s ease;max-height:92vh;overflow-y:auto}
+.modal-lg{max-width:560px}
 @keyframes popIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .modal-header{padding:1.2rem 1.5rem .9rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
 .modal-header h2{font-family:'Sora',sans-serif;font-size:1rem;font-weight:700}
+.modal-body{padding:1.2rem 1.5rem}
 .btn-close{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--blanc);cursor:pointer;font-size:.9rem;color:var(--gris-m);display:flex;align-items:center;justify-content:center}
 .plan-modal-body{padding:1.4rem;text-align:center}
 .feats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin-bottom:1.1rem;text-align:left}
@@ -169,12 +285,107 @@ select{width:100%;padding:.48rem .8rem;border:1.5px solid var(--border);border-r
 .price-big small{font-size:.85rem;font-weight:400;color:var(--gris-m)}
 .btn-cta{width:100%;padding:.85rem;background:var(--bleu);color:#fff;font-family:'Sora',sans-serif;font-size:.92rem;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;margin-top:.55rem}
 .btn-later{width:100%;padding:.52rem;background:none;color:var(--gris-m);font-size:.82rem;border:none;cursor:pointer;margin-top:.38rem}
-.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(16px);background:#111;color:#fff;padding:.7rem 1.4rem;border-radius:30px;font-size:.86rem;font-weight:500;opacity:0;transition:all .3s;z-index:500}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .stat-banner{background:var(--bleu-xl);border:1px solid var(--bleu-l);border-radius:var(--r);padding:.85rem 1.1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
 .stat-item{text-align:center}
 .stat-item strong{display:block;font-family:'Sora',sans-serif;font-size:1.2rem;font-weight:800;color:var(--bleu)}
 .stat-item small{font-size:.72rem;color:var(--gris-m)}
+
+/* ===== CODE SUCCESS MODAL ===== */
+.code-box{
+  background:linear-gradient(135deg,#1e40af,#1e3a8a);
+  color:#fff;
+  border-radius:var(--r);
+  padding:1.5rem;
+  text-align:center;
+  margin:1rem 0;
+}
+.code-value{
+  font-family:'Sora',sans-serif;
+  font-size:2rem;
+  font-weight:800;
+  letter-spacing:.25em;
+  margin:.5rem 0;
+}
+.code-warn{
+  font-size:.78rem;
+  opacity:.85;
+  line-height:1.5;
+  margin-top:.5rem;
+}
+.btn-copy{
+  margin-top:1rem;
+  padding:.5rem 1.2rem;
+  background:rgba(255,255,255,.2);
+  border:1.5px solid rgba(255,255,255,.4);
+  color:#fff;
+  border-radius:var(--rsm);
+  font-size:.82rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .15s;
+  font-family:'Sora',sans-serif;
+}
+.btn-copy:hover{background:rgba(255,255,255,.35)}
+
+/* ===== ADMIN MODAL ===== */
+.admin-view-logged{display:none}
+.admin-view-form{display:block}
+.admin-input{
+  width:100%;
+  padding:.7rem 1rem;
+  border:2px solid var(--border);
+  border-radius:var(--rsm);
+  font-size:.95rem;
+  font-family:'DM Sans',sans-serif;
+  text-align:center;
+  letter-spacing:.05em;
+  color:var(--gris);
+}
+.admin-input:focus{outline:none;border-color:var(--rouge)}
+.btn-admin-login{
+  width:100%;
+  padding:.75rem;
+  background:var(--rouge);
+  color:#fff;
+  font-family:'Sora',sans-serif;
+  font-size:.9rem;
+  font-weight:700;
+  border:none;
+  border-radius:var(--rsm);
+  cursor:pointer;
+  margin-top:.75rem;
+}
+.btn-admin-logout{
+  width:100%;
+  padding:.6rem;
+  background:none;
+  color:var(--rouge);
+  font-family:'Sora',sans-serif;
+  font-size:.85rem;
+  font-weight:700;
+  border:2px solid var(--rouge);
+  border-radius:var(--rsm);
+  cursor:pointer;
+  margin-top:.75rem;
+}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(16px);background:#111;color:#fff;padding:.7rem 1.4rem;border-radius:30px;font-size:.86rem;font-weight:500;opacity:0;transition:all .3s;z-index:500;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== MOBILE NAV ===== */
+.mobile-nav{position:fixed;bottom:0;left:0;width:100%;background:#fff;border-top:1px solid #e5e7eb;display:flex;justify-content:space-around;align-items:center;padding:.4rem 0;z-index:1000}
+.mobile-nav button{background:none;border:none;display:flex;flex-direction:column;align-items:center;font-size:.75rem;color:#6b7280;cursor:pointer}
+.mobile-nav button span{font-size:.65rem}
+.center-btn{background:#1e40af;color:#fff !important;width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-top:-20px;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.fab{position:fixed;bottom:80px;right:15px;width:55px;height:55px;border-radius:50%;background:#1e40af;color:#fff;border:none;font-size:1.5rem;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.2);cursor:pointer;z-index:1000;transition:all .2s ease}
+.fab:hover{transform:scale(1.05)}
+
+/* ===== RESPONSIVE ===== */
+@media(min-width:900px){
+  .mobile-nav{display:none}
+  .fab{display:none}
+}
 @media(max-width:780px){
   .main{grid-template-columns:1fr}
   .sidebar{order:2}.content{order:1}
@@ -182,114 +393,34 @@ select{width:100%;padding:.48rem .8rem;border:1.5px solid var(--border);border-r
   .form-row{grid-template-columns:1fr}
   .feats-grid{grid-template-columns:1fr}
 }
-/* ===== MOBILE NAV ===== */
-
-.mobile-nav{
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  background:#fff;
-  border-top:1px solid #e5e7eb;
-  display:flex;
-  justify-content:space-around;
-  align-items:center;
-  padding:.4rem 0;
-  z-index:1000;
-  transition:transform .3s ease;
-}
-
-.mobile-nav button{
-  background:none;
-  border:none;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  font-size:.75rem;
-  color:#6b7280;
-  cursor:pointer;
-}
-
-.mobile-nav button span{
-  font-size:.65rem;
-}
-
-.center-btn{
-  background:#1e40af;
-  color:#fff !important;
-  width:45px;
-  height:45px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:1.2rem;
-  margin-top:-20px;
-  box-shadow:0 4px 12px rgba(0,0,0,.2);
-}
-
-/* cacher sur desktop */
-@media(min-width:900px){
-  .mobile-nav{
-    display:none;
-  }
-@media(max-width:780px){
-  .main{
-    grid-template-columns:1fr;
-  }
-}
-
-/* ⬇️ TU COLLES ICI */
-
-.fab{
-  position:fixed;
-  bottom:80px;
-  right:15px;
-  width:55px;
-  height:55px;
-  border-radius:50%;
-  background:#1e40af;
-  color:#fff;
-  border:none;
-  font-size:1.5rem;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow:0 6px 18px rgba(0,0,0,.2);
-  cursor:pointer;
-  z-index:1000;
-  transition:all .2s ease;
-}
-
-.fab:hover{
-  transform:scale(1.05);
-}
-
-@media(min-width:900px){
-  .fab{
-    display:none;
-  }
-}
-/* éviter que le contenu soit caché */
-body{
-  padding-bottom:70px;
-}
 </style>
 </head>
 <body>
 
+<!-- BARRE ADMIN -->
+<div class="admin-bar" id="admin-bar">⚠️ MODE ADMINISTRATEUR ACTIVÉ — Vous pouvez modifier et supprimer toutes les annonces</div>
+
 <header>
   <div class="hinner">
-    <a href="#" class="logo">
+    <div class="logo" id="logo-click">
       <div class="logo-icon">👷</div>
       Le Partenaire des Éleveurs <em>· Emploi</em>
-    </a>
-    <span class="hbadge">Bourse de l'Emploi Avicole</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:.6rem">
+      <span class="admin-badge-header" id="admin-badge-header">🔐 Admin</span>
+      <span class="hbadge">Bourse de l'Emploi Avicole</span>
+    </div>
   </div>
 </header>
 
+<!-- TICKER BOOSTÉS -->
+<div class="ticker-wrap" id="ticker-wrap">
+  <div class="ticker-label">⚡ Boostés</div>
+  <div class="ticker-track" id="ticker-track"></div>
+</div>
+
 <div class="hero">
-  <div class="hero-tag">💼 Emploi & Recrutement Avicole — Côte d'Ivoire</div>
+  <div class="hero-tag">💼 Emploi &amp; Recrutement Avicole — Côte d'Ivoire</div>
   <h1>Techniciens, trouvez<br>votre ferme idéale.</h1>
   <p>Espace 100% gratuit. Publiez votre profil ou votre offre d'emploi.</p>
   <div class="hero-stats">
@@ -311,41 +442,19 @@ body{
 <div class="main">
   <aside class="sidebar">
     <button class="btn-publi" onclick="switchTab('profil',document.querySelectorAll('.tab')[2])">+ Publier mon profil — Gratuit</button>
-<div style="background:linear-gradient(135deg,#92400e,#7c2d12);color:#fff;border-radius:12px;padding:1rem;margin-top:1rem;box-shadow:0 4px 16px rgba(0,0,0,.15)">
-  
-  <div style="font-family:'Sora',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.4rem">
-    ⚡ Boostez votre profil
-  </div>
 
-  <div style="font-size:.78rem;opacity:.9;margin-bottom:.8rem">
-    Passez en tête et soyez recruté plus vite.
-  </div>
-
-  <div style="display:flex;flex-direction:column;gap:.4rem">
-
-    <div style="display:flex;justify-content:space-between;background:rgba(255,255,255,.1);padding:.4rem .6rem;border-radius:8px;font-size:.8rem">
-      <span>🚀 7 jours</span>
-      <strong>1 000 F</strong>
+    <!-- BOOST SIDEBAR -->
+    <div style="background:linear-gradient(135deg,#92400e,#7c2d12);color:#fff;border-radius:12px;padding:1rem;box-shadow:0 4px 16px rgba(0,0,0,.15)">
+      <div style="font-family:'Sora',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.4rem">⚡ Boostez votre profil</div>
+      <div style="font-size:.78rem;opacity:.9;margin-bottom:.8rem">Passez en tête et soyez recruté plus vite.</div>
+      <div style="display:flex;flex-direction:column;gap:.4rem">
+        <div style="display:flex;justify-content:space-between;background:rgba(255,255,255,.1);padding:.4rem .6rem;border-radius:8px;font-size:.8rem"><span>🚀 7 jours</span><strong>1 000 F</strong></div>
+        <div style="display:flex;justify-content:space-between;background:rgba(255,255,255,.1);padding:.4rem .6rem;border-radius:8px;font-size:.8rem"><span>⭐ 14 jours</span><strong>2 500 F</strong></div>
+        <div style="display:flex;justify-content:space-between;background:rgba(255,255,255,.1);padding:.4rem .6rem;border-radius:8px;font-size:.8rem"><span>🔔 48h</span><strong>2 000 F</strong></div>
+      </div>
+      <button onclick="openM('m-boost')" style="margin-top:.8rem;width:100%;padding:.5rem;background:#fff;color:#7c2d12;font-weight:700;border:none;border-radius:8px;cursor:pointer">Booster mon profil →</button>
     </div>
 
-    <div style="display:flex;justify-content:space-between;background:rgba(255,255,255,.1);padding:.4rem .6rem;border-radius:8px;font-size:.8rem">
-      <span>⭐ 14 jours</span>
-      <strong>2 500 F</strong>
-    </div>
-
-    <div style="display:flex;justify-content:space-between;background:rgba(255,255,255,.1);padding:.4rem .6rem;border-radius:8px;font-size:.8rem">
-      <span>🔔 48h</span>
-      <strong>2 000 F</strong>
-    </div>
-
-  </div>
-
-  <button onclick="openM('m-boost')"
-    style="margin-top:.8rem;width:100%;padding:.5rem;background:#fff;color:#7c2d12;font-weight:700;border:none;border-radius:8px;cursor:pointer">
-    Booster mon profil →
-  </button>
-
-</div>
     <div class="card">
       <div class="card-head">🔍 Filtres techniciens</div>
       <div class="card-body">
@@ -411,7 +520,7 @@ body{
         </div>
       </div>
       <div class="results-info">Affichage de <strong id="rc-tech">0</strong> techniciens</div>
-      <div class="grid-tech" id="grid-tech"></div>
+      <div id="grid-tech"></div>
     </div>
 
     <!-- TAB OFFRES -->
@@ -423,7 +532,7 @@ body{
         </div>
       </div>
       <div class="results-info">Affichage de <strong id="rc-off">0</strong> offres d'emploi</div>
-      <div class="grid-offres" id="grid-offres"></div>
+      <div id="grid-offres"></div>
     </div>
 
     <!-- TAB PROFIL -->
@@ -488,20 +597,20 @@ body{
               <div class="form-group"><label>Prétention salariale (FCFA)</label><input id="pf-salaire" type="text" placeholder="Ex: 150000"></div>
             </div>
             <div class="form-group"><label>Description / expériences</label><textarea id="pf-desc" placeholder="Décrivez votre parcours…"></textarea></div>
-             <div class="form-group">
-  <label>Photo de profil * <span style="color:var(--rouge);font-size:.75rem">Obligatoire</span></label>
-  <div id="pf-photo-zone" style="border:2px dashed var(--border);border-radius:var(--rsm);padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s" onclick="document.getElementById('pf-photo-input').click()">
-    <div id="pf-photo-preview" style="display:none;margin-bottom:.75rem">
-      <img id="pf-photo-img" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--bleu)">
-    </div>
-    <div id="pf-photo-placeholder">
-      <div style="font-size:2rem;margin-bottom:.4rem">📸</div>
-      <div style="font-size:.83rem;color:var(--gris-m)">Cliquez pour ajouter votre photo</div>
-      <div style="font-size:.75rem;color:var(--gris-m);margin-top:.25rem">JPG, PNG — Max 5MB</div>
-    </div>
-    <input type="file" id="pf-photo-input" accept="image/*" style="display:none" onchange="previewPhoto(this,'pf')">
-  </div>
-</div>
+            <div class="form-group">
+              <label>Photo de profil * <span style="color:var(--rouge);font-size:.75rem">Obligatoire</span></label>
+              <div id="pf-photo-zone" style="border:2px dashed var(--border);border-radius:var(--rsm);padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s" onclick="document.getElementById('pf-photo-input').click()">
+                <div id="pf-photo-preview" style="display:none;margin-bottom:.75rem">
+                  <img id="pf-photo-img" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--bleu)" alt="">
+                </div>
+                <div id="pf-photo-placeholder">
+                  <div style="font-size:2rem;margin-bottom:.4rem">📸</div>
+                  <div style="font-size:.83rem;color:var(--gris-m)">Cliquez pour ajouter votre photo</div>
+                  <div style="font-size:.75rem;color:var(--gris-m);margin-top:.25rem">JPG, PNG — Max 5MB</div>
+                </div>
+                <input type="file" id="pf-photo-input" accept="image/*" style="display:none" onchange="previewPhoto(this,'pf')">
+              </div>
+            </div>
             <button type="submit" class="btn-submit-vert">✅ Publier mon profil gratuitement</button>
           </form>
         </div>
@@ -516,7 +625,7 @@ body{
           <div class="form-note">✅ Publication <strong>gratuite</strong>. Les techniciens verront votre offre.</div>
           <form onsubmit="publierOffre(event)">
             <div class="form-row">
-              <div class="form-group"><label>Nom de la ferme</label><input id="of-ferme" type="text" placeholder="Ex: Ferme Bamba & Fils" required></div>
+              <div class="form-group"><label>Nom de la ferme</label><input id="of-ferme" type="text" placeholder="Ex: Ferme Bamba &amp; Fils" required></div>
               <div class="form-group"><label>Téléphone</label><input id="of-tel" type="tel" placeholder="+225 07 00 00 00" required></div>
             </div>
             <div class="form-row">
@@ -553,19 +662,20 @@ body{
             </div>
             <div class="form-group"><label>Effectif à gérer</label><input id="of-effectif" type="text" placeholder="Ex: 5 000 poulets de chair"></div>
             <div class="form-group"><label>Description du poste</label><textarea id="of-desc" placeholder="Missions, profil recherché…" required></textarea></div>
-            <div class="form-group"><label>Photo de la ferme * <span style="color:var(--rouge);font-size:.75rem">Obligatoire</span></label>
-  <div id="of-photo-zone" style="border:2px dashed var(--border);border-radius:var(--rsm);padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s" onclick="document.getElementById('of-photo-input').click()">
-    <div id="of-photo-preview" style="display:none;margin-bottom:.75rem">
-      <img id="of-photo-img" style="width:120px;height:80px;border-radius:var(--rsm);object-fit:cover;border:3px solid var(--bleu)">
-    </div>
-    <div id="of-photo-placeholder">
-      <div style="font-size:2rem;margin-bottom:.4rem">🏗️</div>
-      <div style="font-size:.83rem;color:var(--gris-m)">Cliquez pour ajouter une photo de votre ferme</div>
-      <div style="font-size:.75rem;color:var(--gris-m);margin-top:.25rem">JPG, PNG — Max 5MB</div>
-    </div>
-    <input type="file" id="of-photo-input" accept="image/*" style="display:none" onchange="previewPhoto(this,'of')">
-  </div>
-</div>
+            <div class="form-group">
+              <label>Photo de la ferme * <span style="color:var(--rouge);font-size:.75rem">Obligatoire</span></label>
+              <div id="of-photo-zone" style="border:2px dashed var(--border);border-radius:var(--rsm);padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s" onclick="document.getElementById('of-photo-input').click()">
+                <div id="of-photo-preview" style="display:none;margin-bottom:.75rem">
+                  <img id="of-photo-img" style="width:120px;height:80px;border-radius:var(--rsm);object-fit:cover;border:3px solid var(--bleu)" alt="">
+                </div>
+                <div id="of-photo-placeholder">
+                  <div style="font-size:2rem;margin-bottom:.4rem">🏗️</div>
+                  <div style="font-size:.83rem;color:var(--gris-m)">Cliquez pour ajouter une photo de votre ferme</div>
+                  <div style="font-size:.75rem;color:var(--gris-m);margin-top:.25rem">JPG, PNG — Max 5MB</div>
+                </div>
+                <input type="file" id="of-photo-input" accept="image/*" style="display:none" onchange="previewPhoto(this,'of')">
+              </div>
+            </div>
             <button type="submit" class="btn-submit">📋 Publier l'offre gratuitement</button>
           </form>
         </div>
@@ -596,7 +706,12 @@ body{
 
   </div>
 </div>
-<!-- MODAL CONTACTER TECHNICIEN -->
+
+<!-- ====================================================
+     MODALS
+===================================================== -->
+
+<!-- MODAL CONTACT TECHNICIEN -->
 <div class="modal-bg" id="m-contact-tech" onclick="if(event.target===this)closeM('m-contact-tech')">
   <div class="modal">
     <div class="modal-header">
@@ -612,14 +727,14 @@ body{
       </div>
       <div class="form-group">
         <label>Votre message (optionnel)</label>
-        <textarea id="contact-tech-msg" placeholder="Ex: Nous cherchons un technicien pour 5000 pondeuses..." style="resize:vertical;min-height:72px;width:100%;padding:.56rem .82rem;border:1.5px solid var(--border);border-radius:var(--rsm);font-family:'DM Sans',sans-serif;font-size:.88rem"></textarea>
+        <textarea id="contact-tech-msg" placeholder="Ex: Nous cherchons un technicien pour 5000 pondeuses..."></textarea>
       </div>
       <button class="btn-submit" onclick="envoyerContactTech()">📱 Envoyer ma demande</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL CONTACTER RECRUTEUR -->
+<!-- MODAL CONTACT OFFRE -->
 <div class="modal-bg" id="m-contact-offre" onclick="if(event.target===this)closeM('m-contact-offre')">
   <div class="modal">
     <div class="modal-header">
@@ -635,12 +750,13 @@ body{
       </div>
       <div class="form-group">
         <label>Votre message (optionnel)</label>
-        <textarea id="contact-offre-msg" placeholder="Ex: J'ai 3 ans d'expérience en aviculture..." style="resize:vertical;min-height:72px;width:100%;padding:.56rem .82rem;border:1.5px solid var(--border);border-radius:var(--rsm);font-family:'DM Sans',sans-serif;font-size:.88rem"></textarea>
+        <textarea id="contact-offre-msg" placeholder="Ex: J'ai 3 ans d'expérience en aviculture..."></textarea>
       </div>
       <button class="btn-submit" onclick="envoyerContactOffre()">📩 Envoyer ma candidature</button>
     </div>
   </div>
 </div>
+
 <!-- MODAL PLAN -->
 <div class="modal-bg" id="m-plan" onclick="if(event.target===this)closeM('m-plan')">
   <div class="modal">
@@ -665,57 +781,347 @@ body{
     </div>
   </div>
 </div>
-<!-- MODAL BOOST EMPLOI -->
+
+<!-- MODAL BOOST -->
 <div class="modal-bg" id="m-boost" onclick="if(event.target===this)closeM('m-boost')">
   <div class="modal">
     <div class="modal-header">
       <h2>🚀 Booster votre visibilité</h2>
       <button class="btn-close" onclick="closeM('m-boost')">✕</button>
     </div>
-
     <div class="plan-modal-body">
-      <p style="font-size:.9rem;margin-bottom:1rem">
-        Soyez vu en priorité par les recruteurs et éleveurs.
-      </p>
-
+      <p style="font-size:.9rem;margin-bottom:1rem">Soyez vu en priorité par les recruteurs et éleveurs. Votre annonce défilera en bandeau sur la page.</p>
       <div class="feats-grid">
         <div class="feat-item"><span>⚡</span> En tête des résultats</div>
         <div class="feat-item"><span>⭐</span> Badge premium</div>
         <div class="feat-item"><span>🔥</span> Plus de contacts</div>
-        <div class="feat-item"><span>📢</span> Visibilité maximale</div>
+        <div class="feat-item"><span>📢</span> Défilement en bandeau</div>
       </div>
-
       <div style="margin-top:1rem">
-        <button class="btn-cta" onclick="payerBoost('standard')">
-          🚀 Boost 7 jours — 1 000 FCFA
-        </button>
-
-        <button class="btn-cta" style="background:#d97706;margin-top:.5rem" onclick="payerBoost('premium')">
-          ⭐ Premium 14 jours — 2 500 FCFA
-        </button>
-
-        <button class="btn-cta" style="background:#7c3aed;margin-top:.5rem" onclick="payerBoost('express')">
-          🔔 Express 48h — 2 000 FCFA
-        </button>
-
-        <button class="btn-later" onclick="closeM('m-boost')">
-          Plus tard
-        </button>
+        <button class="btn-cta" onclick="payerBoost('standard')">🚀 Boost 7 jours — 1 000 FCFA</button>
+        <button class="btn-cta" style="background:#d97706;margin-top:.5rem" onclick="payerBoost('premium')">⭐ Premium 14 jours — 2 500 FCFA</button>
+        <button class="btn-cta" style="background:#7c3aed;margin-top:.5rem" onclick="payerBoost('express')">🔔 Express 48h — 2 000 FCFA</button>
+        <button class="btn-later" onclick="closeM('m-boost')">Plus tard</button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- MODAL CODE SUCCÈS (après publication) -->
+<div class="modal-bg" id="m-code-success" onclick="if(event.target===this)closeM('m-code-success')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>🎉 Annonce publiée !</h2>
+      <button class="btn-close" onclick="closeM('m-code-success')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.87rem;color:var(--gris-m);margin-bottom:.5rem;line-height:1.55">Votre annonce est maintenant en ligne. Notez ce <strong>code secret</strong> — il vous permettra de modifier ou supprimer votre annonce depuis n'importe quel appareil.</p>
+      <div class="code-box">
+        <div style="font-size:.78rem;opacity:.8;text-transform:uppercase;letter-spacing:.05em">Votre code de gestion</div>
+        <div class="code-value" id="success-code">------</div>
+        <div class="code-warn">⚠️ Notez ce code maintenant. Il ne sera plus affiché.</div>
+        <button class="btn-copy" onclick="copierCode()">📋 Copier le code</button>
+      </div>
+      <button class="btn-submit" onclick="closeM('m-code-success')">✅ J'ai noté mon code</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ADMIN -->
+<div class="modal-bg" id="m-admin" onclick="if(event.target===this)closeM('m-admin')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>🔐 Espace Administrateur</h2>
+      <button class="btn-close" onclick="closeM('m-admin')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Vue login -->
+      <div class="admin-view-form" id="admin-form-view">
+        <p style="font-size:.85rem;color:var(--gris-m);margin-bottom:1rem;text-align:center">Accès réservé à l'équipe Le Partenaire des Éleveurs.</p>
+        <div class="form-group">
+          <label>Mot de passe administrateur</label>
+          <input class="admin-input" id="admin-pwd" type="password" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')loginAdmin()">
+        </div>
+        <div id="admin-error" style="color:var(--rouge);font-size:.8rem;text-align:center;margin-top:.3rem;display:none">❌ Mot de passe incorrect</div>
+        <button class="btn-admin-login" onclick="loginAdmin()">Connexion Admin</button>
+      </div>
+      <!-- Vue connecté -->
+      <div class="admin-view-logged" id="admin-logged-view">
+        <div style="text-align:center;padding:1rem 0">
+          <div style="font-size:2.5rem;margin-bottom:.5rem">✅</div>
+          <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:1rem;color:var(--vert);margin-bottom:.3rem">Mode Admin activé</div>
+          <div style="font-size:.83rem;color:var(--gris-m);line-height:1.5">Vous pouvez modifier et supprimer toutes les annonces sur la page.</div>
+        </div>
+        <button class="btn-admin-logout" onclick="logoutAdmin()">🔓 Se déconnecter</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MODIFIER TECHNICIEN -->
+<div class="modal-bg" id="m-edit-profil" onclick="if(event.target===this)closeM('m-edit-profil')">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h2>✏️ Modifier le profil</h2>
+      <button class="btn-close" onclick="closeM('m-edit-profil')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Nom complet</label><input id="ep-nom" type="text" required></div>
+        <div class="form-group"><label>Téléphone</label><input id="ep-tel" type="tel" required></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Spécialité</label>
+          <select id="ep-spec">
+            <option>Aviculture</option>
+            <option>Vétérinaire / Para-vétérinaire</option>
+            <option>Manager de ferme</option>
+            <option>Logistique</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Région</label>
+          <select id="ep-region">
+            <option>Abidjan</option><option>Bouaké</option>
+            <option>Yamoussoukro</option><option>Korhogo</option>
+            <option>San-Pédro</option><option>Daloa</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Expérience</label>
+          <select id="ep-exp">
+            <option>Moins d'1 an</option><option>1 à 2 ans</option>
+            <option>3 à 5 ans</option><option>Plus de 5 ans</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Disponibilité</label>
+          <select id="ep-dispo">
+            <option>Immédiatement</option>
+            <option>Dans 1 mois</option>
+            <option>À négocier</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Contrat recherché</label>
+          <select id="ep-contrat">
+            <option>CDI</option><option>CDD</option>
+            <option>Saisonnier</option><option>Journalier</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Prétention salariale (FCFA)</label><input id="ep-salaire" type="text"></div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea id="ep-desc"></textarea></div>
+      <button class="btn-submit" onclick="sauvegarderProfil()">💾 Enregistrer les modifications</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MODIFIER OFFRE -->
+<div class="modal-bg" id="m-edit-offre" onclick="if(event.target===this)closeM('m-edit-offre')">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h2>✏️ Modifier l'offre</h2>
+      <button class="btn-close" onclick="closeM('m-edit-offre')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Nom de la ferme</label><input id="eo-ferme" type="text" required></div>
+        <div class="form-group"><label>Téléphone</label><input id="eo-tel" type="tel" required></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Poste recherché</label>
+          <select id="eo-poste">
+            <option>Technicien avicole</option>
+            <option>Vétérinaire</option>
+            <option>Responsable de ferme</option>
+            <option>Agent logistique</option>
+            <option>Autre</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Région</label>
+          <select id="eo-region">
+            <option>Abidjan</option><option>Bouaké</option>
+            <option>Yamoussoukro</option><option>Korhogo</option>
+            <option>San-Pédro</option><option>Daloa</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Type de contrat</label>
+          <select id="eo-contrat">
+            <option>CDI</option><option>CDD</option>
+            <option>Saisonnier</option><option>Journalier</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Salaire proposé (FCFA)</label><input id="eo-salaire" type="text"></div>
+      </div>
+      <div class="form-group"><label>Effectif à gérer</label><input id="eo-effectif" type="text"></div>
+      <div class="form-group"><label>Description du poste</label><textarea id="eo-desc"></textarea></div>
+      <button class="btn-submit" onclick="sauvegarderOffre()">💾 Enregistrer les modifications</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMER SUPPRESSION -->
+<div class="modal-bg" id="m-delete-confirm" onclick="if(event.target===this)closeM('m-delete-confirm')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>🗑️ Confirmer la suppression</h2>
+      <button class="btn-close" onclick="closeM('m-delete-confirm')">✕</button>
+    </div>
+    <div class="modal-body" style="text-align:center">
+      <div style="font-size:2.5rem;margin-bottom:.75rem">⚠️</div>
+      <p style="font-size:.92rem;color:var(--gris);margin-bottom:.4rem">Voulez-vous vraiment supprimer :</p>
+      <p style="font-family:'Sora',sans-serif;font-weight:700;font-size:1rem;color:var(--rouge);margin-bottom:1rem" id="delete-name">—</p>
+      <p style="font-size:.82rem;color:var(--gris-m);margin-bottom:1.2rem">Cette action est irréversible.</p>
+      <div style="display:flex;gap:.7rem">
+        <button class="btn-delete" style="flex:1;padding:.7rem" onclick="confirmerSuppression()">🗑️ Supprimer</button>
+        <button class="btn-edit" style="flex:1;padding:.7rem;border-color:var(--border);color:var(--gris-m)" onclick="closeM('m-delete-confirm')">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="tk"></div>
 
+<!-- ====================================================
+     SCRIPT
+===================================================== -->
 <script>
-const SPEC_BADGE={'Aviculture':'badge-spec','Vétérinaire / Para-vétérinaire':'badge-vet','Manager de ferme':'badge-manager','Logistique':'badge-logis'};
-const CONTRAT_TAG={'CDI':'tag-cdi','CDD':'tag-cdd','Saisonnier':'tag-saisonnier','Journalier':'tag-journalier'};
-const BGC={'Aviculture':'#1e40af','Vétérinaire / Para-vétérinaire':'#7c3aed','Manager de ferme':'#0891b2','Logistique':'#d97706'};
+// ── CONSTANTES ──────────────────────────────────────────────────
+const ADMIN_PWD  = 'LPE@Admin2025';  // ⚠️ À changer en prod
+const ADMIN_KEY  = 'lpe_admin_v1';
+const CODES_KEY  = 'lpe_mgmt_codes'; // { id: code }
+
+const SPEC_BADGE = {
+  'Aviculture':'badge-spec',
+  'Vétérinaire / Para-vétérinaire':'badge-vet',
+  'Manager de ferme':'badge-manager',
+  'Logistique':'badge-logis'
+};
+const CONTRAT_TAG = {'CDI':'tag-cdi','CDD':'tag-cdd','Saisonnier':'tag-saisonnier','Journalier':'tag-journalier'};
+const BGC = {'Aviculture':'#1e40af','Vétérinaire / Para-vétérinaire':'#7c3aed','Manager de ferme':'#0891b2','Logistique':'#d97706'};
+
 let TECHS=[], OFFRES=[];
 let F={spec:'tous',region:'tous',dispo:'tous',search:''};
+const TECH_MAP={}, OFFRE_MAP={};
+let contactTechCurrent=null, contactOffreCurrent=null;
+let boostTarget=null;
+let deleteTarget=null; // { id, type, name }
+let editTarget=null;   // { id, type }
 
+// ── RÔLES ────────────────────────────────────────────────────────
+function isAdmin(){return sessionStorage.getItem(ADMIN_KEY)==='1'}
+
+function getCodes(){
+  try{return JSON.parse(localStorage.getItem(CODES_KEY)||'{}')}
+  catch{return{}}
+}
+function saveCode(id,code){
+  const c=getCodes(); c[id]=code;
+  localStorage.setItem(CODES_KEY,JSON.stringify(c));
+}
+function hasCode(id){return !!getCodes()[id]}
+function isOwner(id){return isAdmin()||hasCode(id)}
+
+// Génère un code 6 caractères
+function generateCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code='';
+  for(let i=0;i<6;i++) code+=chars[Math.floor(Math.random()*chars.length)];
+  return code;
+}
+
+// ── ADMIN ────────────────────────────────────────────────────────
+function loginAdmin(){
+  const pwd=document.getElementById('admin-pwd').value;
+  if(pwd===ADMIN_PWD){
+    sessionStorage.setItem(ADMIN_KEY,'1');
+    document.getElementById('admin-error').style.display='none';
+    document.getElementById('admin-form-view').style.display='none';
+    document.getElementById('admin-logged-view').style.display='block';
+    document.getElementById('admin-bar').style.display='block';
+    document.getElementById('admin-badge-header').style.display='inline-flex';
+    renderTech(); renderOffres();
+    toast('🔐 Mode admin activé');
+  } else {
+    document.getElementById('admin-error').style.display='block';
+  }
+}
+function logoutAdmin(){
+  sessionStorage.removeItem(ADMIN_KEY);
+  document.getElementById('admin-form-view').style.display='block';
+  document.getElementById('admin-logged-view').style.display='none';
+  document.getElementById('admin-bar').style.display='none';
+  document.getElementById('admin-badge-header').style.display='none';
+  document.getElementById('admin-pwd').value='';
+  closeM('m-admin');
+  renderTech(); renderOffres();
+  toast('🔓 Mode admin désactivé');
+}
+
+// Triple clic logo → modal admin
+let clickCount=0, clickTimer=null;
+document.getElementById('logo-click').addEventListener('click',()=>{
+  clickCount++;
+  clearTimeout(clickTimer);
+  clickTimer=setTimeout(()=>clickCount=0,600);
+  if(clickCount>=3){
+    clickCount=0;
+    // Mettre à jour la vue selon état courant
+    if(isAdmin()){
+      document.getElementById('admin-form-view').style.display='none';
+      document.getElementById('admin-logged-view').style.display='block';
+    } else {
+      document.getElementById('admin-form-view').style.display='block';
+      document.getElementById('admin-logged-view').style.display='none';
+    }
+    openM('m-admin');
+  }
+});
+
+// Restaurer état admin au chargement
+if(isAdmin()){
+  document.getElementById('admin-bar').style.display='block';
+  document.getElementById('admin-badge-header').style.display='inline-flex';
+}
+
+// ── TICKER ───────────────────────────────────────────────────────
+function updateTicker(){
+  const boosteds=[
+    ...TECHS.filter(t=>t.boosted).map(t=>({label:t.boostLabel||'⚡',nom:t.nom,detail:t.specialite+' · '+t.region,type:'tech'})),
+    ...OFFRES.filter(o=>o.boosted).map(o=>({label:o.boostLabel||'⚡',nom:o.ferme,detail:o.poste+' · '+o.region,type:'offre'}))
+  ];
+  const wrap=document.getElementById('ticker-wrap');
+  const track=document.getElementById('ticker-track');
+  if(!boosteds.length){wrap.classList.remove('visible');return}
+  wrap.classList.add('visible');
+  // Dupliquer pour boucle seamless
+  const makeItems=()=>boosteds.map(b=>`
+    <span class="ticker-item">
+      <span>${b.label}</span>
+      <strong>${b.nom}</strong>
+      <span style="opacity:.75">${b.detail}</span>
+      <span class="ticker-item-badge">${b.type==='tech'?'Technicien':'Offre'}</span>
+    </span>
+  `).join('');
+  track.innerHTML=makeItems()+makeItems();
+  // Durée proportionnelle
+  const dur=Math.min(60,Math.max(20,boosteds.length*10));
+  track.style.animationDuration=dur+'s';
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────
 function ini(n){return(n||'??').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
-
 function timeAgo(d){
   const h=Math.floor((Date.now()-new Date(d))/3600000);
   if(h<1)return"À l'instant";
@@ -725,12 +1131,23 @@ function timeAgo(d){
   return`Il y a ${Math.floor(j/7)} sem`;
 }
 
+// ── CARDS ─────────────────────────────────────────────────────────
+function ownerActions(id,type,name){
+  if(!isOwner(id)) return '';
+  const isAdm=isAdmin();
+  return`<div class="owner-actions">
+    <span class="owner-label">${isAdm?'🔐 Admin':'✏️ Mon annonce'}</span>
+    <button class="btn-edit" onclick="ouvrirEdit('${id}','${type}')">✏️ Modifier</button>
+    <button class="btn-delete" onclick="demanderSuppression('${id}','${type}','${name.replace(/'/g,"\\'")}')">🗑️ Supprimer</button>
+  </div>`;
+}
+
 function techCard(t){
-  TECH_MAP[t._id] = t;
+  TECH_MAP[t._id]=t;
   const specB=SPEC_BADGE[t.specialite]||'badge-spec';
   const bg=BGC[t.specialite]||'#1e40af';
   const avatar=t.photoUrl
-    ?`<img src="${t.photoUrl}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;flex-shrink:0">`
+    ?`<img src="${t.photoUrl}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">`
     :`<div class="tech-avatar" style="background:${bg}">${ini(t.nom)}</div>`;
   return`<div class="tech-card${t.boosted?' featured':''}">
     ${t.boosted?`<div style="background:linear-gradient(135deg,#d97706,#b45309);color:#fff;font-size:.65rem;font-weight:700;padding:4px 10px;border-bottom-right-radius:10px;text-transform:uppercase;letter-spacing:.03em;display:inline-flex;align-items:center;gap:4px">${t.boostLabel||'⚡ Boost'} · ${t.boostDays||0}j</div>`:''}
@@ -749,28 +1166,28 @@ function techCard(t){
     <div class="tech-body">
       <div class="tech-stats">
         <div class="tstat"><div class="tstat-label">Contrat</div><div class="tstat-val">${t.contrat}</div></div>
-        <div class="tstat"><div class="tstat-label">Salaire</div><div class="tstat-val">${t.salaire}</div></div>
+        <div class="tstat"><div class="tstat-label">Salaire</div><div class="tstat-val">${t.salaire||'À négocier'}</div></div>
         <div class="tstat"><div class="tstat-label">Disponibilité</div><div class="tstat-val">${t.disponibilite}</div></div>
         <div class="tstat"><div class="tstat-label">Expérience</div><div class="tstat-val">${t.experience}</div></div>
       </div>
       ${t.description?`<div class="tech-desc">${t.description}</div>`:''}
     </div>
     <div class="tech-footer">
-  <button class="btn-save" onclick="openBoost('${t._id}','tech')">🚀</button>
+      <button class="btn-save" onclick="openBoost('${t._id}','tech')" title="Booster">🚀</button>
       ${t.locked
         ?`<button class="btn-contact locked" onclick="openM('m-plan')">🔒 Voir le contact</button>`
         :`<button class="btn-contact" onclick="ouvrirContactTech('${t._id}')">💬 Contacter</button>`}
-      <button class="btn-save" onclick="toast('🔖 Profil sauvegardé !')">📌</button>
+      <button class="btn-save" onclick="toast('🔖 Profil sauvegardé !')" title="Sauvegarder">📌</button>
     </div>
+    ${ownerActions(t._id,'tech',t.nom)}
   </div>`;
 }
 
 function offreCard(o){
-  OFFRE_MAP[o._id] = o;
+  OFFRE_MAP[o._id]=o;
   const ct=CONTRAT_TAG[o.contrat]||'tag-cdi';
   const photoFerme=o.photoUrl
-    ?`<div style="width:100%;height:160px;overflow:hidden;border-radius:var(--r) var(--r) 0 0"><img src="${o.photoUrl}" style="width:100%;height:100%;object-fit:cover"></div>`
-    :'';
+    ?`<div style="width:100%;height:160px;overflow:hidden;border-radius:var(--r) var(--r) 0 0"><img src="${o.photoUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"></div>`:'';
   return`<div class="offre-card${o.boosted?' featured':''}">
     ${o.boosted?`<div style="background:linear-gradient(135deg,#d97706,#b45309);color:#fff;font-size:.65rem;font-weight:700;padding:4px 10px;border-bottom-right-radius:10px;text-transform:uppercase;letter-spacing:.03em;display:inline-flex;align-items:center;gap:4px">${o.boostLabel||'⚡ Boost'} · ${o.boostDays||0}j</div>`:''}
     ${photoFerme}
@@ -791,27 +1208,19 @@ function offreCard(o){
         <div class="odet"><div class="odet-label">Publiée</div><div class="odet-val">${timeAgo(o.createdAt)}</div></div>
       </div>
       ${o.description?`<div class="offre-desc">${o.description}</div>`:''}
-      <div class="offre-salary">${o.salaire} <small>FCFA/mois</small></div>
+      <div class="offre-salary">${o.salaire||'À négocier'} <small>FCFA/mois</small></div>
     </div>
     <div class="offre-footer">
+      <button class="btn-save" onclick="openBoost('${o._id}','offre')" title="Booster">🚀</button>
       <button class="btn-postuler" onclick="ouvrirContactOffre('${o._id}')">📩 Postuler</button>
     </div>
-    <div class="offre-footer">
-  <button class="btn-save" onclick="openBoost('${o._id}','offre')">🚀</button>
+    ${ownerActions(o._id,'offre',o.ferme+' – '+o.poste)}
   </div>`;
 }
 
-function filteredTech(){
-  let d=[...TECHS];
-  if(F.spec!=='tous')d=d.filter(t=>t.specialite===F.spec||t.specialite.includes(F.spec));
-  if(F.region!=='tous')d=d.filter(t=>t.region===F.region);
-  if(F.dispo==='Immédiatement')d=d.filter(t=>t.disponibilite==='Immédiatement');
-  if(F.search){const q=F.search.toLowerCase();d=d.filter(t=>t.nom?.toLowerCase().includes(q)||t.specialite?.toLowerCase().includes(q)||t.region?.toLowerCase().includes(q))}
-  return d;
-}
-
-function renderTech(){
-  const d=filteredTech();
+// ── RENDER ────────────────────────────────────────────────────────
+function renderTech(data){
+  const d=(data||filteredTech());
   const boosted=d.filter(t=>t.boosted);
   const normal=d.filter(t=>!t.boosted);
   let html='';
@@ -827,11 +1236,13 @@ function renderTech(){
   document.getElementById('s-tech').textContent=TECHS.length;
   document.getElementById('sb-dispo').textContent=TECHS.filter(t=>t.disponibilite==='Immédiatement').length;
   document.getElementById('sb-cert').textContent=TECHS.filter(t=>t.certifieLPE).length;
+  updateTicker();
 }
 
-function renderOffres(){
-  const boosted=OFFRES.filter(o=>o.boosted);
-  const normal=OFFRES.filter(o=>!o.boosted);
+function renderOffres(data){
+  const all=data||OFFRES;
+  const boosted=all.filter(o=>o.boosted);
+  const normal=all.filter(o=>!o.boosted);
   let html='';
   if(boosted.length){
     html+=`<div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#b45309;margin-bottom:.65rem;display:flex;align-items:center;gap:7px">⚡ Offres boostées<span style="flex:1;height:1px;background:#fef3c7;display:block"></span></div>`;
@@ -840,151 +1251,353 @@ function renderOffres(){
   }
   html+=`<div class="grid-offres">${normal.length?normal.map(offreCard).join(''):`<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--gris-m)">🔍 Aucune offre trouvée.</div>`}</div>`;
   document.getElementById('grid-offres').innerHTML=html;
-  document.getElementById('rc-off').textContent=OFFRES.length;
+  document.getElementById('rc-off').textContent=all.length;
   document.getElementById('tc-off').textContent=OFFRES.length;
   document.getElementById('s-offres').textContent=OFFRES.length;
+  updateTicker();
 }
 
+// ── FILTRES & RECHERCHE ───────────────────────────────────────────
+function filteredTech(){
+  let d=[...TECHS];
+  if(F.spec!=='tous')d=d.filter(t=>t.specialite===F.spec||t.specialite.includes(F.spec));
+  if(F.region!=='tous')d=d.filter(t=>t.region===F.region);
+  if(F.dispo==='Immédiatement')d=d.filter(t=>t.disponibilite==='Immédiatement');
+  if(F.search){const q=F.search.toLowerCase();d=d.filter(t=>t.nom?.toLowerCase().includes(q)||t.specialite?.toLowerCase().includes(q)||t.region?.toLowerCase().includes(q))}
+  return d;
+}
 function setF(el,k,v){el.closest('.filter-options').querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');F[k]=v;renderTech()}
 function setFv(k,v){F[k]=v;renderTech()}
 function searchTech(v){F.search=v;renderTech()}
 function searchOffres(v){
   const q=v.toLowerCase();
   const d=q?OFFRES.filter(o=>o.ferme?.toLowerCase().includes(q)||o.poste?.toLowerCase().includes(q)||o.region?.toLowerCase().includes(q)):OFFRES;
-  document.getElementById('grid-offres').innerHTML=d.length?d.map(offreCard).join(''):`<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--gris-m)">🔍 Aucune offre trouvée.</div>`;
+  renderOffres(d);
 }
 
-async function publierProfil(e) {
+// ── PUBLICATION ───────────────────────────────────────────────────
+async function publierProfil(e){
   e.preventDefault();
-
-  // Vérifier photo obligatoire
-  if (!pfPhotoBase64) {
+  if(!pfPhotoBase64){
     toast('❌ La photo de profil est obligatoire !');
-    document.getElementById('pf-photo-zone').style.borderColor = 'var(--rouge)';
+    document.getElementById('pf-photo-zone').style.borderColor='var(--rouge)';
     return;
   }
-
-  // Bouton loading
-  const btn = e.target.querySelector('button[type="submit"]');
-  btn.textContent = '⏳ Upload en cours...';
-  btn.disabled = true;
-
-  try {
-    // Upload photo sur Cloudinary
-    const photoUrl = await uploadPhoto(pfPhotoBase64, pfPhotoMime, 'lpe-profils');
-
-    const body = {
-      nom:          document.getElementById('pf-nom').value,
-      telephone:    document.getElementById('pf-tel').value,
-      specialite:   document.getElementById('pf-spec').value,
-      region:       document.getElementById('pf-region').value,
-      experience:   document.getElementById('pf-exp').value,
+  const btn=e.target.querySelector('button[type="submit"]');
+  btn.textContent='⏳ Upload en cours...';btn.disabled=true;
+  try{
+    const photoUrl=await uploadPhoto(pfPhotoBase64,pfPhotoMime,'lpe-profils');
+    const code=generateCode();
+    const body={
+      nom:document.getElementById('pf-nom').value,
+      telephone:document.getElementById('pf-tel').value,
+      specialite:document.getElementById('pf-spec').value,
+      region:document.getElementById('pf-region').value,
+      experience:document.getElementById('pf-exp').value,
       disponibilite:document.getElementById('pf-dispo').value,
-      contrat:      document.getElementById('pf-contrat').value,
-      salaire:      document.getElementById('pf-salaire').value || 'À négocier',
-      description:  document.getElementById('pf-desc').value || '',
-      photoUrl:     photoUrl,
+      contrat:document.getElementById('pf-contrat').value,
+      salaire:document.getElementById('pf-salaire').value||'À négocier',
+      description:document.getElementById('pf-desc').value||'',
+      photoUrl,
+      managementCode:code
     };
-
-    const res = await fetch('/emploi/api/profils', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    const json = await res.json();
-
-    if (json.success) {
+    const res=await fetch('/emploi/api/profils',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const json=await res.json();
+    if(json.success){
+      const newId=json.data?._id||json.id;
+      if(newId) saveCode(newId,code);
       await loadData();
-      switchTab('techniciens', document.querySelector('.tab'));
+      switchTab('techniciens',document.querySelector('.tab'));
       e.target.reset();
-      pfPhotoBase64 = null; pfPhotoMime = null;
-      document.getElementById('pf-photo-preview').style.display = 'none';
-      document.getElementById('pf-photo-placeholder').style.display = 'block';
-      document.getElementById('pf-photo-zone').style.borderColor = 'var(--border)';
-      toast('🎉 Profil publié avec succès !');
-    } else {
-      toast('❌ Erreur. Réessayez.');
-    }
-  } catch (err) {
-    toast('❌ Erreur upload photo.');
-  } finally {
-    btn.textContent = '✅ Publier mon profil gratuitement';
-    btn.disabled = false;
-  }
+      pfPhotoBase64=null;pfPhotoMime=null;
+      document.getElementById('pf-photo-preview').style.display='none';
+      document.getElementById('pf-photo-placeholder').style.display='block';
+      document.getElementById('pf-photo-zone').style.borderColor='var(--border)';
+      afficherCodeSucces(code);
+    } else {toast('❌ Erreur. Réessayez.')}
+  }catch(err){toast('❌ Erreur upload photo.')}
+  finally{btn.textContent='✅ Publier mon profil gratuitement';btn.disabled=false}
 }
 
-async function publierOffre(e) {
+async function publierOffre(e){
   e.preventDefault();
-
-  // Vérifier photo obligatoire
-  if (!ofPhotoBase64) {
+  if(!ofPhotoBase64){
     toast('❌ La photo de la ferme est obligatoire !');
-    document.getElementById('of-photo-zone').style.borderColor = 'var(--rouge)';
+    document.getElementById('of-photo-zone').style.borderColor='var(--rouge)';
     return;
   }
-
-  // Bouton loading
-  const btn = e.target.querySelector('button[type="submit"]');
-  btn.textContent = '⏳ Upload en cours...';
-  btn.disabled = true;
-
-  try {
-    // Upload photo sur Cloudinary
-    const photoUrl = await uploadPhoto(ofPhotoBase64, ofPhotoMime, 'lpe-fermes');
-
-    const body = {
-      ferme:       document.getElementById('of-ferme').value,
-      telephone:   document.getElementById('of-tel').value,
-      poste:       document.getElementById('of-poste').value,
-      region:      document.getElementById('of-region').value,
-      contrat:     document.getElementById('of-contrat').value,
-      salaire:     document.getElementById('of-salaire').value || 'À négocier',
-      effectif:    document.getElementById('of-effectif').value || '',
-      description: document.getElementById('of-desc').value || '',
-      photoUrl:    photoUrl,
+  const btn=e.target.querySelector('button[type="submit"]');
+  btn.textContent='⏳ Upload en cours...';btn.disabled=true;
+  try{
+    const photoUrl=await uploadPhoto(ofPhotoBase64,ofPhotoMime,'lpe-fermes');
+    const code=generateCode();
+    const body={
+      ferme:document.getElementById('of-ferme').value,
+      telephone:document.getElementById('of-tel').value,
+      poste:document.getElementById('of-poste').value,
+      region:document.getElementById('of-region').value,
+      contrat:document.getElementById('of-contrat').value,
+      salaire:document.getElementById('of-salaire').value||'À négocier',
+      effectif:document.getElementById('of-effectif').value||'',
+      description:document.getElementById('of-desc').value||'',
+      photoUrl,
+      managementCode:code
     };
-
-    const res = await fetch('/emploi/api/offres', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    const json = await res.json();
-
-    if (json.success) {
+    const res=await fetch('/emploi/api/offres',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const json=await res.json();
+    if(json.success){
+      const newId=json.data?._id||json.id;
+      if(newId) saveCode(newId,code);
       await loadData();
-      switchTab('offres', document.querySelectorAll('.tab')[1]);
+      switchTab('offres',document.querySelectorAll('.tab')[1]);
       e.target.reset();
-      ofPhotoBase64 = null; ofPhotoMime = null;
-      document.getElementById('of-photo-preview').style.display = 'none';
-      document.getElementById('of-photo-placeholder').style.display = 'block';
-      document.getElementById('of-photo-zone').style.borderColor = 'var(--border)';
-      toast('🎉 Offre publiée avec succès !');
-    } else {
-      toast('❌ Erreur. Réessayez.');
-    }
-  } catch (err) {
-    toast('❌ Erreur upload photo.');
-  } finally {
-    btn.textContent = '📋 Publier l\'offre gratuitement';
-    btn.disabled = false;
+      ofPhotoBase64=null;ofPhotoMime=null;
+      document.getElementById('of-photo-preview').style.display='none';
+      document.getElementById('of-photo-placeholder').style.display='block';
+      document.getElementById('of-photo-zone').style.borderColor='var(--border)';
+      afficherCodeSucces(code);
+    } else {toast('❌ Erreur. Réessayez.')}
+  }catch(err){toast('❌ Erreur upload photo.')}
+  finally{btn.textContent="📋 Publier l'offre gratuitement";btn.disabled=false}
+}
+
+function afficherCodeSucces(code){
+  document.getElementById('success-code').textContent=code;
+  openM('m-code-success');
+}
+function copierCode(){
+  const code=document.getElementById('success-code').textContent;
+  navigator.clipboard.writeText(code).then(()=>toast('✅ Code copié !')).catch(()=>{
+    toast('Code : '+code);
+  });
+}
+
+// ── MODIFIER ──────────────────────────────────────────────────────
+function ouvrirEdit(id,type){
+  editTarget={id,type};
+  if(type==='tech'){
+    const t=TECH_MAP[id]; if(!t)return;
+    const setVal=(eid,val)=>{const el=document.getElementById(eid);if(el)el.value=val||''};
+    setVal('ep-nom',t.nom);setVal('ep-tel',t.telephone);
+    setVal('ep-spec',t.specialite);setVal('ep-region',t.region);
+    setVal('ep-exp',t.experience);setVal('ep-dispo',t.disponibilite);
+    setVal('ep-contrat',t.contrat);setVal('ep-salaire',t.salaire);
+    setVal('ep-desc',t.description);
+    openM('m-edit-profil');
+  } else {
+    const o=OFFRE_MAP[id]; if(!o)return;
+    const setVal=(eid,val)=>{const el=document.getElementById(eid);if(el)el.value=val||''};
+    setVal('eo-ferme',o.ferme);setVal('eo-tel',o.telephone);
+    setVal('eo-poste',o.poste);setVal('eo-region',o.region);
+    setVal('eo-contrat',o.contrat);setVal('eo-salaire',o.salaire);
+    setVal('eo-effectif',o.effectif);setVal('eo-desc',o.description);
+    openM('m-edit-offre');
   }
 }
 
+async function sauvegarderProfil(){
+  if(!editTarget) return;
+  const id=editTarget.id;
+  const codes=getCodes();
+  const body={
+    nom:document.getElementById('ep-nom').value,
+    telephone:document.getElementById('ep-tel').value,
+    specialite:document.getElementById('ep-spec').value,
+    region:document.getElementById('ep-region').value,
+    experience:document.getElementById('ep-exp').value,
+    disponibilite:document.getElementById('ep-dispo').value,
+    contrat:document.getElementById('ep-contrat').value,
+    salaire:document.getElementById('ep-salaire').value||'À négocier',
+    description:document.getElementById('ep-desc').value||'',
+    managementCode: codes[id]||undefined,
+    adminKey: isAdmin()?ADMIN_PWD:undefined
+  };
+  try{
+    const res=await fetch('/emploi/api/profils/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const json=await res.json();
+    if(json.success){
+      closeM('m-edit-profil');
+      await loadData();
+      toast('✅ Profil modifié avec succès !');
+    } else {toast('❌ Erreur modification.')}
+  }catch{toast('❌ Erreur réseau.')}
+}
+
+async function sauvegarderOffre(){
+  if(!editTarget) return;
+  const id=editTarget.id;
+  const codes=getCodes();
+  const body={
+    ferme:document.getElementById('eo-ferme').value,
+    telephone:document.getElementById('eo-tel').value,
+    poste:document.getElementById('eo-poste').value,
+    region:document.getElementById('eo-region').value,
+    contrat:document.getElementById('eo-contrat').value,
+    salaire:document.getElementById('eo-salaire').value||'À négocier',
+    effectif:document.getElementById('eo-effectif').value||'',
+    description:document.getElementById('eo-desc').value||'',
+    managementCode: codes[id]||undefined,
+    adminKey: isAdmin()?ADMIN_PWD:undefined
+  };
+  try{
+    const res=await fetch('/emploi/api/offres/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const json=await res.json();
+    if(json.success){
+      closeM('m-edit-offre');
+      await loadData();
+      toast('✅ Offre modifiée avec succès !');
+    } else {toast('❌ Erreur modification.')}
+  }catch{toast('❌ Erreur réseau.')}
+}
+
+// ── SUPPRIMER ─────────────────────────────────────────────────────
+function demanderSuppression(id,type,name){
+  deleteTarget={id,type};
+  document.getElementById('delete-name').textContent=name;
+  openM('m-delete-confirm');
+}
+
+async function confirmerSuppression(){
+  if(!deleteTarget) return;
+  const {id,type}=deleteTarget;
+  const codes=getCodes();
+  const endpoint=type==='tech'?'/emploi/api/profils/':'/emploi/api/offres/';
+  try{
+    const res=await fetch(endpoint+id,{
+      method:'DELETE',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        managementCode: codes[id]||undefined,
+        adminKey: isAdmin()?ADMIN_PWD:undefined
+      })
+    });
+    const json=await res.json();
+    if(json.success){
+      // Supprimer du code local
+      const c=getCodes(); delete c[id]; localStorage.setItem(CODES_KEY,JSON.stringify(c));
+      closeM('m-delete-confirm');
+      await loadData();
+      toast('🗑️ Annonce supprimée.');
+    } else {toast('❌ Erreur suppression.')}
+  }catch{toast('❌ Erreur réseau.')}
+}
+
+// ── BOOST ─────────────────────────────────────────────────────────
+function openBoost(id,type){boostTarget={id,type};openM('m-boost')}
+
+function payerBoost(plan){
+  if(!boostTarget){toast('❌ Erreur boost');return}
+  const data={standard:{label:'🚀 Boost',days:7},premium:{label:'⭐ Premium',days:14},express:{label:'🔔 Express',days:2}}[plan]||{label:'⚡',days:7};
+  if(boostTarget.type==='tech'){
+    const t=TECHS.find(x=>x._id===boostTarget.id);
+    if(t){t.boosted=true;t.boostLabel=data.label;t.boostDays=data.days}
+    renderTech();
+  } else {
+    const o=OFFRES.find(x=>x._id===boostTarget.id);
+    if(o){o.boosted=true;o.boostLabel=data.label;o.boostDays=data.days}
+    renderOffres();
+  }
+  closeM('m-boost');
+  toast('🔥 Boost activé ! Votre annonce défile en bandeau.');
+}
+
+// ── CONTACT ───────────────────────────────────────────────────────
+function ouvrirContactTech(id){
+  const t=TECH_MAP[id]; if(!t){toast('❌ Erreur');return}
+  contactTechCurrent=t;
+  document.getElementById('contact-tech-details').innerHTML=
+    `👷 <strong>${t.nom}</strong><br>🔧 ${t.specialite} — 📍 ${t.region}<br>📅 ${t.experience} · ${t.disponibilite}`;
+  document.getElementById('contact-tech-tel').value='';
+  document.getElementById('contact-tech-msg').value='';
+  openM('m-contact-tech');
+}
+function ouvrirContactOffre(id){
+  const o=OFFRE_MAP[id]; if(!o){toast('❌ Erreur');return}
+  contactOffreCurrent=o;
+  document.getElementById('contact-offre-details').innerHTML=
+    `🏗️ <strong>${o.ferme}</strong><br>💼 ${o.poste} — 📍 ${o.region}<br>📄 ${o.contrat} · 💰 ${o.salaire}`;
+  document.getElementById('contact-offre-tel').value='';
+  document.getElementById('contact-offre-msg').value='';
+  openM('m-contact-offre');
+}
+
+async function envoyerContactTech(){
+  const tel=document.getElementById('contact-tech-tel').value.trim();
+  const msg=document.getElementById('contact-tech-msg').value.trim();
+  if(!tel||tel.length<8){toast('❌ Entrez votre numéro WhatsApp');return}
+  try{
+    const res=await fetch('/api/notifier-contact',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({telephone:contactTechCurrent.telephone,acheteurTel:tel,acheteurMsg:msg,type:'tech',details:{nom:contactTechCurrent.nom,specialite:contactTechCurrent.specialite,region:contactTechCurrent.region}})
+    });
+    const json=await res.json();
+    if(json.success){closeM('m-contact-tech');toast('✅ Demande envoyée ! Le technicien sera notifié sur WhatsApp.')}
+    else{toast('❌ Erreur. Réessayez.')}
+  }catch{toast('❌ Erreur réseau.')}
+}
+
+async function envoyerContactOffre(){
+  const tel=document.getElementById('contact-offre-tel').value.trim();
+  const msg=document.getElementById('contact-offre-msg').value.trim();
+  if(!tel||tel.length<8){toast('❌ Entrez votre numéro WhatsApp');return}
+  try{
+    const res=await fetch('/api/notifier-contact',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({telephone:contactOffreCurrent.telephone,acheteurTel:tel,acheteurMsg:msg,type:'offre',details:{poste:contactOffreCurrent.poste,region:contactOffreCurrent.region}})
+    });
+    const json=await res.json();
+    if(json.success){closeM('m-contact-offre');toast('✅ Candidature envoyée ! Le recruteur sera notifié sur WhatsApp.')}
+    else{toast('❌ Erreur. Réessayez.')}
+  }catch{toast('❌ Erreur réseau.')}
+}
+
+// ── PHOTO UPLOAD ───────────────────────────────────────────────────
+let pfPhotoBase64=null,pfPhotoMime=null;
+let ofPhotoBase64=null,ofPhotoMime=null;
+
+function previewPhoto(input,prefix){
+  const file=input.files[0]; if(!file)return;
+  if(file.size>5*1024*1024){toast('❌ Photo trop lourde — max 5MB');return}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const base64=e.target.result.split(',')[1];
+    const mimeType=file.type;
+    if(prefix==='pf'){
+      pfPhotoBase64=base64;pfPhotoMime=mimeType;
+      document.getElementById('pf-photo-img').src=e.target.result;
+      document.getElementById('pf-photo-preview').style.display='block';
+      document.getElementById('pf-photo-placeholder').style.display='none';
+      document.getElementById('pf-photo-zone').style.borderColor='var(--bleu)';
+    } else {
+      ofPhotoBase64=base64;ofPhotoMime=mimeType;
+      document.getElementById('of-photo-img').src=e.target.result;
+      document.getElementById('of-photo-preview').style.display='block';
+      document.getElementById('of-photo-placeholder').style.display='none';
+      document.getElementById('of-photo-zone').style.borderColor='var(--bleu)';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function uploadPhoto(base64,mimeType,folder){
+  const res=await fetch('/api/upload-image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({base64,mimeType,folder})});
+  const json=await res.json();
+  if(json.success) return json.url;
+  throw new Error(json.error||'Erreur upload');
+}
+
+// ── DATA ──────────────────────────────────────────────────────────
 async function loadData(){
   try{
-    const [rT,rO]=await Promise.all([
-      fetch('/emploi/api/profils'),
-      fetch('/emploi/api/offres')
-    ]);
+    const [rT,rO]=await Promise.all([fetch('/emploi/api/profils'),fetch('/emploi/api/offres')]);
     const [jT,jO]=await Promise.all([rT.json(),rO.json()]);
     if(jT.success)TECHS=jT.data;
     if(jO.success)OFFRES=jO.data;
-    renderTech();
-    renderOffres();
+    renderTech();renderOffres();
   }catch(e){console.error('Erreur chargement:',e)}
 }
 
+// ── UI ────────────────────────────────────────────────────────────
 function openM(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden'}
 function closeM(id){document.getElementById(id).classList.remove('open');document.body.style.overflow=''}
 function switchTab(n,btn){
@@ -993,260 +1606,49 @@ function switchTab(n,btn){
   if(btn)btn.classList.add('active');
   document.getElementById('tab-'+n).classList.add('active');
 }
-// ── UPLOAD PHOTO ──────────────────────────────────────────────────
-let pfPhotoBase64 = null, pfPhotoMime = null;
-let ofPhotoBase64 = null, ofPhotoMime = null;
-
-function previewPhoto(input, prefix) {
-  const file = input.files[0];
-  if (!file) return;
-  if (file.size > 5 * 1024 * 1024) {
-    toast('❌ Photo trop lourde — max 5MB');
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const base64 = e.target.result.split(',')[1];
-    const mimeType = file.type;
-    if (prefix === 'pf') {
-      pfPhotoBase64 = base64;
-      pfPhotoMime = mimeType;
-      document.getElementById('pf-photo-img').src = e.target.result;
-      document.getElementById('pf-photo-preview').style.display = 'block';
-      document.getElementById('pf-photo-placeholder').style.display = 'none';
-      document.getElementById('pf-photo-zone').style.borderColor = 'var(--bleu)';
-    } else {
-      ofPhotoBase64 = base64;
-      ofPhotoMime = mimeType;
-      document.getElementById('of-photo-img').src = e.target.result;
-      document.getElementById('of-photo-preview').style.display = 'block';
-      document.getElementById('of-photo-placeholder').style.display = 'none';
-      document.getElementById('of-photo-zone').style.borderColor = 'var(--bleu)';
-    }
-  };
-  reader.readAsDataURL(file);
-}
-
-async function uploadPhoto(base64, mimeType, folder) {
-  const res = await fetch('/api/upload-image', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ base64, mimeType, folder })
-  });
-  const json = await res.json();
-  if (json.success) return json.url;
-  throw new Error(json.error || 'Erreur upload');
-}
 function toast(msg){
   const t=document.getElementById('tk');
-  t.textContent=msg;
-  t.classList.add('show');
+  t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),3500);
 }
-// ── MODAL CONTACT TECHNICIEN ──────────────────────────────────────
-let contactTechCurrent = null;
-let contactOffreCurrent = null;
-const TECH_MAP = {};
-const OFFRE_MAP = {};
 
-// ── MODAL CONTACT OFFRE ───────────────────────────────────────────
-async function envoyerContactOffre() {
-  const tel = document.getElementById('contact-offre-tel').value.trim();
-  const msg = document.getElementById('contact-offre-msg').value.trim();
-  if (!tel || tel.length < 8) {
-    toast('❌ Entrez votre numéro WhatsApp');
-    return;
-  }
-  try {
-    const res = await fetch('/api/notifier-contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        telephone:   contactOffreCurrent.telephone,
-        acheteurTel: tel,
-        acheteurMsg: msg,
-        type:        'offre',
-        details: {
-          poste:  contactOffreCurrent.poste,
-          region: contactOffreCurrent.region,
-        }
-      })
-    });
-    const json = await res.json();
-    if (json.success) {
-      closeM('m-contact-offre');
-      toast('✅ Candidature envoyée ! Le recruteur sera notifié sur WhatsApp.');
-    } else {
-      toast('❌ Erreur. Réessayez.');
-    }
-  } catch (err) {
-    toast('❌ Erreur réseau.');
-  }
-}
-// ── FONCTIONS CONTACT ─────────────────────────────────────────────
-function ouvrirContactTech(id) {
-  const t = TECH_MAP[id];
-  if (!t) { toast('❌ Erreur chargement profil'); return; }
-  contactTechCurrent = t;
-  document.getElementById('contact-tech-details').innerHTML =
-    `👷 <strong>${t.nom}</strong><br>` +
-    `🔧 ${t.specialite} — 📍 ${t.region}<br>` +
-    `📅 ${t.experience} · ${t.disponibilite}`;
-  document.getElementById('contact-tech-tel').value = '';
-  document.getElementById('contact-tech-msg').value = '';
-  openM('m-contact-tech');
-}
-
-function ouvrirContactOffre(id) {
-  const o = OFFRE_MAP[id];
-  if (!o) { toast('❌ Erreur chargement offre'); return; }
-  contactOffreCurrent = o;
-  document.getElementById('contact-offre-details').innerHTML =
-    `🏗️ <strong>${o.ferme}</strong><br>` +
-    `💼 ${o.poste} — 📍 ${o.region}<br>` +
-    `📄 ${o.contrat} · 💰 ${o.salaire}`;
-  document.getElementById('contact-offre-tel').value = '';
-  document.getElementById('contact-offre-msg').value = '';
-  openM('m-contact-offre');
-}
-let boostTarget = null;
-
-function openBoost(id, type){
-  boostTarget = { id, type };
-  openM('m-boost');
-}
-
-function payerBoost(plan){
-  if(!boostTarget){
-    toast("❌ Erreur boost");
-    return;
-  }
-
-  let boostData = {};
-
-  if(plan === 'standard'){
-    boostData = { label: '🚀 Boost', days: 7 };
-  }
-  if(plan === 'premium'){
-    boostData = { label: '⭐ Premium', days: 14 };
-  }
-  if(plan === 'express'){
-    boostData = { label: '🔔 Express', days: 2 };
-  }
-
-  if(boostTarget.type === 'tech'){
-    const t = TECHS.find(x => x._id === boostTarget.id);
-    if(t){
-      t.boosted = true;
-      t.boostLabel = boostData.label;
-      t.boostDays = boostData.days;
-    }
-    renderTech();
-  }
-
-  if(boostTarget.type === 'offre'){
-    const o = OFFRES.find(x => x._id === boostTarget.id);
-    if(o){
-      o.boosted = true;
-      o.boostLabel = boostData.label;
-      o.boostDays = boostData.days;
-    }
-    renderOffres();
-  }
-
-  closeM('m-boost');
-  toast("🔥 Boost activé !");
-}
-// ===== SWIPE MOBILE =====
-let startX = 0;
-let endX = 0;
-
-const tabs = ['techniciens','offres','profil','recruter','plan'];
-
-function getCurrentTab(){
-  const active = document.querySelector('.tab-content.active');
-  return active ? active.id.replace('tab-','') : 'techniciens';
-}
-
-function goToTab(direction){
-  let current = getCurrentTab();
-  let index = tabs.indexOf(current);
-
-  if(direction === 'left' && index < tabs.length - 1){
-    index++;
-  }
-  if(direction === 'right' && index > 0){
-    index--;
-  }
-
-  const nextTab = tabs[index];
-  const btn = document.querySelectorAll('.tab')[index];
-
-  switchTab(nextTab, btn);
-}
-
-// Détection swipe
-document.addEventListener('touchstart', e=>{
-  startX = e.touches[0].clientX;
+// ── SWIPE MOBILE ──────────────────────────────────────────────────
+let startX=0;
+const TABS_ORDER=['techniciens','offres','profil','recruter','plan'];
+function getCurrentTab(){const a=document.querySelector('.tab-content.active');return a?a.id.replace('tab-',''):'techniciens'}
+document.addEventListener('touchstart',e=>{startX=e.touches[0].clientX},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-startX;
+  if(Math.abs(dx)<50)return;
+  let idx=TABS_ORDER.indexOf(getCurrentTab());
+  idx=dx<0?Math.min(idx+1,TABS_ORDER.length-1):Math.max(idx-1,0);
+  switchTab(TABS_ORDER[idx],document.querySelectorAll('.tab')[idx]);
 });
 
-document.addEventListener('touchend', e=>{
-  endX = e.changedTouches[0].clientX;
+// ── SCROLL MOBILE NAV ─────────────────────────────────────────────
+let lastScroll=0;
+window.addEventListener('scroll',()=>{
+  const cur=window.pageYOffset;
+  const nav=document.querySelector('.mobile-nav');
+  if(!nav)return;
+  nav.style.transform=cur>lastScroll?'translateY(100%)':'translateY(0)';
+  lastScroll=cur;
+},{passive:true});
 
-  if(startX - endX > 50){
-    goToTab('left');
-  }
-  else if(endX - startX > 50){
-    goToTab('right');
-  }
-});
-// ===== SCROLL INTELLIGENT =====
-let lastScroll = 0;
-
-window.addEventListener('scroll', () => {
-  const currentScroll = window.pageYOffset;
-  const nav = document.querySelector('.mobile-nav');
-
-  if(!nav) return;
-
-  if(currentScroll > lastScroll){
-    // scroll vers le bas → cacher
-    nav.style.transform = 'translateY(100%)';
-  } else {
-    // scroll vers le haut → montrer
-    nav.style.transform = 'translateY(0)';
-  }
-
-  lastScroll = currentScroll;
-});
+// ── INIT ──────────────────────────────────────────────────────────
 loadData();
 setInterval(loadData,60000);
 </script>
+
 <!-- NAVIGATION MOBILE -->
 <div class="mobile-nav">
-  <button onclick="switchTab('techniciens', document.querySelectorAll('.tab')[0])">
-    👷<span>Tech</span>
-  </button>
-
-  <button onclick="switchTab('offres', document.querySelectorAll('.tab')[1])">
-    📋<span>Offres</span>
-  </button>
-
-  <button class="center-btn" onclick="switchTab('profil', document.querySelectorAll('.tab')[2])">
-    ➕
-  </button>
-
-  <button onclick="switchTab('recruter', document.querySelectorAll('.tab')[3])">
-    🏗️<span>Publier</span>
-  </button>
-
-  <button onclick="switchTab('plan', document.querySelectorAll('.tab')[4])">
-    💼<span>Plan</span>
-  </button>
+  <button onclick="switchTab('techniciens',document.querySelectorAll('.tab')[0])">👷<span>Tech</span></button>
+  <button onclick="switchTab('offres',document.querySelectorAll('.tab')[1])">📋<span>Offres</span></button>
+  <button class="center-btn" onclick="switchTab('profil',document.querySelectorAll('.tab')[2])">➕</button>
+  <button onclick="switchTab('recruter',document.querySelectorAll('.tab')[3])">🏗️<span>Publier</span></button>
+  <button onclick="switchTab('plan',document.querySelectorAll('.tab')[4])">💼<span>Plan</span></button>
 </div>
-<!-- FLOATING BUTTON -->
-<button class="fab" onclick="switchTab('profil', document.querySelectorAll('.tab')[2])">
-  ➕
-</button>
+
+<button class="fab" onclick="switchTab('profil',document.querySelectorAll('.tab')[2])">➕</button>
 </body>
 </html>
