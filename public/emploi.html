@@ -525,7 +525,46 @@ select{width:100%;padding:.48rem .8rem;border:1.5px solid var(--border);border-r
     </div>
   </div>
 </div>
+<!-- MODAL BOOST EMPLOI -->
+<div class="modal-bg" id="m-boost" onclick="if(event.target===this)closeM('m-boost')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>🚀 Booster votre visibilité</h2>
+      <button class="btn-close" onclick="closeM('m-boost')">✕</button>
+    </div>
 
+    <div class="plan-modal-body">
+      <p style="font-size:.9rem;margin-bottom:1rem">
+        Soyez vu en priorité par les recruteurs et éleveurs.
+      </p>
+
+      <div class="feats-grid">
+        <div class="feat-item"><span>⚡</span> En tête des résultats</div>
+        <div class="feat-item"><span>⭐</span> Badge premium</div>
+        <div class="feat-item"><span>🔥</span> Plus de contacts</div>
+        <div class="feat-item"><span>📢</span> Visibilité maximale</div>
+      </div>
+
+      <div style="margin-top:1rem">
+        <button class="btn-cta" onclick="payerBoost('standard')">
+          🚀 Boost 7 jours — 1 000 FCFA
+        </button>
+
+        <button class="btn-cta" style="background:#d97706;margin-top:.5rem" onclick="payerBoost('premium')">
+          ⭐ Premium 14 jours — 2 500 FCFA
+        </button>
+
+        <button class="btn-cta" style="background:#7c3aed;margin-top:.5rem" onclick="payerBoost('express')">
+          🔔 Express 48h — 2 000 FCFA
+        </button>
+
+        <button class="btn-later" onclick="closeM('m-boost')">
+          Plus tard
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="toast" id="tk"></div>
 
 <script>
@@ -577,6 +616,7 @@ function techCard(t){
       ${t.description?`<div class="tech-desc">${t.description}</div>`:''}
     </div>
     <div class="tech-footer">
+  <button class="btn-save" onclick="openBoost('${t._id}','tech')">🚀</button>
       ${t.locked
         ?`<button class="btn-contact locked" onclick="openM('m-plan')">🔒 Voir le contact</button>`
         :`<button class="btn-contact" onclick="ouvrirContactTech('${t._id}')">💬 Contacter</button>`}
@@ -616,6 +656,8 @@ function offreCard(o){
     <div class="offre-footer">
       <button class="btn-postuler" onclick="ouvrirContactOffre('${o._id}')">📩 Postuler</button>
     </div>
+    <div class="offre-footer">
+  <button class="btn-save" onclick="openBoost('${o._id}','offre')">🚀</button>
   </div>`;
 }
 
@@ -972,6 +1014,54 @@ function ouvrirContactOffre(id) {
   document.getElementById('contact-offre-tel').value = '';
   document.getElementById('contact-offre-msg').value = '';
   openM('m-contact-offre');
+}
+let boostTarget = null;
+
+function openBoost(id, type){
+  boostTarget = { id, type };
+  openM('m-boost');
+}
+
+function payerBoost(plan){
+  if(!boostTarget){
+    toast("❌ Erreur boost");
+    return;
+  }
+
+  let boostData = {};
+
+  if(plan === 'standard'){
+    boostData = { label: '🚀 Boost', days: 7 };
+  }
+  if(plan === 'premium'){
+    boostData = { label: '⭐ Premium', days: 14 };
+  }
+  if(plan === 'express'){
+    boostData = { label: '🔔 Express', days: 2 };
+  }
+
+  if(boostTarget.type === 'tech'){
+    const t = TECHS.find(x => x._id === boostTarget.id);
+    if(t){
+      t.boosted = true;
+      t.boostLabel = boostData.label;
+      t.boostDays = boostData.days;
+    }
+    renderTech();
+  }
+
+  if(boostTarget.type === 'offre'){
+    const o = OFFRES.find(x => x._id === boostTarget.id);
+    if(o){
+      o.boosted = true;
+      o.boostLabel = boostData.label;
+      o.boostDays = boostData.days;
+    }
+    renderOffres();
+  }
+
+  closeM('m-boost');
+  toast("🔥 Boost activé !");
 }
 loadData();
 setInterval(loadData,60000);
