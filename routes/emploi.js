@@ -176,5 +176,51 @@ router.delete('/api/offres/:id', async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+const ADMIN_KEY = process.env.ADMIN_KEY || process.env.ADMIN_SECRET || 'LPE@Admin2025';
 
+async function verifierDroits(model, id, body) {
+  if (body.adminKey === ADMIN_KEY || body.adminToken === ADMIN_KEY) return { ok: true };
+  if (!body.managementCode) return { ok: false, status: 403, error: 'Code de gestion requis.' };
+  const doc = await model.findById(id);
+  if (!doc) return { ok: false, status: 404, error: 'Document introuvable.' };
+  if (doc.managementCode !== body.managementCode) {
+    return { ok: false, status: 403, error: 'Code de gestion incorrect.' };
+  }
+  return { ok: true };
+}
+
+router.put('/api/profils/:id', async (req, res) => {
+  try {
+    const check = await verifierDroits(Profil, req.params.id, req.body);
+    if (!check.ok) return res.status(check.status).json({ success: false, error: check.error });
+    const { nom, telephone, specialite, region, experience,
+            disponibilite, contrat, salaire, description, photoUrl } = req.body;
+    const updated = await Profil.findByIdAndUpdate(
+      req.params.id,
+      { nom, telephone, specialite, region, experience,
+        disponibilite, contrat, salaire, description, photoUrl },
+      { new: true }
+    ).select('-managementCode');
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.put('/api/offres/:id', async (req, res) => {
+  try {
+    const check = await verifierDroits(Offre, req.params.id, req.body);
+    if (!check.ok) return res.status(check.status).json({ success: false, error: check.error });
+    const { ferme, telephone, poste, region, contrat,
+            salaire, effectif, description, photoUrl } = req.body;
+    const updated = await Offre.findByIdAndUpdate(
+      req.params.id,
+      { ferme, telephone, poste, region, contrat, salaire, effectif, description, photoUrl },
+      { new: true }
+    ).select('-managementCode');
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 module.exports = router;

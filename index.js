@@ -18,6 +18,7 @@ const { demarrerOnboarding, verifierOnboardings, reprendreOnboardingsEnCours } =
 const marcheRoute   = require('./routes/marche');
 const marcheHandler = require('./handlers/marcheHandler');
 const emploiRoute   = require('./routes/emploi');
+const magasinRoute  = require('./routes/magasin');
 const emploiHandler = require('./handlers/emploiHandler');
 const { uploadImageFromBase64 } = require('./services/cloudinary');
 const User = require('./models/User');
@@ -27,6 +28,7 @@ app.use(express.json());
 app.set('trust proxy', 1);
 app.use('/marche', marcheRoute);
 app.use('/emploi', emploiRoute);
+app.use('/magasin', magasinRoute);
 app.use(express.static('public'));
 // ============================================
 // MIDDLEWARE SÉCURITÉ ADMIN

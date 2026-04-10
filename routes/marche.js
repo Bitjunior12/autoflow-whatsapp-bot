@@ -101,5 +101,33 @@ router.delete('/api/annonces/:id', async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+const ADMIN_KEY = process.env.ADMIN_KEY || process.env.ADMIN_SECRET || 'LPE@Admin2025';
 
+async function verifierDroits(id, body) {
+  if (body.adminKey === ADMIN_KEY || body.adminToken === ADMIN_KEY) return { ok: true };
+  if (!body.managementCode) return { ok: false, status: 403, error: 'Code de gestion requis.' };
+  const doc = await Annonce.findById(id);
+  if (!doc) return { ok: false, status: 404, error: 'Annonce introuvable.' };
+  if (doc.managementCode !== body.managementCode) {
+    return { ok: false, status: 403, error: 'Code de gestion incorrect.' };
+  }
+  return { ok: true };
+}
+
+router.put('/api/annonces/:id', async (req, res) => {
+  try {
+    const check = await verifierDroits(req.params.id, req.body);
+    if (!check.ok) return res.status(check.status).json({ success: false, error: check.error });
+    const { nom, telephone, type, region, quantite,
+            prix, poids, description, mediaUrl, mediaType } = req.body;
+    const updated = await Annonce.findByIdAndUpdate(
+      req.params.id,
+      { nom, telephone, type, region, quantite, prix, poids, description, mediaUrl, mediaType },
+      { new: true }
+    ).select('-managementCode');
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 module.exports = router;
