@@ -121,15 +121,7 @@ Votre assistant pour réussir et rentabiliser votre élevage en Côte d'Ivoire �
 6️⃣ Accéder aux formations
 7️⃣ Rejoindre le programme premium (suivi + coaching)
 8️⃣ Poser une question
-9️⃣ 📞 Parler à un conseiller
-🌱 Tapez *prophet* pour enregistrer une bande et recevoir vos alertes vaccins
-📊 Tapez *suivi* pour saisir vos données du jour
-📸 Tapez *photo* pour envoyer une photo de diagnostic
-🐣 Tapez *races* pour choisir la race adaptée à votre projet
-📈 Tapez *prix* pour voir les prix du marché aujourd'hui
-🛒 Tapez *marché* pour vendre ou acheter de la volaille
-💼 Tapez *emploi* pour la bourse de l'emploi avicole _(publier offre/profil)_
-🔁 Tapez *menu* à tout moment`;
+9️⃣ 📞 Parler à un conseiller`;
 
 const FORMATION = `🎓 *FORMATION EN AVICULTURE*
 
