@@ -493,8 +493,8 @@ select:focus{outline:none;border-color:var(--vert)}
 ===================================================== -->
 <script>
 // ── CONSTANTES ───────────────────────────────────────────────────
-const ADMIN_PWD = 'LPE@Admin2025'; // ⚠️ À changer en production
 const ADMIN_KEY = 'lpe_magasin_admin';
+const ADMIN_TOKEN_KEY = 'lpe_magasin_admin_token';
 const STORE_KEY = 'lpe_magasin_data';
 const CMDS_KEY  = 'lpe_magasin_cmds';
 
@@ -566,10 +566,13 @@ async function loadData(){
 }
 
 // ── RÔLE ADMIN ────────────────────────────────────────────────────
-function isAdmin(){return sessionStorage.getItem(ADMIN_KEY)==='1'}
+function isAdmin(){return !!sessionStorage.getItem(ADMIN_TOKEN_KEY)}
+function getAdminToken(){return sessionStorage.getItem(ADMIN_TOKEN_KEY)||''}
 function loginAdmin(){
-  if(document.getElementById('admin-pwd').value===ADMIN_PWD){
+  const token=document.getElementById('admin-pwd').value.trim();
+  if(token){
     sessionStorage.setItem(ADMIN_KEY,'1');
+    sessionStorage.setItem(ADMIN_TOKEN_KEY,token);
     document.getElementById('admin-error').style.display='none';
     document.getElementById('admin-form-v').style.display='none';
     document.getElementById('admin-logged-v').style.display='block';
@@ -581,6 +584,7 @@ function loginAdmin(){
 }
 function logoutAdmin(){
   sessionStorage.removeItem(ADMIN_KEY);
+  sessionStorage.removeItem(ADMIN_TOKEN_KEY);
   document.getElementById('admin-form-v').style.display='block';
   document.getElementById('admin-logged-v').style.display='none';
   document.getElementById('admin-pwd').value='';
@@ -1011,7 +1015,7 @@ async function sauvegarderProduit(){
   try{
     const ep=formType==='poussin'?'/magasin/api/poussins':formType==='materiel'?'/magasin/api/materiels':'/magasin/api/livraisons';
     const id=editId;
-    await fetch(formMode==='add'?ep:`${ep}/${id}`,{method:formMode==='add'?'POST':'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(formType==='poussin'?POUSSINS.find(x=>x.id===(editId||'')):{})});
+    await fetch(formMode==='add'?ep:`${ep}/${id}`,{method:formMode==='add'?'POST':'PUT',headers:{'Content-Type':'application/json','x-admin-token':getAdminToken()},body:JSON.stringify(formType==='poussin'?POUSSINS.find(x=>x.id===(editId||'')):{})});
   }catch{/* API optionnelle */}
   saveLocal();render();closeM('m-form-produit');
   toast(`✅ ${formMode==='add'?'Produit ajouté':'Modifications enregistrées'} !`);
@@ -1029,7 +1033,7 @@ function confirmerSuppression(){
   else if(type==='livraison')LIVRAISONS=LIVRAISONS.filter(x=>x.id!==id);
   try{
     const ep=type==='poussin'?'/magasin/api/poussins':type==='materiel'?'/magasin/api/materiels':'/magasin/api/livraisons';
-    fetch(`${ep}/${id}`,{method:'DELETE'});
+    fetch(`${ep}/${id}`,{method:'DELETE',headers:{'x-admin-token':getAdminToken()}});
   }catch{}
   saveLocal();render();closeM('m-del');toast('🗑️ Produit supprimé.');
 }

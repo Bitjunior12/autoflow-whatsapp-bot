@@ -13,23 +13,7 @@ const Poussin   = require('../models/Poussin');
 const Materiel  = require('../models/Materiel');
 const Livraison = require('../models/Livraison');
 const Commande  = require('../models/Commande');
-
-// ── Vérification admin ────────────────────────────────────────────
-const ADMIN_KEY = process.env.ADMIN_KEY || process.env.ADMIN_SECRET || 'LPE@Admin2025';
-
-function isAdmin(req) {
-  return (
-    req.body?.adminKey === ADMIN_KEY ||
-    req.headers?.['x-admin-token'] === ADMIN_KEY
-  );
-}
-
-function requireAdmin(req, res, next) {
-  if (!isAdmin(req)) {
-    return res.status(403).json({ success: false, error: 'Accès réservé à l\'administrateur LPE.' });
-  }
-  next();
-}
+const { requireAdmin } = require('../services/adminAuth');
 
 // ─────────────────────────────────────────────────────────────────
 // PAGE HTML DU MAGASIN

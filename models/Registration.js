@@ -5,7 +5,7 @@ const RegistrationSchema = new mongoose.Schema({
   name: { type: String, required: true },
   type: {
     type: String,
-    enum: ["formation", "devis"],
+    enum: ["formation", "devis", "commande_materiel", "devis_materiel"],
     required: true,
   },
   ville: { type: String, default: "" },
