@@ -110,6 +110,9 @@ https://wa.me/2250706162419
 🏪 *Magasin Abobo N'Dotré carrefour terre Rouge*
 https://wa.me/2250506158797
 
+💻 *Service de communication digitale*
+https://wa.me/2250102642080
+
 ↩️ Tapez *menu* pour revenir au menu principal`;
 
 const MESSAGE_INCONNU = `❓ Je n'ai pas compris votre message.
