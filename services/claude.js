@@ -1,3 +1,5 @@
+const axios = require('axios');
+
 const safeFallbackMessage = 'Je rencontre une difficulté technique. Tapez *contact* pour parler à un conseiller.';
 
 const askClaude = async (question, systemOverride = null, maxTokens = 500) => {
@@ -8,10 +10,9 @@ const askClaude = async (question, systemOverride = null, maxTokens = 500) => {
 
     console.log('🤖 Claude appelé :', q.substring(0, 80) + '...');
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
+    const { data } = await axios.post(
+      'https://api.anthropic.com/v1/messages',
+      {
         model: 'claude-haiku-4-5-20251001',
         max_tokens: maxTokens,
         system: systemOverride || `Tu es Dr. Avicole, expert vétérinaire et consultant en aviculture de "Le Partenaire des Éleveurs" en Côte d'Ivoire.
@@ -49,18 +50,23 @@ INTERDICTIONS :
 FIN OBLIGATOIRE :
 Termine toujours par "↩️ Tapez *menu* pour voir nos services"`,
         messages: [{ role: 'user', content: q }],
-      }),
-    });
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+        },
+      }
+    );
 
-    const contentType = response.headers?.get?.('content-type') || '';
-    let data = null;
-    if (contentType.includes('application/json')) {
-      try { data = await response.json(); } catch { return safeFallbackMessage; }
-    }
-    if (!response.ok) { console.error('❌ Erreur HTTP Claude :', data?.error?.message || response.status); return safeFallbackMessage; }
     if (data?.content?.[0]?.text) return data.content[0].text;
     return safeFallbackMessage;
-  } catch (err) { console.error('❌ Erreur Claude :', err.message); return safeFallbackMessage; }
+  } catch (err) {
+    const msg = err.response?.data?.error?.message || err.message;
+    console.error('❌ Erreur Claude :', msg);
+    return safeFallbackMessage;
+  }
 };
 
 module.exports = { askClaude };
