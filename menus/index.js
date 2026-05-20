@@ -102,13 +102,13 @@ Tapez le *numéro* de votre choix
 const MENU_CONSEILLER = `📞 *CONTACTEZ LE PARTENAIRE DES ÉLEVEURS*
 
 👤 *Responsable*
-📲 (+225) 01 53 21 74 42
+https://wa.me/2250153217442
 
-🏪 *Magasin Yopougon*
-📲 (+225) 07 06 16 24 19
+🏪 *Magasin Yopougon 2e Barrique*
+https://wa.me/2250706162419
 
-🏪 *Magasin Abobo N'Dotré*
-📲 (+225) 05 06 15 87 97
+🏪 *Magasin Abobo N'Dotré carrefour terre Rouge*
+https://wa.me/2250506158797
 
 ↩️ Tapez *menu* pour revenir au menu principal`;
 
