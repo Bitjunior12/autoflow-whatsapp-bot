@@ -3,7 +3,7 @@ const { askClaude } = require('../services/claude');
 const { sendWhatsAppMessage } = require('../services/whatsapp');
 const {
   MENU_PRINCIPAL, MESSAGE_INCONNU,
-  MENU_RACES, MENU_MATERIELS_CHOIX, MENU_ESTIMATION, MENU_SANTE, MENU_BANDE, MENU_CONSEILLER,
+  MENU_RACES, MENU_MATERIELS_CHOIX, MENU_ESTIMATION, MENU_SANTE, MENU_BANDE,
 } = require('../menus');
 
 const { handleDebutant }   = require('./tunnels/debutant');
@@ -58,8 +58,6 @@ const RETOUR_MAP = {
   'bande_race':          { step: 'bande_action',     msg: null },
   'bande_quantite':      { step: 'bande_race',       msg: `🐔 *Quel type de volailles avez-vous ?*\n\n1️⃣ Chair Blanc\n2️⃣ Chair Roux\n3️⃣ Hybrides\n4️⃣ Pondeuses ISA Brown\n5️⃣ Pintades\n6️⃣ Autre` },
   'bande_date':          { step: 'bande_quantite',   msg: `📦 *Combien de sujets avez-vous reçu ?*\n\nExemple : 100` },
-  'conseiller_nom':      { step: 'conseiller_motif', msg: null },
-  'conseiller_message':  { step: 'conseiller_nom',   msg: `👤 *Quel est votre nom complet ?*` },
 };
 
 const MENU_FALLBACKS = {
@@ -68,7 +66,6 @@ const MENU_FALLBACKS = {
   'estimation_type':  MENU_ESTIMATION,
   'sante_symptome':   MENU_SANTE,
   'bande_action':     MENU_BANDE,
-  'conseiller_motif': MENU_CONSEILLER,
 };
 
 async function handleRetour(from, session) {
@@ -159,7 +156,6 @@ Un responsable va vous contacter dans les *2 heures*.
   if (step === 'choix_formation')                            return await handleFormation(from, msg, text, session);
   if (step?.startsWith('sante_') || step === 'question_libre') return await handleSante(from, msg, text, session);
   if (step?.startsWith('bande_'))                            return await handleBande(from, msg, text, session);
-  if (step?.startsWith('conseiller_'))                       return await handleConseiller(from, msg, text, session);
 
   // Routing par choix menu (pas de session active)
   if (!step) {

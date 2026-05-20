@@ -100,18 +100,17 @@ Tapez le *numéro* de votre choix
 ↩️ Tapez *menu* pour revenir au menu principal`;
 
 const MENU_CONSEILLER = `📞 *CONTACTEZ LE PARTENAIRE DES ÉLEVEURS*
-_Le Partenaire des Éleveurs_
 
-Quel est le motif de votre demande ?
+👤 *Responsable*
+📲 (+225) 01 53 21 74 42
 
-1️⃣ Commander des poussins
-2️⃣ Acheter du matériel
-3️⃣ Informations sur la formation
-4️⃣ Problème urgent sur mon élevage
-5️⃣ Autre demande
+🏪 *Magasin Yopougon*
+📲 (+225) 07 06 16 24 19
 
-Tapez le *numéro* de votre choix
-↩️ Tapez *menu* pour annuler`;
+🏪 *Magasin Abobo N'Dotré*
+📲 (+225) 05 06 15 87 97
+
+↩️ Tapez *menu* pour revenir au menu principal`;
 
 const MESSAGE_INCONNU = `❓ Je n'ai pas compris votre message.
 
