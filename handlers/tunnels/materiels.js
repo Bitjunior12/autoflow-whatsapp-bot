@@ -13,7 +13,7 @@ async function handleMateriels(from, msg, text, session) {
   }
 
   if (session?.step === 'materiel_choix') {
-    if (!MATERIELS[msg]) return `❓ Tapez *1*, *2*, *3* ou *4* pour choisir.\n↩️ Tapez *menu* pour annuler`;
+    if (!MATERIELS[msg]) return null;
     await setSession(from, { ...session, step: 'materiel_sujets', materiel: MATERIELS[msg] });
     return `✅ Choix : *${MATERIELS[msg]}*
 
@@ -59,7 +59,7 @@ Format WhatsApp avec emojis et *gras*. Termine par : "Souhaitez-vous commander o
   }
 
   if (session?.step === 'materiel_action') {
-    if (msg !== '1' && msg !== '2') return `❓ Tapez *1* pour commander ou *2* pour un devis.`;
+    if (msg !== '1' && msg !== '2') return null;
     const action = msg === '1' ? 'commande' : 'devis';
     await setSession(from, { ...session, step: 'materiel_nom', action });
     return `✅ *${action === 'commande' ? 'Commande' : 'Devis'} sélectionné*

@@ -52,7 +52,7 @@ Tapez le numéro de votre choix.
   }
 
   if (session?.step === 'debutant_objectif') {
-    if (!OBJECTIFS[msg]) return `❓ Tapez un numéro entre *1* et *5*.\n↩️ Tapez *menu* pour annuler`;
+    if (!OBJECTIFS[msg]) return null;
     await setSession(from, { ...session, step: 'debutant_experience', objectif: OBJECTIFS[msg] });
     return `✅ Objectif : *${OBJECTIFS[msg]}*
 
@@ -67,7 +67,7 @@ Tapez le numéro de votre choix.
   }
 
   if (session?.step === 'debutant_experience') {
-    if (!NIVEAUX[msg]) return `❓ Tapez *1*, *2* ou *3*.\n↩️ Tapez *menu* pour annuler`;
+    if (!NIVEAUX[msg]) return null;
     await setSession(from, { ...session, step: 'debutant_budget', experience: NIVEAUX[msg] });
     return `✅ Expérience : *${NIVEAUX[msg]}*
 
@@ -84,7 +84,7 @@ Tapez le numéro de votre choix.
   }
 
   if (session?.step === 'debutant_budget') {
-    if (!BUDGETS[msg]) return `❓ Tapez un numéro entre *1* et *5*.\n↩️ Tapez *menu* pour annuler`;
+    if (!BUDGETS[msg]) return null;
     await setSession(from, { ...session, step: 'debutant_espace', budget: BUDGETS[msg] });
     return `✅ Budget : *${BUDGETS[msg]}*
 
@@ -100,7 +100,7 @@ Tapez le numéro de votre choix.
   }
 
   if (session?.step === 'debutant_espace') {
-    if (!ESPACES[msg]) return `❓ Tapez *1*, *2*, *3* ou *4*.\n↩️ Tapez *menu* pour annuler`;
+    if (!ESPACES[msg]) return null;
     await setSession(from, { ...session, step: 'debutant_ville', espace: ESPACES[msg] });
     return `✅ Espace : *${ESPACES[msg]}*
 
@@ -128,7 +128,7 @@ Tapez le numéro de votre choix.
   }
 
   if (session?.step === 'debutant_timing') {
-    if (!TIMINGS[msg]) return `❓ Tapez un numéro entre *1* et *4*.\n↩️ Tapez *menu* pour annuler`;
+    if (!TIMINGS[msg]) return null;
     const timing = TIMINGS[msg];
     const { objectif, experience, budget, espace, ville } = session;
 
@@ -204,8 +204,8 @@ Préparez bien le logement avant l'arrivée des poussins. Beaucoup de pertes sur
     if (msg === '2') { await setSession(from, { step: 'materiel_choix' }); return MENU_MATERIELS_CHOIX; }
     if (msg === '3') { await setSession(from, { step: 'choix_race' });    return MENU_RACES; }
     if (msg === '4') { await setSession(from, { step: 'choix_formation' }); return MENU_FORMATION; }
-    if (msg === '5') { await setSession(from, { step: 'conseiller_motif' }); return MENU_CONSEILLER; }
-    return `❓ Tapez un numéro entre *1* et *5*.\n↩️ Tapez *menu* pour revenir au menu principal`;
+    if (msg === '5') { await clearSession(from); return MENU_CONSEILLER; }
+    return null;
   }
 
   return null;

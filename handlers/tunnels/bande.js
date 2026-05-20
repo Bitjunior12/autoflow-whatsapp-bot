@@ -94,11 +94,11 @@ ${prochainVaccin}
       return MENU_SANTE;
     }
 
-    return `❓ Tapez *1*, *2* ou *3*.\n↩️ Tapez *menu* pour annuler`;
+    return null;
   }
 
   if (session?.step === 'bande_race') {
-    if (!RACES_BANDE[msg]) return `❓ Tapez un numéro entre *1* et *6*.\n↩️ Tapez *menu* pour annuler`;
+    if (!RACES_BANDE[msg]) return null;
     await setSession(from, { ...session, step: 'bande_quantite', race: RACES_BANDE[msg] });
     return `✅ Race : *${RACES_BANDE[msg]}*
 

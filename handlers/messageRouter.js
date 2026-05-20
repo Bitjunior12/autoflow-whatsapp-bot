@@ -58,6 +58,7 @@ const RETOUR_MAP = {
   'bande_race':          { step: 'bande_action',     msg: null },
   'bande_quantite':      { step: 'bande_race',       msg: `🐔 *Quel type de volailles avez-vous ?*\n\n1️⃣ Chair Blanc\n2️⃣ Chair Roux\n3️⃣ Hybrides\n4️⃣ Pondeuses ISA Brown\n5️⃣ Pintades\n6️⃣ Autre` },
   'bande_date':          { step: 'bande_quantite',   msg: `📦 *Combien de sujets avez-vous reçu ?*\n\nExemple : 100` },
+  'debutant_suite':      { step: 'debutant_timing',  msg: `📅 *Quand souhaitez-vous démarrer votre élevage ?*\n\n1️⃣ Cette semaine\n2️⃣ Ce mois-ci\n3️⃣ Dans 1 à 3 mois\n4️⃣ Je me renseigne seulement pour l'instant` },
 };
 
 const MENU_FALLBACKS = {
@@ -187,7 +188,26 @@ Un responsable va vous contacter dans les *2 heures*.
 
   // Fallback Claude avec contexte de session
   if (step) {
-    const r = await askClaude(`Tu es l'assistant du Partenaire des Éleveurs. Un client est à l'étape "${step}" et a tapé : "${text}". Réponds brièvement et rappelle-lui les choix disponibles. Termine par "↩️ Tapez *menu* pour voir toutes nos options"`);
+    const STEP_CONTEXT = {
+      'choix_race':          '1=Chairs Blanc (650F), 2=Chairs Roux (600F), 3=Hybrides (450F), 4=Pintadeaux Galor (1100F), 5=Pontes ISA Brown (1150F), 6=Bleu Hollande (400F), 7=Coquelet Blanc (150F), 8=Pintadeaux Hybrides (900F)',
+      'materiel_choix':      '1=Abreuvoirs, 2=Mangeoires, 3=Chauffage, 4=Pack complet',
+      'materiel_action':     '1=Commander maintenant, 2=Recevoir un devis',
+      'estimation_type':     '1=Poulets de chair, 2=Poules pondeuses, 3=Pintades',
+      'choix_formation':     '1=Formation Live Zoom 85 000 FCFA, 2=Formation Pré-enregistrée 27 500 FCFA',
+      'sante_symptome':      '1=Mortalités élevées, 2=Diarrhée, 3=Toux/respiratoire, 4=Faiblesse, 5=Mauvaise croissance, 6=Alimentation, 7=Autre (texte libre)',
+      'bande_action':        '1=Enregistrer une nouvelle bande, 2=Voir l\'état de ma bande, 3=Signaler un problème sanitaire',
+      'bande_race':          '1=Chair Blanc, 2=Chair Roux, 3=Hybrides, 4=Pondeuses ISA Brown, 5=Pintades, 6=Autre',
+      'bande_date':          '1=Aujourd\'hui, 2=Hier, 3=Il y a 2 jours, 4=Entrer une date JJ/MM/AAAA',
+      'debutant_objectif':   '1=Poulets de chair, 2=Poules pondeuses, 3=Pintades, 4=Élevage mixte, 5=Pas encore défini',
+      'debutant_experience': '1=Oui déjà pratiqué, 2=Débutant complet, 3=Aidé quelqu\'un',
+      'debutant_budget':     '1=Moins de 100k FCFA, 2=100k–300k, 3=300k–700k, 4=Plus de 700k, 5=Non défini',
+      'debutant_espace':     '1=Petit (<50m²), 2=Moyen (50–200m²), 3=Grand (>200m²), 4=Pas encore',
+      'debutant_timing':     '1=Cette semaine, 2=Ce mois-ci, 3=Dans 1 à 3 mois, 4=Je me renseigne',
+      'debutant_suite':      '1=Estimer mon budget, 2=Voir les matériels, 3=Commander des poussins, 4=Me former, 5=Parler à un conseiller',
+    };
+    const ctx = STEP_CONTEXT[step];
+    const ctxStr = ctx ? ` Les choix disponibles sont : ${ctx}.` : '';
+    const r = await askClaude(`Tu es l'assistant avicole du Partenaire des Éleveurs en Côte d'Ivoire. Un éleveur a tapé : "${text}".${ctxStr} Réponds de façon naturelle et utile en français, puis rappelle-lui clairement ses choix avec leurs numéros. Max 5 lignes. Termine par "↩️ Tapez *menu* pour voir toutes nos options"`);
     if (r) return r;
   }
 

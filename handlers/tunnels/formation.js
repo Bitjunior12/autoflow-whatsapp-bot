@@ -62,7 +62,7 @@ _Le Partenaire des Éleveurs_
 ↩️ Tapez *menu* pour revenir au menu principal`;
     }
 
-    return `❓ Tapez *1* pour la formation Live ou *2* pour la formation pré-enregistrée.\n↩️ Tapez *menu* pour annuler`;
+    return null;
   }
 
   return null;

@@ -11,7 +11,7 @@ async function handleEstimation(from, msg, text, session) {
   }
 
   if (session?.step === 'estimation_type') {
-    if (!TYPES[msg]) return `❓ Tapez *1*, *2* ou *3*.\n↩️ Tapez *menu* pour annuler`;
+    if (!TYPES[msg]) return null;
     await setSession(from, { ...session, step: 'estimation_sujets', type: TYPES[msg] });
     return `✅ Type : *${TYPES[msg]}*
 

@@ -13,7 +13,7 @@ async function handlePoussins(from, msg, text, session) {
 
   if (session?.step === 'choix_race') {
     const choix = PRIX_POUSSINS[msg];
-    if (!choix) return `❓ Tapez un numéro entre *1* et *8* pour choisir votre race.\n↩️ Tapez *menu* pour annuler`;
+    if (!choix) return null;
     await setSession(from, { ...session, step: 'commande_quantite', race: choix.race, prix: choix.prix });
     return `✅ Race choisie : *${choix.race}*
 Prix unitaire : *${choix.prix} FCFA*

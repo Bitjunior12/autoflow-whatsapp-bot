@@ -97,7 +97,7 @@ Exemple : "Mes poulets ont des fientes vertes depuis 3 jours et ne mangent plus"
       return await repondreQuestion(from, text.trim());
     }
 
-    return `❓ Tapez un numéro entre *1* et *7*, ou décrivez directement votre problème.\n↩️ Tapez *menu* pour annuler`;
+    return null;
   }
 
   if (session?.step === 'sante_libre') {
