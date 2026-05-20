@@ -149,14 +149,18 @@ Un responsable va vous contacter dans les *2 heures*.
 
   const step = session?.step;
 
-  // Routing par step actif
-  if (step?.startsWith('debutant_'))                         return await handleDebutant(from, msg, text, session);
-  if (step === 'choix_race' || step?.startsWith('commande_')) return await handlePoussins(from, msg, text, session);
-  if (step?.startsWith('materiel_'))                         return await handleMateriels(from, msg, text, session);
-  if (step?.startsWith('estimation_'))                       return await handleEstimation(from, msg, text, session);
-  if (step === 'choix_formation')                            return await handleFormation(from, msg, text, session);
-  if (step?.startsWith('sante_') || step === 'question_libre') return await handleSante(from, msg, text, session);
-  if (step?.startsWith('bande_'))                            return await handleBande(from, msg, text, session);
+  // Routing par step actif — si le tunnel retourne null, on tombe sur le fallback Claude
+  {
+    let r = null;
+    if      (step?.startsWith('debutant_'))                          r = await handleDebutant(from, msg, text, session);
+    else if (step === 'choix_race' || step?.startsWith('commande_')) r = await handlePoussins(from, msg, text, session);
+    else if (step?.startsWith('materiel_'))                          r = await handleMateriels(from, msg, text, session);
+    else if (step?.startsWith('estimation_'))                        r = await handleEstimation(from, msg, text, session);
+    else if (step === 'choix_formation')                             r = await handleFormation(from, msg, text, session);
+    else if (step?.startsWith('sante_') || step === 'question_libre') r = await handleSante(from, msg, text, session);
+    else if (step?.startsWith('bande_'))                             r = await handleBande(from, msg, text, session);
+    if (r !== null) return r;
+  }
 
   // Routing par choix menu (pas de session active)
   if (!step) {
