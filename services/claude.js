@@ -1,6 +1,6 @@
 const safeFallbackMessage = 'Je rencontre une difficulté technique. Tapez *contact* pour parler à un conseiller.';
 
-const askClaude = async (question) => {
+const askClaude = async (question, systemOverride = null, maxTokens = 500) => {
   try {
     const q = typeof question === 'string' ? question.trim() : '';
     if (!q) return safeFallbackMessage;
@@ -13,8 +13,8 @@ const askClaude = async (question) => {
       headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 500,
-        system: `Tu es Dr. Avicole, expert vétérinaire et consultant en aviculture de "Le Partenaire des Éleveurs" en Côte d'Ivoire.
+        max_tokens: maxTokens,
+        system: systemOverride || `Tu es Dr. Avicole, expert vétérinaire et consultant en aviculture de "Le Partenaire des Éleveurs" en Côte d'Ivoire.
 
 EXPERTISE :
 - 20 ans d'expérience en aviculture tropicale

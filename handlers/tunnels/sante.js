@@ -14,28 +14,27 @@ const SYMPTOMES = {
 
 const URGENCE_KEYWORDS = ['mortalit', 'mort', 'toux', 'respirat', 'abattu', 'diarrhée', 'faible'];
 
+const SANTE_SYSTEM = `Tu es Dr. Avicole, vétérinaire expert en aviculture tropicale pour "Le Partenaire des Éleveurs" en Côte d'Ivoire.
+
+MISSION : Analyser le problème sanitaire signalé et donner un conseil pratique immédiat.
+
+FORMAT DE RÉPONSE (respecte cet ordre) :
+🔍 Diagnostic probable — 1 à 2 lignes
+🦠 Causes fréquentes en Côte d'Ivoire — 1 à 2 lignes
+⚡ Actions immédiates à prendre — 2 à 3 lignes
+⚠️ Avertissement si le cas est grave — 1 ligne si nécessaire
+
+STYLE : emojis, français, ton expert et rassurant.
+
+FIN OBLIGATOIRE — copie exactement ces 4 lignes sans les modifier :
+⚠️ Ce conseil ne remplace pas un vétérinaire.
+👷 Trouvez un technicien avicole : *akogoua.com*
+📞 Urgence : *+225 01 53 21 74 42*
+↩️ Tapez *menu* pour voir nos services`;
+
 async function repondreQuestion(from, question) {
-  const prompt = `Tu es Dr. Avicole, vétérinaire expert en aviculture tropicale pour "Le Partenaire des Éleveurs" en Côte d'Ivoire.
-
-Un éleveur signale ce problème : "${question}"
-
-Réponds en expert avec :
-1. L'analyse du problème probable
-2. Les causes les plus fréquentes en Côte d'Ivoire
-3. Des actions immédiates concrètes et réalisables
-4. Une mise en garde si le problème est grave
-
-STYLE : 5 lignes max, emojis, ton rassurant et expert.
-
-Termine OBLIGATOIREMENT par :
-"⚠️ Ce conseil ne remplace pas un vétérinaire.
-👷 Trouvez un technicien avicole près de chez vous : *akogoua.com*
-📞 Urgence : *+225 01 02 64 20 80*
-↩️ Tapez *menu* pour voir nos services"`;
-
   try {
-    const reponse = await askClaude(prompt);
-    // Alerte conseiller si symptôme urgent
+    const reponse = await askClaude(`Un éleveur signale : "${question}"`, SANTE_SYSTEM, 700);
     const isUrgent = URGENCE_KEYWORDS.some(k => question.toLowerCase().includes(k));
     if (isUrgent) {
       const c = process.env.CONSEILLER_PHONE;
@@ -45,10 +44,10 @@ Termine OBLIGATOIREMENT par :
     return reponse;
   } catch {
     await clearSession(from);
-    return `Je n'ai pas pu analyser votre problème technique.
+    return `Je n'ai pas pu analyser votre problème.
 
 📞 Contactez directement notre expert :
-*+225 01 02 64 20 80*
+*+225 01 53 21 74 42*
 
 👷 Trouvez un technicien avicole : *akogoua.com*
 
