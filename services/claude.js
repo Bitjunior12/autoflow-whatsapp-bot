@@ -1,6 +1,7 @@
 const axios = require('axios');
 
-const safeFallbackMessage = 'Je rencontre une difficulté technique. Tapez *contact* pour parler à un conseiller.';
+const CLAUDE_FALLBACK = 'Je rencontre une difficulté technique. Tapez *contact* pour parler à un conseiller.';
+const safeFallbackMessage = CLAUDE_FALLBACK;
 
 const askClaude = async (question, systemOverride = null, maxTokens = 500) => {
   try {
@@ -69,4 +70,4 @@ Termine toujours par "↩️ Tapez *menu* pour voir nos services"`,
   }
 };
 
-module.exports = { askClaude };
+module.exports = { askClaude, CLAUDE_FALLBACK };
