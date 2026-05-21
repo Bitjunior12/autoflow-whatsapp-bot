@@ -38,78 +38,130 @@ const FIN_CONSEIL = `\n\n⚠️ Ce conseil ne remplace pas un vétérinaire.
 ↩️ Tapez *menu* pour voir nos services`;
 
 const REPONSES_FALLBACK = {
-  'Mortalités élevées': `🔍 *Mortalités élevées* — situation urgente à ne pas ignorer.
+  'Mortalités élevées': `🔍 *Mortalités élevées* — situation urgente, chaque heure compte.
 
-🦠 Causes fréquentes en Côte d'Ivoire :
-Newcastle, Gumboro, Bronchite infectieuse, intoxication à l'aliment ou à l'eau.
-
-⚡ Actions immédiates :
-• Isolez les sujets morts et malades du reste du troupeau
-• Vérifiez la qualité de l'eau et de l'aliment (odeur, couleur)
-• Notez le taux de mortalité journalier et l'âge des sujets
-• Contactez un technicien avicole sans attendre${FIN_CONSEIL}`,
-
-  'Diarrhée / selles anormales': `🔍 *Diarrhée / selles anormales* — signe d'infection digestive.
-
-🦠 Causes fréquentes en Côte d'Ivoire :
-Coccidiose (fientes rougeâtres), Salmonellose, eau contaminée, changement brusque d'aliment.
+🦠 Causes selon l'âge des sujets :
+• *J1–J7* : mauvaise température d'éleveuse, déshydratation à l'arrivée, Salmonellose
+• *J8–J21* : Gumboro (immunodépression), Coccidiose aiguë, Newcastle
+• *J22+* : Newcastle, Bronchite infectieuse, intoxication (aliment ou eau)
 
 ⚡ Actions immédiates :
-• Observez la couleur : jaune = Newcastle, rouge = Coccidiose, verte = infection sévère
-• Donnez de l'eau propre et fraîche en permanence
-• Réduisez la densité et améliorez la ventilation
-• En cas de fientes rouges, traitez à l'Amprolium ou Toltrazuril${FIN_CONSEIL}`,
+• Retirez et enterrez les cadavres — ne les laissez jamais dans le poulailler
+• Isolez immédiatement les sujets malades dans un espace séparé
+• Calculez votre taux : (morts / total) × 100 — au-delà de 3%/jour c'est critique
+• Vérifiez l'eau : chlorez-la (2 gouttes d'eau de Javel/litre) ou changez la source
+• Vérifiez l'aliment : odeur rance ou moisissures = jetez tout le lot
+• Ne déplacez aucun sujet vers d'autres élevages — risque de contagion
+⚠️ Mortalité > 5% en 24h = appelez un technicien avicole aujourd'hui${FIN_CONSEIL}`,
 
-  'Toux / difficultés respiratoires': `🔍 *Toux / difficultés respiratoires* — urgence sanitaire.
+  'Diarrhée / selles anormales': `🔍 *Diarrhée / selles anormales* — lisez la couleur pour identifier la cause.
 
-🦠 Causes fréquentes en Côte d'Ivoire :
-Newcastle, Bronchite infectieuse, Mycoplasmose, mauvaise ventilation, poussière excessive.
-
-⚡ Actions immédiates :
-• Améliorez immédiatement la ventilation du poulailler
-• Vérifiez le statut vaccinal Newcastle (rappels respectés ?)
-• Isolez les sujets qui toussent pour éviter la contagion
-• ⚠️ La toux groupée peut décimer un troupeau en 48h — agissez vite${FIN_CONSEIL}`,
-
-  'Poulets faibles ou abattus': `🔍 *Poulets faibles ou abattus* — signe de stress ou maladie en évolution.
-
-🦠 Causes fréquentes en Côte d'Ivoire :
-Choc thermique (chaleur >35°C), déshydratation, Gumboro, intoxication, début de Newcastle.
+🎨 *Guide des couleurs de fientes :*
+• 🟡 Jaune soufre = Newcastle ou Salmonellose
+• 🔴 Rouge/marron sanglant = Coccidiose (urgence J10–J25)
+• 🟢 Verte = infection sévère (Newcastle avancé ou Choléra aviaire)
+• ⬜ Blanche crémeuse = Gumboro ou Salmonellose pullorum
+• 💧 Très liquide = déshydratation, chaleur, changement d'aliment
 
 ⚡ Actions immédiates :
-• Vérifiez la température du poulailler (idéal 28-32°C pour les poussins)
-• Assurez un accès constant à l'eau fraîche (ajoutez électrolytes si possible)
-• Réduisez la densité et ombrager si chaleur excessive
-• Séparez les sujets abattus pour observer leur évolution${FIN_CONSEIL}`,
+• Fientes rouges → traitez à l'*Amprolium* (1g/litre d'eau pendant 5 jours) ou *Toltrazuril*
+• Fientes jaunes/vertes → isolez et consultez en urgence (suspicion Newcastle)
+• Assurez de l'eau propre et fraîche à volonté — 2× plus en saison chaude
+• Nettoyez et séchez la litière humide (favorise la Coccidiose)
+• Évitez tout stress : manipulation, changement de densité, bruit${FIN_CONSEIL}`,
 
-  'Mauvaise croissance': `🔍 *Mauvaise croissance* — problème de performance souvent évitable.
+  'Toux / difficultés respiratoires': `🔍 *Toux / difficultés respiratoires* — urgence sanitaire, agissez dans les 12h.
 
-🦠 Causes fréquentes en Côte d'Ivoire :
-Aliment de mauvaise qualité ou mal conservé, parasites intestinaux, densité trop élevée, stress chronique.
-
-⚡ Actions immédiates :
-• Vérifiez la qualité de l'aliment : odeur, absence de moisissures
-• Contrôlez la densité (max 10 sujets/m² pour les chairs)
-• Pesez un échantillon de sujets et comparez au standard de la race
-• Un traitement antiparasitaire peut aider si la litière est humide${FIN_CONSEIL}`,
-
-  "Problème d'alimentation": `🔍 *Problème d'alimentation* — les sujets refusent de manger ou consomment peu.
-
-🦠 Causes fréquentes en Côte d'Ivoire :
-Aliment avarié ou changement brutal de formule, chaleur excessive, maladie en cours, mangeoires insuffisantes.
+🦠 Causes selon les symptômes observés :
+• *Râles humides + yeux larmoyants* → Mycoplasmose ou Bronchite infectieuse
+• *Toux + torticolis (tête tordue)* → Newcastle nerveux — très contagieux
+• *Éternuements + gonflement du visage* → Coryza infectieux (bactérie)
+• *Gêne respiratoire sans toux* → chaleur excessive ou ammoniaque élevé dans l'air
 
 ⚡ Actions immédiates :
-• Sentez et inspectez l'aliment (moisissure = danger, jetez-le)
-• Tout changement d'aliment doit se faire progressivement sur 3-5 jours
-• Vérifiez le ratio mangeoires/sujets (1 mangeoire linéaire pour 25 sujets)
-• Une baisse d'appétit précède souvent une maladie — surveillez de près${FIN_CONSEIL}`,
+• Ouvrez les fenêtres / améliorez la ventilation immédiatement
+• Vérifiez le carnet vaccinal : Newcastle rappelé à J7, J21, J28 ?
+• Isolez tous les sujets qui toussent — la transmission est aérienne et rapide
+• Aspergez le sol d'eau pour réduire la poussière (si cause environnementale)
+• Mycoplasmose → *Tylosine* ou *Oxytétracycline* dans l'eau (5 jours)
+• Coryza → *Sulfadiméthoxine* + vitamines A et C dans l'eau
+⚠️ La toux collective peut décimer 30% d'un troupeau en 48h — n'attendez pas${FIN_CONSEIL}`,
 
-  'default': `🔍 Votre problème nécessite une analyse rapide.
+  'Poulets faibles ou abattus': `🔍 *Poulets faibles ou abattus* — stress ou maladie en installation, agissez vite.
+
+🌡️ Vérifiez d'abord la température :
+• *< 2 semaines* : idéal 32–34°C sous l'éleveuse
+• *2–4 semaines* : idéal 28–30°C
+• *> 4 semaines* : idéal 24–28°C
+• Au-delà de 35°C → stress thermique immédiat (haletement, ailes écartées)
+
+🦠 Autres causes fréquentes :
+• *Gumboro (J14–J28)* : abattement soudain + diarrhée blanche, taux de mortalité monte vite
+• *Hypoglycémie du poussin* (J1–J3) : poussins qui piaillent et s'écroulent = eau sucrée urgente
+• *Intoxication* : aliment moisi (aflatoxines) — abattement progressif sur plusieurs jours
 
 ⚡ Actions immédiates :
-• Isolez les sujets malades du reste du troupeau
-• Vérifiez eau, aliment, ventilation et température
-• Notez l'âge des sujets, le nombre touché et depuis quand${FIN_CONSEIL}`,
+• Stress thermique → ventilation forcée + eau fraîche avec *électrolytes* (sel + sucre : 1 càc sel + 4 càc sucre / litre)
+• Poussins J1–J3 faibles → eau tiède sucrée (50g sucre/litre) à la pipette si nécessaire
+• Isolez les sujets abattus et observez 6h pour voir si ça s'aggrave
+• Vérifiez que tous les sujets accèdent aux abreuvoirs (pas de dominance)${FIN_CONSEIL}`,
+
+  'Mauvaise croissance': `🔍 *Mauvaise croissance* — comparez aux repères standards avant d'agir.
+
+📊 *Poids cibles Chair Blanc (référence Côte d'Ivoire) :*
+• J7 : ~170g | J14 : ~400g | J21 : ~750g | J28 : ~1 200g | J35 : ~1 800g | J42 : ~2 500g
+Si vos sujets sont en-dessous de 20% de ces valeurs, le problème est confirmé.
+
+🦠 Causes fréquentes :
+• *Aliment* : protéines insuffisantes (démarrage < 22% protéines), aliment rassis ou mal stocké
+• *Parasites* : vers intestinaux (ascaris) fréquents si litière humide ou sol non cimenté
+• *Densité* : au-delà de 10 sujets/m² les plus faibles ne mangent pas assez
+• *Maladie subclinique* : Mycoplasmose chronique, Coccidiose légère non détectée
+
+⚡ Actions immédiates :
+• Pesez 10 sujets au hasard et calculez le poids moyen — comparez au tableau ci-dessus
+• Inspectez l'aliment : vérifiez la date de fabrication, pas de moisissures ni d'odeur
+• Déparasitez avec *Lévamisole* (1ml/litre d'eau, 3 jours) si litière ancienne ou humide
+• Réduisez la densité si > 10 sujets/m² — les plus faibles reprennent souvent seuls
+• Ajoutez des vitamines B + acides aminés dans l'eau pendant 5 jours${FIN_CONSEIL}`,
+
+  "Problème d'alimentation": `🔍 *Problème d'alimentation* — les sujets refusent de manger ou consomment anormalement peu.
+
+📊 *Consommation normale par sujet/jour (Chair Blanc) :*
+• J1–J7 : 15–20g | J8–J14 : 30–40g | J15–J21 : 55–70g
+• J22–J28 : 85–100g | J29–J35 : 110–130g | J36–J45 : 140–160g
+Une baisse de > 30% par rapport à ces valeurs est anormale.
+
+🦠 Causes fréquentes :
+• *Aliment avarié* : moisissures (aflatoxines) = refus total ou consommation très faible
+• *Changement brutal de formule* : transition non progressive sur 3–5 jours
+• *Chaleur > 33°C* : les poulets réduisent naturellement leur consommation de 5% par degré
+• *Mangeoires insuffisantes* : 1 mangeoire tubulaire pour 25 sujets minimum
+• *Début de maladie* : la baisse d'appétit précède souvent la toux ou la diarrhée de 12–24h
+
+⚡ Actions immédiates :
+• Sentez et observez l'aliment : moisi ou rance → jetez tout le lot immédiatement
+• Installez des mangeoires supplémentaires si ratio insuffisant
+• En saison chaude : distribuez l'aliment le matin tôt (6h–8h) et en soirée (17h–19h)
+• Transition d'aliment : mélangez ancien + nouveau (70/30 → 50/50 → 30/70 → 100%) sur 4 jours
+• Ajoutez des vitamines B12 + acide folique dans l'eau pour stimuler l'appétit${FIN_CONSEIL}`,
+
+  'default': `🔍 *Problème sanitaire détecté* — voici les premiers réflexes à avoir.
+
+📋 Observez et notez immédiatement :
+• Âge exact de vos sujets (en jours)
+• Nombre de sujets touchés sur le total de la bande
+• Depuis combien de temps le problème est apparu
+• Tout changement récent : aliment, eau, fournisseur, température
+
+⚡ Premiers réflexes universels :
+• Isolez les sujets malades pour éviter la contagion
+• Vérifiez l'eau : propre, fraîche, renouvelée 2×/jour minimum
+• Vérifiez l'aliment : odeur, texture, date de fabrication
+• Assurez une bonne ventilation sans courant d'air direct
+• Ne donnez aucun médicament sans diagnostic précis — risque de résistance
+
+💡 Pour un conseil personnalisé, tapez *6* et choisissez le symptôme le plus proche de ce que vous observez.${FIN_CONSEIL}`,
 };
 
 async function repondreQuestion(from, question, symptome = null) {
